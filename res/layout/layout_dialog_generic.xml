@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="48.0dp"
+        android:background="@drawable/shape_dialog_title_bg"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textSize="@dimen/txt_size_16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1.0px"
+        android:layout_marginLeft="5.0dp"
+        android:layout_marginRight="5.0dp"
+        android:background="@drawable/shape_line_light_grey" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <RelativeLayout
+            android:id="@+id/rl_dialog_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minHeight="58.0dp"
+            android:padding="5.0dp" >
+
+            <TextView
+                android:id="@+id/tv_dialog_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/skin_dialog_content_bg_clr_white"
+                android:gravity="center"
+                android:maxLines="20"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="vertical"
+                android:text="提示"
+                android:textColor="@color/skin_dialog_content_txt_clr_grey"
+                android:textSize="@dimen/txt_size_18sp" />
+        </RelativeLayout>
+    </ScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1.0px"
+        android:layout_marginLeft="5.0dp"
+        android:layout_marginRight="5.0dp"
+        android:background="@drawable/shape_line_light_grey" />
+
+    <LinearLayout
+        android:id="@+id/ll_btn_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="30dp"
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:showDividers="middle" >
+
+        <TextView
+            android:id="@+id/tv_btn_negtive"
+            android:layout_width="0.0dp"
+            android:layout_height="48.0dp"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_generic_dialog_left_btn_bg"
+            android:clickable="true"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="取消"
+            android:textColor="@color/main_dialog_btn_text_color"
+            android:textSize="@dimen/txt_size_18sp" />
+<View
+           android:layout_width="0.0dp"
+           android:layout_weight="0.1"
+            android:layout_height="48.0dp"></View> 
+    
+        <TextView
+            android:id="@+id/tv_btn_positive"
+            android:layout_width="0.0dp"
+            android:layout_height="48.0dp"
+            android:layout_weight="1.0"
+            android:background="@drawable/selector_generic_dialog_left_btn_bg"
+            android:clickable="true"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="确定"
+            android:textColor="@color/main_dialog_btn_text_color"
+            android:textSize="@dimen/txt_size_18sp" />
+    </LinearLayout>
+
+</LinearLayout>

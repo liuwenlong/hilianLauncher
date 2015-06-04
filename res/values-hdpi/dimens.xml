@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="ds220">98.0dip</dimen>
+    <dimen name="ds92">41.0dip</dimen>
+    <dimen name="ds64">28.0dip</dimen>
+    <dimen name="ds40">18.0dip</dimen>
+	<dimen name="ds32">14.0dip</dimen>
+	
+	<dimen name="fontsize32">15.0dip</dimen>
+	<dimen name="ds30">13.0dip</dimen>
+</resources>

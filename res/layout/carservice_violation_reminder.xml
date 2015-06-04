@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/insurance_violation_onclick_area"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_list_item"
+    android:clickable="true"
+    android:orientation="vertical"
+    android:paddingBottom="5dp"
+    android:paddingTop="5dp" >
+
+    <TextView
+        android:id="@+id/carservice_reminder_violation_query"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="@string/violation_query"
+        android:textColor="@color/main_by_text_color"
+        android:textSize="14sp" />
+
+    <RelativeLayout
+        android:id="@+id/ciricle_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/carservice_reminder_violation_query"
+        android:layout_centerHorizontal="true"
+        android:padding="1.0dp" >
+
+        <com.example.cloudmirror.ui.widget.RingProgressBar
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@id/carservice_violation_reminder_pbar"
+            android:layout_width="54.0dp"
+            android:layout_height="54.0dp"
+            custom:max="100"
+            custom:progress="100"
+            custom:roundColor="#D8DDE3"
+            custom:roundProgressColor="#5bc3ff"
+            custom:roundWidth="2.0dp"
+            custom:textIsDisplayable="false" />
+
+        <ImageView
+            android:id="@+id/carservice_violation_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_home_wzcx" />
+
+        <TextView
+            android:id="@+id/carservice_violation_reminder_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="0"
+            android:textColor="#368fe9"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/carservice_violation_reminder_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/ciricle_frame"
+        android:layout_marginLeft="-6dp"
+        android:layout_toRightOf="@id/ciricle_frame"
+        android:text="笔"
+        android:textColor="@color/main_by_text_color"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+</RelativeLayout>

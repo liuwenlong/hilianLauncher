@@ -1,0 +1,39 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    
+    <dimen name="txt_size_12sp">12.0sp</dimen>
+    <dimen name="txt_size_14sp">14.0sp</dimen>
+    <dimen name="txt_size_16sp">16.0sp</dimen>
+    <dimen name="txt_size_18sp">18.0sp</dimen>
+    <dimen name="txt_size_20sp">20.0sp</dimen>
+    <dimen name="txt_size_22sp">22.0sp</dimen>
+    <dimen name="txt_size_24sp">24.0sp</dimen>
+    <dimen name="txt_size_26sp">26.0sp</dimen>
+    <dimen name="txt_size_28sp">28.0sp</dimen>
+    <dimen name="txt_size_30sp">30.0sp</dimen>
+    <dimen name="txt_size_32sp">32.0sp</dimen>
+    <dimen name="txt_size_34sp">34.0sp</dimen>
+    
+    <!-- slidingmenu dimens -->
+    <dimen name="slidingmenu_offset">80dp</dimen>
+    <dimen name="shadow_width">30dp</dimen>
+    
+    <dimen name="home_button_radius">10.0dip</dimen>
+    
+    <dimen name="drop_down_list_header_padding_top">12dp</dimen>
+    <dimen name="drop_down_list_header_padding_bottom">15dp</dimen>
+    <dimen name="drop_down_list_header_release_min_distance">20dp</dimen>
+    <dimen name="drop_down_list_header_progress_bar_height">36dp</dimen>
+    <dimen name="drop_down_list_footer_progress_bar_height">36dp</dimen>
+    <dimen name="drop_down_list_footer_button_margin_left">8dp</dimen>
+    <dimen name="drop_down_list_footer_button_height">48dp</dimen>
+    <dimen name="g_text_size_18sp">18.0sp</dimen>
+    
+    <dimen name="numeric_editetext_bg_padding">5.0dip</dimen>
+    <dimen name="text_size_amazing_large">25.0dip</dimen>
+    <dimen name="text_size_larger">20.0dip</dimen>
+    <dimen name="text_size_large">18.0dip</dimen>
+</resources>

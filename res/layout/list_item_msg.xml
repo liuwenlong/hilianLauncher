@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp"
+    android:orientation="vertical" >
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"  
+    android:padding="5dp"
+    android:orientation="horizontal">
+ <ImageView 
+    android:id="@+id/msg_read_tip"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" 
+    android:src="@drawable/msg_read_tip"     
+    android:layout_centerVertical="true"
+     />   
+<TextView 
+    android:layout_toRightOf="@id/msg_read_tip"
+    android:id="@+id/msg_type"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" 
+    android:text="【消息提醒】"
+    android:textColor="#fd6664"
+    android:textSize="18sp"
+    />
+<TextView 
+    android:id="@+id/msg_date"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" 
+    android:layout_alignParentRight="true"
+    android:text="2015-05-27 15:21"
+    android:textColor="#ababab"
+    />
+</RelativeLayout>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"  
+    android:paddingLeft="15dp"
+    android:orientation="horizontal">
+<TextView 
+    android:id="@+id/msg_content"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" 
+    android:text="驾驶重型汽车超速"
+    android:textSize="16sp"
+    android:textColor="#eeeeee"
+    android:maxLines="2"
+    />
+</RelativeLayout>
+</LinearLayout>

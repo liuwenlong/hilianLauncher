@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="null_color">#00ffffff</color>
+    <color name="transparent">#00ffffff</color>
+    <color name="button_titlebar_bg_default">#00000000</color>
+    <color name="graywhite">#F5F5F5</color>
+    <color name="black">#000000</color>
+    <color name="white">#ffffffff</color>
+    <color name="zb_bg">#E7E7E7</color>
+    <color name="text_color_gray">#ff999999</color>
+    <color name="white_df">#00000000</color>
+    
+    <color name="skin_main_clr_white">#ffffffff</color>
+    <color name="skin_main_clr_black">#ff000000</color>
+    <color name="skin_main_txt_clr_white">#ffffffff</color>
+    <color name="skin_main_txt_clr_light_white">#ffc8effd</color>
+    <color name="skin_main_txt_clr_slight_white">#ff415771</color>
+    <color name="skin_main_txt_clr_black">#ff000000</color>
+    <color name="skin_main_txt_clr_blue">#ff0000ff</color>
+    <color name="skin_main_txt_clr_home_blue">#ff0079FF</color>
+    <color name="skin_main_txt_clr_red">#ffff0000</color>
+    <color name="skin_main_txt_clr_grey">#ff545454</color>
+    <color name="skin_main_txt_clr_deep_grey">#ff333333</color>
+    <color name="skin_main_hint_txt_clr_grey">#ff888888</color>
+    <color name="skin_main_hint_txt_clr_grey_7">#ff777777</color>
+    <color name="skin_main_txt_clr_light_grey">#ff888888</color>
+    <color name="skin_main_compose_tabbar_text_color">#ff828282</color>
+    <color name="skin_main_txt_clr_slight_grey">#ffaaaaaa</color>
+    <color name="skin_main_txt_clr_sslight_grey">#ff999999</color>
+    <color name="skin_main_txt_clr_sslight_grey2">#ffb0b0b0</color>
+    <color name="skin_main_txt_clr_green">#ff71b342</color>
+    <color name="skin_main_txt_clr_purple">#ff7d6cab</color>
+    <color name="skin_main_txt_clr_skin_green">#ff02a35d</color>
+    <color name="skin_main_bg_clr_grey">#ffededed</color>
+	<color name="skin_main_bg_deep_grey">#ffdddddd</color>    
+    <color name="skin_main_bg_clr_white">#ffffffff</color>
+    <color name="skin_main_btn_clr_green_nor">#ff71b342</color>
+    <color name="skin_main_btn_clr_green_pressed">#ff66921B</color>
+    <color name="skin_main_ab_bg_clr">#ff3a4248</color>
+    <color name="skin_main_ab_bg_shadow_clr">#ff496377</color>
+    <color name="skin_main_divider_line_clr">#ffcccccc</color>
+    <color name="skin_main_dialog_divider_line_clr">#ffcecece</color>
+
+    <color name="skin_dialog_content_bg_clr_white">#ffffffff</color>
+    <color name="skin_dialog_content_txt_clr_grey">#ff777777</color>
+    <color name="skin_dialog_btn_txt_clr_purple">#ff7d6cab</color>
+    <color name="skin_dialog_btn_area_bg_clr">#ffeeeeee</color>
+    <color name="skin_dialog_btn_txt_clr">#ff70b442</color>
+    <color name="skin_divider_line_clr">#ffe0e0e0</color>
+    <color name="skin_divider_line_black_clr">#ff0d173a</color>
+    <color name="skin_divider_line_clr_light_white">#fff0f0f0</color>
+    
+    <color name="skin_divider_line_clr_popview">#ffaeacd6</color>
+    
+    <color name="skin_line_clr">#ffe0e0e0</color>
+    
+    <color name="skin_card_bg_clr_login">#ffe1e2e9</color>
+    <color name="skin_card_bg_shadow_clr_login">#ffcacbd2</color>
+    
+    <color name="skin_card_bg_clr">#ffffffff</color>
+    <color name="skin_card_bg_shadow_clr">#ffe8e8e8</color>
+    
+    <color name="skin_ripple_btn_clr_green_nor">#ff71b342</color>
+    <color name="skin_ripple_btn_clr_green_hover">#ff76ff03</color>
+    
+    <color name="skin_main_btn_clr_lightblue_nor">#ff3fadaf</color>
+    <color name="skin_main_btn_clr_lightblue_pressed">#ff348C88</color> <!-- 差值：B2127 -->
+    
+    <color name="skin_main_btn_clr_redblue_nor">#ffffa196</color>
+    <color name="skin_main_btn_clr_redblue_pressed">#ffeef848</color> <!-- 差值：B2127 -->
+    <color name="skin_main_btn_clr_redblue_hover">#fffa55d5</color>	<!-- 差值：54BC1 -->
+    
+    
+    <color name="skin_main_btn_clr_red_nor">#ffda5465</color>
+    <color name="skin_main_btn_clr_red_pressed">#ffcf333e</color> <!-- 差值：B2127 -->
+    <color name="skin_main_btn_clr_red_hover">#ffdfa026</color> 	<!-- 差值：54BC1 -->
+    
+    
+    <color name="skin_ripple_btn_clr_lightblue_nor">#ff3fadaf</color>	
+    <color name="skin_ripple_btn_clr_lightblue_hover">#ff44F970</color>	<!-- 差值：54BC1 -->
+    <color name="skin_ripple_btn_clr_servicebtn_hover">#ff4B7CD8</color>
+    
+    <color name="skin_ripple_btn_clr_red_hover">#fff71595</color>
+    
+    <color name="skin_main_btn_clr_purple_nor">#ff7d6cab</color>
+    <color name="skin_main_btn_clr_purple_pressed">#ff724b84</color> <!-- 差值：B2127 -->
+    <color name="skin_main_btn_clr_purple_hover">#ff779745</color> <!-- 差值：B2127 -->
+    
+    <color name="skin_date_picker_selected_clr">#ff252525</color>
+    <color name="skin_date_picker_unselected_clr">#ffaaaaaa</color>
+    
+    <color name="skin_transparent">#00000000</color>
+    
+    
+    <color name="skin_popview_plus_bg">#cc5d5a9d</color>
+    
+ 
+    <!-- 二维码扫描颜色值 -->
+	<color name="contents_text">#ff000000</color>
+	<color name="encode_view">#ffffffff</color>
+	<color name="possible_result_points">#c0ffbd21</color> <!-- Android standard ICS color -->
+	<color name="result_minor_text">#ffc0c0c0</color>
+	<color name="result_points">#c099cc00</color> <!-- Android standard ICS color -->
+	<color name="result_text">#ffffffff</color>
+	<color name="result_view">#b0000000</color>
+	<color name="status_text">#ffffffff</color>
+	<color name="viewfinder_laser">#ffcc0000</color> <!-- Android standard ICS color -->
+	<color name="viewfinder_mask">#60000000</color>
+	
+	<color name="blue">#ff3995e3</color>
+    <color name="blue_black">#ff313b4b</color>
+    <color name="red">#ffe34e3d</color>
+    <color name="code_locked_keybord_pressed">#ff393e46</color>
+    <color name="code_locked_keybord_normal">#ff33373e</color>
+    <color name="code_locked_keybord_background">#ff282c31</color>
+    <color name="lightest_gray">#fff4f6f7</color>
+    <color name="activity_view_bg">@color/lightest_gray</color>
+  
+	<!-- 离线地图 -->	
+	<color name="main_textcolor">#676767</color>   
+	<color name="main_offinetextcolor">#313131</color>		
+
+	
+	<!-- for circlepage indicator -->
+	<color name="default_circle_indicator_page_color">#00000000</color>
+	<color name="default_circle_indicator_fill_color">#FFFFFFFF</color>
+	<color name="default_circle_indicator_stroke_color">#FFDDDDDD</color>
+	<integer name="default_circle_indicator_orientation">0</integer>
+	<dimen name="default_circle_indicator_stroke_width">1dp</dimen>
+	<dimen name="default_circle_indicator_radius">3dp</dimen>
+	<bool name="default_circle_indicator_centered">true</bool>
+	<bool name="default_circle_indicator_snap">false</bool>
+	<!-- for circlepage indicator -->
+	
+	
+	<color name="home_color_carcondtion_query">#ff17a3eb</color>
+	<color name="home_color_carservice">#ff49d07c</color>
+	<color name="home_color_4s_store">#ffeb5e4c</color>
+	<color name="home_color_handctrl">#ffeb5e4c</color>
+	
+	<!-- appmsg color -->
+	<color name="alert">#b3cc0000</color>
+    <color name="confirm">#b3ff8800</color>
+    <color name="info">#b3669900</color>
+    <color name="custom">#c30099cc</color>
+    <color name="sticky">#c3000000</color>
+    
+    <!-- 待设置 -->
+    <color name="car_status_txt_clr_online">#ff00ff00</color>
+    <color name="car_status_txt_clr_offline">#ff484848</color>
+    <color name="car_status_txt_clr_alarm">#ffff0000</color>
+    <!-- 车名的状态颜色 -->
+    <color name="car_status_name_txt_clr_offline">#ff7b7b7b</color>
+    <color name="car_status_name_txt_clr_alarm">#ffff0000</color>
+    <color name="car_status_name_txt_clr_moving">#ff31a911</color>
+    <color name="car_status_name_txt_clr_stop">#ff1945eb</color>
+    
+    <color name="zb_textcolor">#464646</color>
+    <color name="zb_linecolor">#B0B0B0</color>
+    
+    <color name="text_grey_light_color">#989898</color>
+    <color name="text_grey_deep_color">#ff545454</color>
+    <color name="text_yjsf">#282828</color>
+    <color name="text_yellow_color">#ff8518</color>
+    <color name="message_text_content">#4e4e4e</color>
+    
+    
+    <color name="efence_fill_color_circle">#8000ff00</color>
+    <color name="efence_fill_color_polygen">#80ffff00</color>
+    <color name="efence_storke_color">#80ff0000</color>
+    <color name="efence_line_corlor">#FFFF0000</color>
+    <color name="main_bg_color">#ffededed</color>
+    
+      <!-- drop down list header font color -->
+    <color name="drop_down_list_header_font_color">#000000</color>
+    <!-- drop down list header second font color -->
+    <color name="drop_down_list_header_second_font_color">#000000</color>
+    <!-- drop down list footer font color -->
+    <color name="drop_down_list_footer_font_color">#000000</color>
+    
+    <color name="google_red">#FFC93437</color>
+    <color name="google_blue">#FF375BF1</color>
+    <color name="google_yellow">#FFF7D23E</color>
+    <color name="google_green">#FF34A350</color>
+    
+    <color name="cp_cont_g">#ffffffff</color>
+    
+    <color name="progress_blue">#ff5ac3ff</color><!-- 大于30， 蓝色 -->
+    
+     <color name="main_by_text_color">#ffcccccc</color><!-- 大于30， 蓝色 -->
+     <color name="main_by_btn_blue">#ff32a3e2</color><!-- 大于30， 蓝色 -->
+     <color name="main_dialog_btn_text_color">#ffffffff</color><!-- 大于30， 蓝色 -->
+     <color name="main_dialog_tip_text_color">#ff000000</color><!-- 大于30， 蓝色 -->
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Cloudmirror</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="bad_network">网络不给力啊!</string>
+    <string name="network_timeout_req_again">网络请求超时!请重试</string>
+    
+    <string name="next_maintain">下次保养</string>
+    <string name="next_yearinspect">下次年检</string>
+    <string name="next_insurence">下次保险</string>
+    <string name="violation_query">违章查询</string>
+    <string name="violation_his">违章查询</string>
+
+      <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+     <string name="prompt">提示</string>
+    <string name="exit_app">你确定要退出应用吗?</string>
+
+</resources>
