@@ -1,6 +1,6 @@
 package com.example.cloudmirror.ui.widget;
 
-import com.mapgoo.diruite.R;
+import com.mapgoo.eagle.R;
 
 import android.content.Context;
 import android.content.res.TypedArray;

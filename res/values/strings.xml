@@ -18,4 +18,18 @@
      <string name="prompt">提示</string>
     <string name="exit_app">你确定要退出应用吗?</string>
 
+    <string name="home_more_gupiao">股票</string>
+    <string name="home_more_fm">原车FM</string>
+    <string name="home_more_jiayou">加油站</string>
+    <string name="home_more_zhushou">行车助手</string>
+    <string name="home_more_liuliang">流量查询</string>
+    <string name="home_more_settings">设置</string>
+    <string name="home_more_about">关于</string>
+    
+    <string name="name_call_zl">租赁</string>
+    <string name="name_call_dj">代价</string>
+    <string name="name_call_fw">服务</string>
+    <string name="name_call_4s">4S店</string>
+    <string name="name_call_sos">SOS</string>
+    
 </resources>

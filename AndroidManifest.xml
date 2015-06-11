@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mapgoo.diruite"
+    package="com.mapgoo.eagle"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -54,14 +54,10 @@
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"  ></activity>
         
-        
          <!-- 获取验证码进行注册 -->
         <activity android:name="com.example.cloudmirror.ui.activity.GetInvadationCodeActivity"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait"  ></activity>
-        
-        
-        
+            android:screenOrientation="portrait" ></activity>
         
         <!-- 车辆品牌 -->
         <activity
@@ -82,7 +78,7 @@
             android:screenOrientation="portrait" />
         
              <activity
-            android:name="com.example.cloudmirror.ui.MsgListActivity"
+            android:name="com.example.cloudmirror.ui.HomeMoreActivity"
             android:configChanges="keyboardHidden|orientation"/>     
                
     </application>
@@ -102,5 +98,5 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    
+    <uses-permission android:name="android.permission.CAMERA"/>　 
 </manifest>

@@ -1,8 +1,9 @@
 package com.example.cloudmirror.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import com.mapgoo.diruite.R;
+import com.mapgoo.eagle.R;
 import com.example.cloudmirror.service.DataSyncService;
 import com.example.cloudmirror.ui.activity.CarBrandUpdateActivity;
 import com.example.cloudmirror.ui.activity.GetInvadationCodeActivity;
@@ -20,26 +21,38 @@ import android.telephony.TelephonyManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.PixelFormat;
+import android.hardware.Camera;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceHolder.Callback;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Animation.AnimationListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements Callback {
 
 	private ViewPager mViewPager;
 	private FlipperIndicatorDotView mIndicatorrView ;
+	private Camera mCamera;  
+    private boolean mPreviewRunning = true; 
+    
 	@Override
 	protected void setContentView() {
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main);
-		mContext = MainActivity.this;
-		
-		
 	}
 
 	@Override
@@ -53,14 +66,22 @@ public class MainActivity extends BaseActivity {
 		// TODO Auto-generated method stub
 		mViewPager = (ViewPager)findViewById(R.id.vPager);
 		mIndicatorrView = (FlipperIndicatorDotView)findViewById(R.id.vPager_Indicator);
+		iniCamera();
 	}
 
 	@Override
 	protected void handleData() {
 		// TODO Auto-generated method stub
 		 loadImages();
-		 getPhoneNum();
 		 startService(new Intent(this, DataSyncService.class));
+	}
+	
+	private void iniCamera(){
+		SurfaceView mSurfaceView;
+		mSurfaceView = (SurfaceView) findViewById(R.id.surface_camera); 
+		SurfaceHolder mSurfaceHolder = mSurfaceView.getHolder(); 
+		mSurfaceHolder.addCallback(this); 
+		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 	}
 	
 	private void loadImages(){
@@ -108,70 +129,133 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+	
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if(keyCode == KeyEvent.KEYCODE_BACK && mTipViewIsShow){
+			dismissTipView();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		
-	}  
+		switch (v.getId()) {
+			case R.id.home_more:
+				startActivity(new Intent(mContext, HomeMoreActivity.class));
+				break;
+			case R.id.home_call:
+				showTipView();
+				break;
+			case R.id.violation_tip_img:
+				dismissTipView();
+				break;
+			default:
+				break;
+		}
+	}
 
-	String mTelNum,mTelImei;
-	private void getPhoneNum(){
-		TelephonyManager deviceinfo = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		mTelNum = deviceinfo.getLine1Number();
-		mTelImei = deviceinfo.getDeviceId();
-		
-		MyLog.D("mTelNum="+mTelNum+",mTelImei="+mTelImei);
-		if(StringUtils.isEmpty(mTelNum)){
-			showRegister();
-			showCarInfo();
+	private View mCallView;
+	private int resShortcutId[]={R.id.function_item_1,R.id.function_item_2,R.id.function_item_3 ,R.id.function_item_4,R.id.function_item_5};
+	private int resShortcutIcon[]={R.drawable.icon_call_zl,R.drawable.icon_call_dj,R.drawable.icon_call_fw ,R.drawable.icon_call_4s,R.drawable.icon_call_sos};
+	private int resShortcutName[]={R.string.name_call_zl,R.string.name_call_dj,R.string.name_call_fw ,R.string.name_call_4s,R.string.name_call_sos};
+	private void setResShortcutId(int resShortcutId,int resShortcutIcon,int resShortcutName){
+		View item = mCallView.findViewById(resShortcutId);
+		((ImageView)item.findViewById(R.id.home_more_item_icon)).setImageResource(resShortcutIcon);
+		((TextView)item.findViewById(R.id.home_more_item_name)).setText(resShortcutName);
+		item.setOnClickListener(this);
+	}
+	private void initCallView(){
+		mCallView = View.inflate(mContext, R.layout.activity_home_call, null);
+		for(int i=0;i<resShortcutId.length;i++){
+			setResShortcutId(resShortcutId[i],resShortcutIcon[i],resShortcutName[i]);
 		}
 	}
 	
-	public void showRegister(){
-		TextView alertTextView = (TextView) View.inflate(this,R.layout.layout_alert_dialog_view, null);
-		alertTextView.setText("亲，您还没有注册哦！");
+	private boolean mTipViewIsShow = false;
+	private void showTipView(){
+		if(mCallView == null){
+			initCallView();
+
+		    WindowManager.LayoutParams params = new WindowManager.LayoutParams(  
+		                WindowManager.LayoutParams.MATCH_PARENT,   
+		                WindowManager.LayoutParams.MATCH_PARENT,   
+		                WindowManager.LayoutParams.TYPE_APPLICATION ,   
+		                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,   
+		                PixelFormat.TRANSLUCENT); 
+
+			getWindowManager().addView(mCallView, params);
+		}else{
+			mCallView.setVisibility(View.VISIBLE);
+		}
 		
-		new SimpleDialogBuilder(this).setContentView(alertTextView)
-		.setNegativeButton("取消",new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				})
-				.setPositiveButton("去注册", new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						startActivity(new Intent(mContext, GetInvadationCodeActivity.class));
-					}
-				}).create().show();		
-	}
-	public void showCarInfo(){
-		TextView alertTextView = (TextView) View.inflate(this,R.layout.layout_alert_dialog_view, null);
-		alertTextView.setText("亲，您还没有完善资料！");
-		
-		new SimpleDialogBuilder(this).setContentView(alertTextView)
-		.setNegativeButton("取消",new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				})
-				.setPositiveButton("去完善", new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						startActivity(new Intent(mContext, CarBrandUpdateActivity.class));
-					}
-				}).create().show();		
+		Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.zoom_enter);
+		mCallView.findViewById(R.id.violation_tip_img).startAnimation(animation);
+		mTipViewIsShow = true;
 	}
 	
-	public void msgClick(View v){
-		startActivity(new Intent(mContext, MsgListActivity.class));
+	private void dismissTipView(){
+		
+		Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.zoom_exit);
+		animation.setAnimationListener( new AnimationListener(){
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				// TODO Auto-generated method stub
+				mCallView.setVisibility(View.GONE);
+			}
+			@Override
+			public void onAnimationRepeat(Animation animation) {}
+
+			@Override
+			public void onAnimationStart(Animation animation) {}	
+		});
+		mCallView.findViewById(R.id.violation_tip_img).startAnimation(animation);
+		mTipViewIsShow = false;
 	}
-	
+
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
+		// TODO Auto-generated method stub
+		if (mPreviewRunning)  
+        {  
+            mCamera.stopPreview();  
+        }  
+  
+        Camera.Parameters p = mCamera.getParameters();  
+  
+        //p.setPreviewSize(width, height);  
+        p.set("rotation", 90);  
+  
+       //mCamera.setParameters(p);  
+  
+        try  
+        {  
+            mCamera.setPreviewDisplay(holder);  
+        }  
+        catch (IOException e)  
+        {  
+            e.printStackTrace();  
+        }  
+  
+        mCamera.startPreview();  
+        mPreviewRunning = true;  		
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+		mCamera = Camera.open(); 
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+		mCamera.stopPreview();  
+        mPreviewRunning = false;  
+        mCamera.release();		
+	}
 }

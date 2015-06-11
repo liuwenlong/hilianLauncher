@@ -27,7 +27,7 @@ import org.json.JSONTokener;
 import com.example.cloudmirror.utils.CryptoUtils;
 import com.example.cloudmirror.utils.QuickShPref;
 import com.j256.ormlite.stmt.query.In;
-import com.mapgoo.diruite.R;
+import com.mapgoo.eagle.R;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;

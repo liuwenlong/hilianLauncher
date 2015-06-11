@@ -191,4 +191,7 @@
      <color name="main_by_btn_blue">#ff32a3e2</color><!-- 大于30， 蓝色 -->
      <color name="main_dialog_btn_text_color">#ffffffff</color><!-- 大于30， 蓝色 -->
      <color name="main_dialog_tip_text_color">#ff000000</color><!-- 大于30， 蓝色 -->
+     
+     <color name="home_text_color">#ffcccccc</color><!-- 大于30， 蓝色 -->
+     <color name="home_background_color">#ff2c3849</color><!-- 大于30， 蓝色 -->
 </resources>
