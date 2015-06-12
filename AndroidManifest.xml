@@ -19,12 +19,14 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+				 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-         <service
+
+        <service
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" >
@@ -33,70 +35,109 @@
                 </action>
             </intent-filter>
         </service>
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote" >
+            <intent-filter>
+                <action android:name="com.baidu.android.speech.demo.location.service" />
+            </intent-filter>
+        </service>
+        
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="y88CAfH8U9muSmjfrdcavg1v" />
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="556fc89467e58e5bb80035fb" >
+        </meta-data>
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="mapgoo" >
+        </meta-data>
 
-        <meta-data android:name="com.baidu.lbsapi.API_KEY" android:value="y88CAfH8U9muSmjfrdcavg1v"/>
-        <meta-data android:name="UMENG_APPKEY" android:value="556fc89467e58e5bb80035fb" ></meta-data>
-        <meta-data android:name="UMENG_CHANNEL" android:value="mapgoo" > </meta-data>
-           
-         <receiver android:name="com.example.cloudmirror.receiver.BootReceiver" >
+        <receiver android:name="com.example.cloudmirror.receiver.BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </receiver> 
-        
+        </receiver>
+
         <service
             android:name="com.example.cloudmirror.service.DataSyncService"
             android:enabled="true" />
-        
+
         <!-- 车牌品牌的选择 -->
-        <activity android:name="com.example.cloudmirror.ui.activity.CarBrandUpdateActivity"
+        <activity
+            android:name="com.example.cloudmirror.ui.activity.CarBrandUpdateActivity"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait"  ></activity>
-        
-         <!-- 获取验证码进行注册 -->
-        <activity android:name="com.example.cloudmirror.ui.activity.GetInvadationCodeActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <!-- 获取验证码进行注册 -->
+        <activity
+            android:name="com.example.cloudmirror.ui.activity.GetInvadationCodeActivity"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait" ></activity>
-        
+            android:screenOrientation="portrait" >
+        </activity>
+
         <!-- 车辆品牌 -->
         <activity
             android:name="com.car.brand.activity.CarManSelCarBrandActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait" />
-        
-        <!-- 根据车辆品牌id获取车型列表  -->
-         <activity
+
+        <!-- 根据车辆品牌id获取车型列表 -->
+        <activity
             android:name="com.car.brand.activity.CarManSelCarSeriersActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait" />
-         
-           <!-- 根据车型id获取具体车系 -->
-          <activity
+
+        <!-- 根据车型id获取具体车系 -->
+        <activity
             android:name="com.car.brand.activity.CarManSelCarTypeActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait" />
-        
-             <activity
+        <activity
             android:name="com.example.cloudmirror.ui.HomeMoreActivity"
-            android:configChanges="keyboardHidden|orientation"/>     
-               
+            android:configChanges="keyboardHidden|orientation" />
+        <activity
+            android:name="com.mapgoo.volice.ui.VoliceRecActivity"
+            android:theme="@style/AppTheme.backgroudTransparent"
+            android:configChanges="keyboardHidden|orientation" />        
+        
     </application>
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" ></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" ></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" ></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" ></uses-permission>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" ></uses-permission>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" ></uses-permission>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" ></uses-permission>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" ></uses-permission>
-    <uses-permission android:name="android.permission.READ_LOGS" ></uses-permission>
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.CAMERA" />
+        <uses-permission android:name="android.permission.READ_CONTACTS"/> 
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.CAMERA"/>　 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- 蓝牙录音 -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- 某些手机启动SCO音频连接需要此权限 -->
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <!-- 蓝牙录音检测耳机状态 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.CALL_PHONE"></uses-permission>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.READ_LOGS" >
+    </uses-permission>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+	<uses-permission android:name="android.permission.WRITE_SETTINGS" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />　 
+
 </manifest>

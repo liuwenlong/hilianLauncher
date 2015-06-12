@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import com.mapgoo.eagle.R;
+import com.mapgoo.volice.ui.VoliceRecActivity;
 import com.example.cloudmirror.service.DataSyncService;
 import com.example.cloudmirror.ui.activity.CarBrandUpdateActivity;
 import com.example.cloudmirror.ui.activity.GetInvadationCodeActivity;
@@ -66,14 +67,13 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		mViewPager = (ViewPager)findViewById(R.id.vPager);
 		mIndicatorrView = (FlipperIndicatorDotView)findViewById(R.id.vPager_Indicator);
-		iniCamera();
+		//iniCamera();
 	}
 
 	@Override
 	protected void handleData() {
 		// TODO Auto-generated method stub
 		 loadImages();
-		 startService(new Intent(this, DataSyncService.class));
 	}
 	
 	private void iniCamera(){
@@ -154,6 +154,9 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.violation_tip_img:
 				dismissTipView();
 				break;
+			case R.id.home_click_volice:
+				startActivity(new Intent(mContext, VoliceRecActivity.class));
+				break;
 			default:
 				break;
 		}
@@ -180,7 +183,6 @@ public class MainActivity extends BaseActivity implements Callback {
 	private void showTipView(){
 		if(mCallView == null){
 			initCallView();
-
 		    WindowManager.LayoutParams params = new WindowManager.LayoutParams(  
 		                WindowManager.LayoutParams.MATCH_PARENT,   
 		                WindowManager.LayoutParams.MATCH_PARENT,   
@@ -220,24 +222,18 @@ public class MainActivity extends BaseActivity implements Callback {
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
 		// TODO Auto-generated method stub
-		if (mPreviewRunning)  
-        {  
+		if(mCamera == null)
+			return;
+		if (mPreviewRunning){
             mCamera.stopPreview();  
         }  
-  
         Camera.Parameters p = mCamera.getParameters();  
-  
         //p.setPreviewSize(width, height);  
         p.set("rotation", 90);  
-  
        //mCamera.setParameters(p);  
-  
-        try  
-        {  
+        try{  
             mCamera.setPreviewDisplay(holder);  
-        }  
-        catch (IOException e)  
-        {  
+        } catch (IOException e){
             e.printStackTrace();  
         }  
   
@@ -254,6 +250,8 @@ public class MainActivity extends BaseActivity implements Callback {
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
+		if(mCamera == null)
+			return;
 		mCamera.stopPreview();  
         mPreviewRunning = false;  
         mCamera.release();		

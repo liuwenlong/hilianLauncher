@@ -1,5 +1,6 @@
 package com.example.cloudmirror.application;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.car.brand.db.AppInitUtils;
 import com.example.cloudmirror.api.ApiClient;
 import com.example.cloudmirror.api.MyVolley;
@@ -44,6 +45,7 @@ public class MGApp extends Application {
 
 		QuickShPref.init(this);
 		DBmanager.init(this);
+		SDKInitializer.initialize(this);
 	}
 
 	public static void initImageLoader(Context context) {

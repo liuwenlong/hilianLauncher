@@ -32,4 +32,7 @@
     <string name="name_call_4s">4S店</string>
     <string name="name_call_sos">SOS</string>
     
+    <string name="error_start">启动失败: 0x%1$s</string>
+    <string name="volice_tip">您可以这样说\n\n电话:打电话给小明\n\n导航:导航到天安门\n\n打开:打开行车助手</string>
+    
 </resources>

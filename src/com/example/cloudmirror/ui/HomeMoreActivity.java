@@ -1,6 +1,8 @@
 package com.example.cloudmirror.ui;
 
 import com.mapgoo.eagle.R;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
@@ -112,6 +114,7 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutZS = new ShortcutItem(R.drawable.home_more_zhushou,R.string.home_more_zhushou){
 		@Override
 		protected void doAction() {
+			startActivity("com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity", getString(R.string.home_more_zhushou));
 		}
 	};
 	ShortcutItem  shortcutLL = new ShortcutItem(R.drawable.home_more_liuliang,R.string.home_more_liuliang){
@@ -129,4 +132,12 @@ public class HomeMoreActivity extends BaseActivity {
 		protected void doAction() {
 		}
 	};
+	private void startActivity(String pkg,String cls,String name){
+		try{
+			Intent inten = new Intent().setClassName(pkg, cls);
+			startActivity(inten);
+		}catch(Exception e){
+			mToast.toastMsg("没有安装"+name);
+		}
+	}
 }
