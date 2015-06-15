@@ -30,49 +30,53 @@ public class DomainMap extends Domain{
 	}
 	@Override
 	public String doAction(Context context){
-//		if(Object.start == null)
-//			Object.start = MainActivity.mBDLocation.getAddrStr();
-//			if(Object.start == null)
-//				Object.start = "深圳蛇口万维大楼";
-//			
-//		Intent intent = new Intent(); 
-//		intent.setAction(Intent.ACTION_WEB_SEARCH); 
-//		intent.putExtra(SearchManager.QUERY,String.format("%s到%s",Object.start,Object.arrival));
-//		context.startActivity(intent); 
 		if(intent.equals("route")){
 			return startNavi(context);
 		}else if(intent.equals("poi")){
-			return startNearby();
+			return startNearby(context);
 		}else if(intent.equals("nearby")){
-			return startNearby();
+			return startNearby(context);
 		}else{
 			return null;
 		}
 	}
-	private String startNavi(Context context){
-		String start = Object.start;
-		if(start == null){
+	private String startNavi(final Context context){
+		final String start;
+		if(Object.start == null){
 			start = VoliceRecActivity.mBDLocation.getAddrStr();
 		}else{
-			start = VoliceRecActivity.mBDLocation.getCity()+start;
+			start = Object.start;
 		}
+		
 		if(Object.arrival == null)
 			return null;
-	    RouteParaOption para = new RouteParaOption()
-	    .startName(start)
-	        .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
-	    try {
-	       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
-		} catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return "正在导航到"+VoliceRecActivity.mBDLocation.getCity()+Object.arrival;
+		
+		doActionRunnable = new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+			    RouteParaOption para = new RouteParaOption()
+			    	.startName(start)
+			        .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
+			    try {
+			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
+				} catch (Exception e) {
+			        e.printStackTrace();
+			    }
+			}
+		};
+	    
+	    //return "正在导航到"+VoliceRecActivity.mBDLocation.getCity()+Object.arrival;
+	    return "是";
 	}
 
-	private String startNearby(){
-		if(Object.keywords!=null)
-			return "正在搜索"+Object.keywords;
-		else
+	private String startNearby(Context context){
+		
+		if(Object.keywords!=null){
+			Object.start = Object.keywords;
+			startNavi(context);
+			return "是";
+		}else
 			return null;
 	}
 }

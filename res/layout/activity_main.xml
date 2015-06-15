@@ -64,9 +64,11 @@
                 android:paddingLeft="@dimen/activity_item_margin" >
 
                 <LinearLayout
+                    android:id="@+id/surface_camera_btn"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:onClick="onClick"
                     android:background="@drawable/home_button_bg" >
 
                     <SurfaceView

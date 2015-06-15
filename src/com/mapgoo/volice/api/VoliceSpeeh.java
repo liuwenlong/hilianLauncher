@@ -21,11 +21,17 @@ import com.mapgoo.eagle.R;
 public class VoliceSpeeh implements SpeechSynthesizerListener {
 	private Activity mActivity;
 	private SpeechSynthesizer speechSynthesizer;
+	private OnSpeechChangeListener mOnSpeechChangeListener;
+	public static interface OnSpeechChangeListener{
+		public void OnSpeechChangeListener(SpeechSynthesizer sp,int what,Object arg);
+	}
+	
     /** 指定license路径，需要保证该路径的可读写权限 */
     private static final String LICENCE_FILE_NAME = Environment.getExternalStorageDirectory()
             + "/tts/baidu_tts_licence.dat";
-    public VoliceSpeeh(Activity a){
+    public VoliceSpeeh(Activity a,OnSpeechChangeListener l){
     	mActivity = a;
+    	mOnSpeechChangeListener = l;
     	init();
     }
     public void init(){
@@ -115,7 +121,7 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
 	@Override
 	public void onSpeechFinish(SpeechSynthesizer arg0) {
 		// TODO Auto-generated method stub
-		
+		mOnSpeechChangeListener.OnSpeechChangeListener(arg0, 1, null);
 	}
 	@Override
 	public void onSpeechPause(SpeechSynthesizer arg0) {
@@ -135,7 +141,7 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
 	@Override
 	public void onSpeechStart(SpeechSynthesizer arg0) {
 		// TODO Auto-generated method stub
-		
+		mOnSpeechChangeListener.OnSpeechChangeListener(arg0, 0, null);
 	}
 	@Override
 	public void onStartWorking(SpeechSynthesizer arg0) {

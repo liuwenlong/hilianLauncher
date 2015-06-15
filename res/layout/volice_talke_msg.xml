@@ -11,7 +11,7 @@
     android:orientation="horizontal">
 <TextView 
     android:layout_alignParentLeft="true"
-    android:id="@+id/msg_type"
+    android:id="@+id/volice_left"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" 
     android:text="【消息提醒】"
@@ -21,7 +21,7 @@
     />
 
 <TextView 
-    android:id="@+id/msg_date"
+    android:id="@+id/volice_right"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" 
     android:layout_alignParentRight="true"

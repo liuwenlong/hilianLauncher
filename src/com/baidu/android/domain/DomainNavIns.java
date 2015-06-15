@@ -33,23 +33,32 @@ public class DomainNavIns extends Domain{
 	public String doAction(Context context){
 		return	startNavi(context);
 	}
-	private String startNavi(Context context){
-		String start = Object.start;
-		if(start == null){
+	private String startNavi(final Context context){
+		final String start;
+		if(Object.start == null){
 			start = VoliceRecActivity.mBDLocation.getAddrStr();
 		}else{
-			start = VoliceRecActivity.mBDLocation.getCity()+start;
+			start = VoliceRecActivity.mBDLocation.getCity()+Object.start;
 		}
+		
 		if(Object.arrival == null)
 			return null;
-	    RouteParaOption para = new RouteParaOption()
-	    .startName(start)
-	        .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
-	    try {
-	       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
-		} catch (Exception e) {
-	        e.printStackTrace();
-	    }
+		doActionRunnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+			    RouteParaOption para = new RouteParaOption()
+			    .startName(start)
+			        .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
+			    try {
+			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
+				} catch (Exception e) {
+			        e.printStackTrace();
+			    }
+			}
+		};
+
 	    return "正在导航到"+VoliceRecActivity.mBDLocation.getCity()+Object.arrival;
 	}
 }

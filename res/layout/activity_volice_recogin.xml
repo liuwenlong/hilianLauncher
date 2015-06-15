@@ -12,10 +12,19 @@
 <RelativeLayout 
     android:id="@+id/speaker"
      android:layout_width="match_parent"
-    android:layout_height="wrap_content"   
+    android:layout_height="60dp"   
     android:layout_alignParentBottom="true"
     android:background="#1C2329"
     >
+  <com.example.cloudmirror.ui.widget.VoliceInView
+      android:id="@+id/voliceInView"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content" 
+      ></com.example.cloudmirror.ui.widget.VoliceInView>
+ <View 
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:background="@drawable/volice_input_bg"     /> 
  <ImageView
      android:onClick="onClick"
      android:id="@+id/volice_speeker_btn"     

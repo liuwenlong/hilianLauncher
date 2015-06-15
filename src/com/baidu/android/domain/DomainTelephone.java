@@ -35,20 +35,26 @@ public class DomainTelephone extends Domain{
 			if(intent != null && intent.equals("call")){
 				return getTelNum(context,Object.name);
 			}
-			
 		}
 		return null;
 	}
 
-	private String getTelNum(Context context,String name){
+	private String getTelNum(final Context context,String name){
     	String[] PHONES_PROJECTION = new String[] {
      	       Phone.DISPLAY_NAME, Phone.NUMBER, Phone.CONTACT_ID }; 
-     	Cursor phone =context.getContentResolver().query(Phone.CONTENT_URI, PHONES_PROJECTION, Phone.DISPLAY_NAME+"='"+name+"'", null, null);
+     	final Cursor phone = context.getContentResolver().query(Phone.CONTENT_URI, PHONES_PROJECTION, Phone.DISPLAY_NAME+"='"+name+"'", null, null);
      	
      	if(phone!=null && phone.getCount()>0){
-     		String number = VoliceRecActivity.getCursorString(phone, Phone.NUMBER, 0);
-     		context.startActivity(new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+number)));
-     		return "正在打给"+name;
+			doActionRunnable = new Runnable() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+		     		String number = VoliceRecActivity.getCursorString(phone, Phone.NUMBER, 0);
+		     		context.startActivity(new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+number)));
+				}
+			};
+     		//return "正在打给"+name;
+			return "是";
      	}
      	return "没有找到"+name;
 	}

@@ -19,6 +19,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -157,6 +158,8 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.home_click_volice:
 				startActivity(new Intent(mContext, VoliceRecActivity.class));
 				break;
+			case R.id.surface_camera_btn:
+				startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
 			default:
 				break;
 		}
@@ -256,4 +259,28 @@ public class MainActivity extends BaseActivity implements Callback {
         mPreviewRunning = false;  
         mCamera.release();		
 	}
+	
+	private static final String RECORD_MODE = "record_mode";
+	private static final int RECORD_MODE_NORMAL = 1;//全屏窗口模式
+	private static final int RECORD_MODE_BACK = 2;//小窗口模式
+	private static final int RECORD_MODE_HIDE = 3;//后台隐藏窗口模式
+	private static final String RECORD_ACTION = "record_action";//行车记录
+	private static final String CARBACK_ACTION = "carback_action";//倒车后视
+	private static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
+	private static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
+    private void startToCarRecord(String action, int mode) {
+		Intent mIntent = new Intent(Intent.ACTION_MAIN); 
+		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
+		mIntent.setComponent(compName); 
+		mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		mIntent.setAction(action);
+		Bundle mBundle = new Bundle();
+		mBundle.putInt(RECORD_MODE, mode);
+		mIntent.putExtras(mBundle);
+		try{
+			startActivity(mIntent); 
+		}catch(Exception e){
+			mToast.toastMsg("没有安装该应用");
+		}
+    }
 }

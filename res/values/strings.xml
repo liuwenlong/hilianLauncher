@@ -35,4 +35,5 @@
     <string name="error_start">启动失败: 0x%1$s</string>
     <string name="volice_tip">您可以这样说\n\n电话:打电话给小明\n\n导航:导航到天安门\n\n打开:打开行车助手</string>
     
+    <string name="volice_start">你好，请问需要什么帮助？</string>
 </resources>

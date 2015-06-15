@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.baidu.android.domain.DomainMap.MapObject;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 
 public class DomainApp extends Domain{
 	public static String NAME = "app";
@@ -42,13 +43,13 @@ public class DomainApp extends Domain{
 		
 		return null;
 	}
-	private String  openApp(Context context,String appname) {
+	private String  openApp(final Context context,String appname) {
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         
         List<ResolveInfo> mApps = context.getPackageManager().queryIntentActivities(mainIntent, 0);
         
-        for(ResolveInfo app:mApps){
+        for(final ResolveInfo app:mApps){
         	String name = app.activityInfo.name;
         	String pack = app.activityInfo.packageName;
         	String label = app.loadLabel(context.getPackageManager()).toString();
@@ -56,17 +57,32 @@ public class DomainApp extends Domain{
         	if(label != null){
 	        	if(label.equalsIgnoreCase(appname) || label.contains(appname) || appname.contains(label)){
 	        		if(intent.equalsIgnoreCase("open")){
-	        			startActivity(context, app);
-	        			return "正在打开"+label;
+	        			doActionRunnable = new Runnable() {
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								startActivity(context, app);
+								
+							}
+						};
+	        			//return "正在打开"+label;
+						return "是";
 	        		}else if(intent.equalsIgnoreCase("uninstall")){
-	        			deleteApp(context, app);
-	        			return "正在删除"+label;
+	        			doActionRunnable = new Runnable() {
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								deleteApp(context, app);
+							}
+						};
+						return "是";
+	        			//return "正在删除"+label;
 	        		}
 	        		break;
 	        	}
         	}
         }
-        return "没有找到"+appname;
+        return "没有找到"+appname+"请重试";
     }
 	
 	private void startActivity(Context context,ResolveInfo info){

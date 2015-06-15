@@ -25,6 +25,7 @@ import com.baidu.voicerecognition.android.DataUploader;
 import com.baidu.voicerecognition.android.VoiceRecognitionClient;
 import com.baidu.voicerecognition.android.VoiceRecognitionConfig;
 import com.baidu.voicerecognition.android.VoiceRecognitionClient.VoiceClientStatusChangeListener;
+import com.example.cloudmirror.ui.widget.VoliceInView;
 import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
 import com.mapgoo.eagle.R;
@@ -64,6 +65,7 @@ public class VoliceRecActivity extends ActionBarActivity {
     /** 识别回调接口 */
     private MyVoiceRecogListener mListener = new MyVoiceRecogListener();
     VoliceSpeeh mVoliceSpeeh;
+    VoliceInView voliceInView;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -74,13 +76,27 @@ public class VoliceRecActivity extends ActionBarActivity {
 		mListAdapter = new ListAdapter(getBaseContext(), mResultAnasy.mAnasyList);
 		mListView = (ListView)findViewById(R.id.list);
 		mListView.setAdapter(mListAdapter);
-		//startNavi();
+		voliceInView = (VoliceInView)findViewById(R.id.voliceInView);
 	}
 	
 	private void initVolice(){
 	       mASREngine = VoiceRecognitionClient.getInstance(this);
 	       mASREngine.setTokenApis(Constants.API_KEY, Constants.SECRET_KEY);
-	       mResultAnasy = new ResultAnasy(this);
+	       mResultAnasy = new ResultAnasy(this){
+				@Override
+				public void reTry() {
+					// TODO Auto-generated method stub
+					startSpeak(null);
+				}
+	       };
+	       mResultAnasy.addAnswer(getString(R.string.volice_start), new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				startVolice();
+			}
+		});
 	}
 	private void startVolice(){
         VoiceRecognitionConfig config = new VoiceRecognitionConfig();
@@ -114,38 +130,20 @@ public class VoliceRecActivity extends ActionBarActivity {
      * @param result
      */
     private void showResourceViewer(String result) {
-        JSONArray results = null;
        
         if (!TextUtils.isEmpty(result)) {
-            try {
-                JSONObject temp_json = new JSONObject(result);
+
+                JSONObject temp_json = null;
+				try {
+					temp_json = new JSONObject(result);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
                  mResultAnasy.anasyJSON(temp_json, true);
                  mListAdapter.notifyDataSetChanged();
                  mListView.setSelection(mListAdapter .getCount()-1);
-                String temp_str = temp_json.optString("json_res");
-                if (!TextUtils.isEmpty(temp_str)) {
-                    temp_json = new JSONObject(temp_str);
-                    if (temp_json != null) {
-                        // 获取语义结果
-                        results = temp_json.optJSONArray("results");
-                        JSONArray commands = temp_json.optJSONArray("commandlist");
-                        // 如果语义结果为空获取资源结果
-                        if (results == null || results.length() == 0) {
-                            results = commands;
-                        } else if (commands != null && commands.length() > 0) {
-                            for (int i = 0; i < commands.length(); i++) {
-                                results.put(commands.opt(i));
-                            }
-                        }
-                    }
-                }
-            } catch (JSONException e) {
-              //  Log.w(TAG, e);
-            }
         }
-        //showListFragment(results);
-        
-        //Log.d("TAG", results.toString());
     }
     /**
      * 重写用于处理语音识别回调的监听器
@@ -167,6 +165,7 @@ public class VoliceRecActivity extends ActionBarActivity {
                 // 已经检测到语音终点，等待网络返回
                 case VoiceRecognitionClient.CLIENT_STATUS_SPEECH_END:
                 	MyLog.D("已经检测到语音终点，等待网络返回");
+                	 onVoiceRecognitionStop();
                     break;
                 // 语音识别完成，显示obj中的结果
                 case VoiceRecognitionClient.CLIENT_STATUS_FINISH:
@@ -180,12 +179,16 @@ public class VoliceRecActivity extends ActionBarActivity {
                             MyLog.D(temp_str);
                             showResourceViewer(temp_str);
                         }
+                    }else{
+                    	mResultAnasy.addInputEorror(null);
                     }
+                    onVoiceRecognitionStop();
                     break;
                 // 用户取消
                 case VoiceRecognitionClient.CLIENT_STATUS_USER_CANCELED:
                 	MyLog.D("用户取消语音");
                     isRecognition = false;
+                    onVoiceRecognitionStop();
                     break;
                 default:
                     break;
@@ -195,6 +198,15 @@ public class VoliceRecActivity extends ActionBarActivity {
             public void onError(int errorType, int errorCode) {
                 isRecognition = false;
                 MyLog.D("语音 onError:errorCode="+errorCode);
+                mResultAnasy.addAnswer("网络错误,请重试", new Runnable(){
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						startSpeak(null);
+					}
+                });
+                mListAdapter.notifyDataSetChanged();
+                onVoiceRecognitionStop();
             }
 
             @Override
@@ -290,8 +302,7 @@ public class VoliceRecActivity extends ActionBarActivity {
     	Map<String, Object> reqBodyParams = new HashMap<String, Object>();
     	reqBodyParams.put("DataUploader", list);
     	com.alibaba.fastjson.JSONObject object = new com.alibaba.fastjson.JSONObject(reqBodyParams);
-    	
-    	//MyLog.D(object.getJSONArray("DataUploader").toString());
+
 		return object.getJSONArray("DataUploader").toString();
     }
     
@@ -336,14 +347,13 @@ public class VoliceRecActivity extends ActionBarActivity {
 				convertView = View.inflate(mContext, R.layout.volice_talke_msg, null);
 			AnasyItem item = mAnasyList.get(position);
 			if(item.type == 0){
-				convertView.findViewById(R.id.msg_type).setVisibility(View.VISIBLE);
-				convertView.findViewById(R.id.msg_date).setVisibility(View.INVISIBLE);
-				((TextView)convertView.findViewById(R.id.msg_type)).setText(item.content);
+				convertView.findViewById(R.id.volice_right).setVisibility(View.VISIBLE);
+				convertView.findViewById(R.id.volice_left).setVisibility(View.INVISIBLE);
+				((TextView)convertView.findViewById(R.id.volice_right)).setText(item.content);
 			}else{
-				convertView.findViewById(R.id.msg_date).setVisibility(View.VISIBLE);
-				convertView.findViewById(R.id.msg_type).setVisibility(View.INVISIBLE);
-				((TextView)convertView.findViewById(R.id.msg_date)).setText(item.content);
-				
+				convertView.findViewById(R.id.volice_left).setVisibility(View.VISIBLE);
+				convertView.findViewById(R.id.volice_right).setVisibility(View.INVISIBLE);
+				((TextView)convertView.findViewById(R.id.volice_left)).setText(item.content);
 			}
 			
 			return convertView;
@@ -385,36 +395,6 @@ public class VoliceRecActivity extends ActionBarActivity {
 	
 	public static BDLocation mBDLocation=null;
 	
-	private void startNavi(){
-		LatLng start = VoliceRecActivity.getLocLatLng();
-		//if(start != null){
-			double mLat1 = 39.915291;
-		    double mLon1 = 116.403857;
-		    // 百度大厦坐标
-		    double mLat2 = 40.056858;
-		    double mLon2 = 116.308194;
-		    LatLng pt_start = new LatLng(mLat1, mLon1);
-		    LatLng pt_end = new LatLng(mLat2, mLon2);
-		    // 构建 route搜索参数以及策略，起终点也可以用name构造
-		    RouteParaOption para = new RouteParaOption()
-		        .startPoint(pt_start)
-		        .endPoint(pt_end)
-		        .busStrategyType(EBusStrategyType.bus_recommend_way);
-		    try {
-		        BaiduMapRoutePlan.openBaiduMapTransitRoute(para, this);
-		        MyLog.D("--------->startNavi");
-			} catch (Exception e) {
-		        e.printStackTrace();
-		    }
-		    //结束调启功能时调用finish方法以释放相关资源
-		    //BaiduMapRoutePlan.finish(this);
-		    
-//		    NaviParaOption option = new NaviParaOption().startPoint(pt_start)
-//			        .endPoint(pt_end).endName("end").startName("start");
-//			BaiduMapNavigation.openBaiduMapNavi(option, this);
-		}
-	//}
-	
 	private long maxVolume;
 	private int noSpeakCount;
     private Runnable mUpdateVolume = new Runnable() {
@@ -443,16 +423,22 @@ public class VoliceRecActivity extends ActionBarActivity {
             		 mASREngine.stopVoiceRecognition();
             		 noSpeakCount ++;
             		 if(noSpeakCount>=MaxNoSpeakNum){
-            			 mResultAnasy.addAnswer("您没有说话,再见", 1);
-            			 mHandler.postDelayed(new Runnable() {
+            			 mResultAnasy.addAnswer("您没有说话,下次见", new Runnable() {
 							@Override
 							public void run() {
 								// TODO Auto-generated method stub
 								finish();
+								overridePendingTransition(0, 0);
 							}
-						}, 1000);
+						});
             		 }else{
-            			 mResultAnasy.addAnswer("您没有说话", 1);
+            			 mResultAnasy.addAnswer("您没有说话,请重试", new Runnable(){
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								startSpeak(null);
+							}
+            			 });
             		 }
             		 mListAdapter.notifyDataSetChanged();
             	 }
@@ -464,8 +450,10 @@ public class VoliceRecActivity extends ActionBarActivity {
     	mHandler.removeCallbacksAndMessages(this);
     	mHandler.post(mUpdateVolume);
     	mHandler.postDelayed(mNoSpeakCheck, TimeNoSpeakCheckVolume);
+    	voliceInView.startAnim();
     }
-    
-    
-    
+    public void onVoiceRecognitionStop(){
+    	mHandler.removeCallbacksAndMessages(this);
+    	voliceInView.stopAnim();
+    }
 }
