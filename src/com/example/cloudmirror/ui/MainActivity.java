@@ -19,13 +19,16 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +43,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
 
@@ -50,11 +54,13 @@ public class MainActivity extends BaseActivity implements Callback {
 	private FlipperIndicatorDotView mIndicatorrView ;
 	private Camera mCamera;  
     private boolean mPreviewRunning = true; 
+    private LinearLayout home_adv_view;
     
 	@Override
 	protected void setContentView() {
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main);
+		//printApp();
 	}
 
 	@Override
@@ -68,7 +74,8 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		mViewPager = (ViewPager)findViewById(R.id.vPager);
 		mIndicatorrView = (FlipperIndicatorDotView)findViewById(R.id.vPager_Indicator);
-		//iniCamera();
+		home_adv_view = (LinearLayout)findViewById(R.id.home_adv_view);
+		iniCamera();	
 	}
 
 	@Override
@@ -90,7 +97,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		for (int i = 0; i < 1; i++) {
 			View adView = mInflater.inflate(R.layout.home_ad_info, null); 
 			AsyncImageView adImgView = (AsyncImageView) adView.findViewById(R.id.ad_img);
-			adImgView.setImage("http://imgsrc.baidu.com/forum/pic/item/d4d50c381f30e924b696bed34c086e061c95f77b.jpg", R.drawable.loading_bg, new RoundedRectangleBitmapDisplayer(0));
+			adImgView.setImage("e", R.drawable.home_adv_def, new RoundedRectangleBitmapDisplayer(0));
 			adImgView.setScaleType(ScaleType.FIT_XY);
 			pageViews.add(adView);
 		}
@@ -117,7 +124,7 @@ public class MainActivity extends BaseActivity implements Callback {
         	
              container.addView(mListViews.get(position), 0);//添加页卡  
              return mListViews.get(position); 
-        }  
+        }
   
         @Override  
         public int getCount() {         
@@ -137,6 +144,9 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		if(keyCode == KeyEvent.KEYCODE_BACK && mTipViewIsShow){
 			dismissTipView();
+			return true;
+		}
+		if(keyCode == KeyEvent.KEYCODE_BACK){
 			return true;
 		}
 		return super.onKeyDown(keyCode, event);
@@ -159,7 +169,20 @@ public class MainActivity extends BaseActivity implements Callback {
 				startActivity(new Intent(mContext, VoliceRecActivity.class));
 				break;
 			case R.id.surface_camera_btn:
-				startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+				//startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+				break;
+			case R.id.home_icon_blue_btn:
+				startActivity(new Intent( android.provider.Settings.ACTION_BLUETOOTH_SETTINGS)); 
+				break;
+			case R.id.home_icon_wifi_btn:
+				startActivity(new Intent( android.provider.Settings.ACTION_WIFI_SETTINGS)); 				
+				break;
+			case R.id.home_icon_music_btn:
+				startActivity("com.android.music", "com.android.music.MusicBrowserActivity", "音乐");
+				break;
+			case R.id.home_icon_navi_btn:
+				startActivity("com.autonavi.xmgd.navigator", "com.autonavi.xmgd.navigator.Warn", null);
+				break;
 			default:
 				break;
 		}
@@ -225,14 +248,9 @@ public class MainActivity extends BaseActivity implements Callback {
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
 		// TODO Auto-generated method stub
-		if(mCamera == null)
-			return;
-		if (mPreviewRunning){
-            mCamera.stopPreview();  
-        }  
         Camera.Parameters p = mCamera.getParameters();  
         //p.setPreviewSize(width, height);  
-        p.set("rotation", 90);  
+        //p.set("rotation", 90);  
        //mCamera.setParameters(p);  
         try{  
             mCamera.setPreviewDisplay(holder);  
@@ -247,17 +265,25 @@ public class MainActivity extends BaseActivity implements Callback {
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
-		mCamera = Camera.open(); 
+		MyLog.D("surfaceCreated");
+		try{
+			mCamera = Camera.open(); 
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
+		MyLog.D("surfaceDestroyed");
 		if(mCamera == null)
 			return;
 		mCamera.stopPreview();  
         mPreviewRunning = false;  
-        mCamera.release();		
+       mCamera.release();
+        
 	}
 	
 	private static final String RECORD_MODE = "record_mode";
@@ -269,6 +295,7 @@ public class MainActivity extends BaseActivity implements Callback {
 	private static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
 	private static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
     private void startToCarRecord(String action, int mode) {
+        
 		Intent mIntent = new Intent(Intent.ACTION_MAIN); 
 		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
 		mIntent.setComponent(compName); 
@@ -283,4 +310,41 @@ public class MainActivity extends BaseActivity implements Callback {
 			mToast.toastMsg("没有安装该应用");
 		}
     }
+    
+    private void printApp(){
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);	
+        List<ResolveInfo> mApps = getPackageManager().queryIntentActivities(mainIntent, 0);
+
+        
+        for(final ResolveInfo app:mApps){
+        	String name = app.activityInfo.name;
+        	String pack = app.activityInfo.packageName;
+        	String label = app.loadLabel(getPackageManager()).toString();
+        	MyLog.D("name="+name+",pack="+pack+",label="+label);
+        }
+    }
+	private void startActivity(String pkg,String cls,String name){
+		try{
+			Intent inten = new Intent().setClassName(pkg, cls);
+			startActivity(inten);
+		}catch(Exception e){
+			if(!StringUtils.isEmpty(name))
+				mToast.toastMsg("没有安装"+name);
+		}
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+	}
+	
+	
 }

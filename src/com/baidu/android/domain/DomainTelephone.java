@@ -54,7 +54,8 @@ public class DomainTelephone extends Domain{
 				}
 			};
      		//return "正在打给"+name;
-			return "是";
+			//return "是";
+			return "您是否要打电话给"+name+",请说是或者不是";
      	}
      	return "没有找到"+name;
 	}

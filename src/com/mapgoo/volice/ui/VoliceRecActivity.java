@@ -1,6 +1,7 @@
 package com.mapgoo.volice.ui;
 
 import java.io.Serializable;
+import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
@@ -77,6 +79,9 @@ public class VoliceRecActivity extends ActionBarActivity {
 		mListView = (ListView)findViewById(R.id.list);
 		mListView.setAdapter(mListAdapter);
 		voliceInView = (VoliceInView)findViewById(R.id.voliceInView);
+		WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE); 
+		String m_szWLANMAC = wm.getConnectionInfo().getMacAddress();
+		MyLog.D("MAC="+m_szWLANMAC);
 	}
 	
 	private void initVolice(){
@@ -180,6 +185,7 @@ public class VoliceRecActivity extends ActionBarActivity {
                             showResourceViewer(temp_str);
                         }
                     }else{
+                    	MyLog.D("语音识别完成obj = null");
                     	mResultAnasy.addInputEorror(null);
                     }
                     onVoiceRecognitionStop();
@@ -227,18 +233,18 @@ public class VoliceRecActivity extends ActionBarActivity {
     
     public void onClick(View v){
     	switch (v.getId()) {
-		case R.id.volice_speeker_btn:
-			startSpeak(v);
-			break;
-		case R.id.volice_tip_btn:
-			if(findViewById(R.id.volice_tip_text).getVisibility()==View.VISIBLE){
-				findViewById(R.id.volice_tip_text).setVisibility(View.GONE);
-			}else{
-				findViewById(R.id.volice_tip_text).setVisibility(View.VISIBLE);
-			}
-			break;
-		default:
-			break;
+			case R.id.volice_speeker_btn:
+				startSpeak(v);
+				break;
+			case R.id.volice_tip_btn:
+				if(findViewById(R.id.volice_tip_text).getVisibility()==View.VISIBLE){
+					findViewById(R.id.volice_tip_text).setVisibility(View.GONE);
+				}else{
+					findViewById(R.id.volice_tip_text).setVisibility(View.VISIBLE);
+				}
+				break;
+			default:
+				break;
 		}
     }
     
@@ -275,6 +281,7 @@ public class VoliceRecActivity extends ActionBarActivity {
 	    	}
     	}
     }
+    
     public static class DataUploaderBean extends Object implements Serializable{
     	public String name;
     	public int frequency;
@@ -412,7 +419,7 @@ public class VoliceRecActivity extends ActionBarActivity {
         }
     };
     private final long MinNoSpeakCheckVolume = 30;
-    private final long TimeNoSpeakCheckVolume = 3000;
+    private final long TimeNoSpeakCheckVolume = 5000;
     private final long MaxNoSpeakNum = 3;   
     
     private Runnable mNoSpeakCheck = new Runnable() {
@@ -444,10 +451,11 @@ public class VoliceRecActivity extends ActionBarActivity {
             	 }
             }
         }
-    };   
+    };
     
     public void onVoiceRecognitionStart(){
     	mHandler.removeCallbacksAndMessages(this);
+    	maxVolume = 0;
     	mHandler.post(mUpdateVolume);
     	mHandler.postDelayed(mNoSpeakCheck, TimeNoSpeakCheckVolume);
     	voliceInView.startAnim();

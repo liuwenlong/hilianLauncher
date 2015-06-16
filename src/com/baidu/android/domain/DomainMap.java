@@ -65,9 +65,9 @@ public class DomainMap extends Domain{
 			    }
 			}
 		};
-	    
+		return "您是否要导航到"+Object.arrival+",请说是或者不是";
 	    //return "正在导航到"+VoliceRecActivity.mBDLocation.getCity()+Object.arrival;
-	    return "是";
+	    //return "是";
 	}
 
 	private String startNearby(Context context){

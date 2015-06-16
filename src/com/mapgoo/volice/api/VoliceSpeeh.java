@@ -28,7 +28,7 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
 	
     /** 指定license路径，需要保证该路径的可读写权限 */
     private static final String LICENCE_FILE_NAME = Environment.getExternalStorageDirectory()
-            + "/tts/baidu_tts_licence.dat";
+            + "/tts/baidu_tts_licence1.dat";
     public VoliceSpeeh(Activity a,OnSpeechChangeListener l){
     	mActivity = a;
     	mOnSpeechChangeListener = l;
@@ -48,6 +48,7 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
             new File(LICENCE_FILE_NAME).getParentFile().mkdirs();
         }
         // 复制license到指定路径
+        /*
         InputStream licenseInputStream = mActivity.getResources().openRawResource(R.raw.temp_license_2015_06_12);
         FileOutputStream fos = null;
         try {
@@ -76,6 +77,7 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
                 e.printStackTrace();
             }
         }
+        */
 
         speechSynthesizer =
                 SpeechSynthesizer.newInstance(SpeechSynthesizer.SYNTHESIZER_AUTO, mActivity,"holder", this);

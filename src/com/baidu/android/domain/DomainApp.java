@@ -66,7 +66,8 @@ public class DomainApp extends Domain{
 							}
 						};
 	        			//return "正在打开"+label;
-						return "是";
+						//return "是";
+						return "您是否要打开"+label+",请说是或者不是";
 	        		}else if(intent.equalsIgnoreCase("uninstall")){
 	        			doActionRunnable = new Runnable() {
 							@Override

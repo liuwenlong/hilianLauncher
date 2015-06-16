@@ -81,6 +81,8 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/home_icon_navi_btn"
+                    android:onClick="onClick"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="@dimen/activity_item_margin"
@@ -149,7 +151,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="4" />
+                android:layout_weight="6" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -189,6 +191,8 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/home_icon_music_btn"
+                    android:onClick="onClick"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -212,6 +216,8 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/home_icon_wifi_btn"
+                    android:onClick="onClick"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -235,6 +241,8 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/home_icon_blue_btn"
+                    android:onClick="onClick"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"

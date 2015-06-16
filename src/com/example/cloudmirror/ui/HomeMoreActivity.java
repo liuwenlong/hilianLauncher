@@ -104,6 +104,7 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutFM = new ShortcutItem(R.drawable.home_more_fm,R.string.home_more_fm){
 		@Override
 		protected void doAction() {
+			startActivity("com.rdafm.fmtx", "com.rdafm.fmtx.MainActivity",  getString(R.string.home_more_fm));
 		}
 	};
 	ShortcutItem  shortcutJY = new ShortcutItem(R.drawable.home_more_jiayou,R.string.home_more_jiayou){
@@ -125,11 +126,14 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutST = new ShortcutItem(R.drawable.home_more_settings,R.string.home_more_settings){
 		@Override
 		protected void doAction() {
+			startActivity(new Intent( android.provider.Settings.ACTION_SETTINGS)); 	
 		}
 	};
 	ShortcutItem  shortcutAB = new ShortcutItem(R.drawable.home_more_about,R.string.home_more_about){
 		@Override
 		protected void doAction() {
+		
+			
 		}
 	};
 	private void startActivity(String pkg,String cls,String name){

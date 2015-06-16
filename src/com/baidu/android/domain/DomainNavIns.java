@@ -26,6 +26,10 @@ public class DomainNavIns extends Domain{
 	}
 	public MapObject Object;
 
+	public DomainNavIns(){
+		Object = new MapObject();
+	}
+	
 	public void setObject(MapObject arg){
 		Object = arg;
 	}
@@ -38,11 +42,12 @@ public class DomainNavIns extends Domain{
 		if(Object.start == null){
 			start = VoliceRecActivity.mBDLocation.getAddrStr();
 		}else{
-			start = VoliceRecActivity.mBDLocation.getCity()+Object.start;
+			start = Object.start;
 		}
 		
 		if(Object.arrival == null)
 			return null;
+		
 		doActionRunnable = new Runnable() {
 			
 			@Override
@@ -50,7 +55,7 @@ public class DomainNavIns extends Domain{
 				// TODO Auto-generated method stub
 			    RouteParaOption para = new RouteParaOption()
 			    .startName(start)
-			        .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
+			    .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
 			    try {
 			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
 				} catch (Exception e) {
@@ -59,6 +64,6 @@ public class DomainNavIns extends Domain{
 			}
 		};
 
-	    return "正在导航到"+VoliceRecActivity.mBDLocation.getCity()+Object.arrival;
+	    return "您是否要导航到"+Object.arrival+",请说是或者不是";
 	}
 }

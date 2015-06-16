@@ -13,6 +13,7 @@ public abstract class Domain implements Serializable{
 	public String Domain;
 	public String intent;
 	public Runnable doActionRunnable;
+	public int state;
 	
 	public void setDomain(String arg){
 		Domain = arg;

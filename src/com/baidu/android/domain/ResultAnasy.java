@@ -21,6 +21,7 @@ import com.baidu.android.domain.DomainWeather;
 import com.baidu.mapapi.navi.BaiduMapAppNotSupportNaviException;
 import com.baidu.mapapi.navi.BaiduMapNavigation;
 import com.baidu.speechsynthesizer.SpeechSynthesizer;
+import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.StringUtils;
 import com.mapgoo.volice.api.VoliceSpeeh;
 import com.mapgoo.volice.api.VoliceSpeeh.OnSpeechChangeListener;
@@ -33,7 +34,10 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 		public JSONObject data;
 		public Runnable mDoRun;
 		public boolean needFinsh;
+		public int state;
 	}
+	public int mLastType = 0;
+	public Runnable mLastRunnanle;
 	
 	public ArrayList<AnasyItem> mAnasyList = new ArrayList<AnasyItem>();
 	
@@ -42,10 +46,10 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
     
     private int invaliteCount;
     
-    private Activity mContext;
+    private Activity mActivity;
     private VoliceSpeeh mVoliceSpeeh;
     public ResultAnasy(Activity context){
-    	mContext = context;
+    	mActivity = context;
     	mVoliceSpeeh = new VoliceSpeeh(context,this);
     }
     
@@ -65,30 +69,61 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 		mVoliceSpeeh.startSpeaker(answer);
 		mLastAnasyItem = anasy;
     }
+    
+    public void addASKAnswer(String answer,Runnable r,boolean needFinish){
+    	mLastType = 1;
+    	mLastRunnanle = r;
+    	addAnswer(answer, reTryRunnable, needFinish);
+    }    
+    public void addAnasyItem(String answer,AnasyItem anasy,boolean needFinish){
+    	anasy.needFinsh = true;
+    	anasy.content = answer;
+    	if(answer != null){
+    		mAnasyList.add(anasy);
+    		mVoliceSpeeh.startSpeaker(answer);
+    	}
+		mLastAnasyItem = anasy;
+    }    
     public void addAnswer(String answer,Runnable r){
     	addAnswer(answer, r, false);
-    }    
+    }
     
     public void  anasyJSON(JSONObject data,boolean visiable){
     	Log.i("TAG", "enter anasyJSON="+data.toString());
+    	String answer = null;
+    	Domain dom = null;
     	if(visiable || (data!=null&&data.has("item"))){
     		
     		try {
     			JSONArray itemlist = data.getJSONArray("item");
     			addSpeak(itemlist.get(0).toString());
-    			
-    			CustomDomain customDomain = new CustomDomain(mContext);
-    			if(customDomain.isCustomDomain(itemlist.get(0).toString())){
-    				addAnswer(customDomain.answer, customDomain.doActionRunnable,true);
+    			if(mLastType == 2){
+    				mLastType = 0;
+    				DomainNavIns domainNavIns = new DomainNavIns();
+    				domainNavIns.Object.arrival = itemlist.get(0).toString();
+    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("导航到", "");
+    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("导航", "");
+    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("到", "");
+    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("去", "");
+    				answer = domainNavIns.doAction(mActivity);
+    				dom = domainNavIns;
+    			}
+    			if(cunstomAction(itemlist.get(0).toString())){
     				return;
     			}
+    			CustomDomain customDomain = new CustomDomain(this);
+    			if(customDomain.isCustomDomain(itemlist.get(0).toString())){
+    				mLastType = customDomain.type;
+    				addAnswer(customDomain.answer, customDomain.doActionRunnable,customDomain.needFinish);
+    				return;
+    			}
+    			
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
     	}
-    	String answer = null;
-    	Domain dom = null;
+    	if(dom == null)
     	if(data!=null && data.has("json_res")){
     		try {
     			String temp_str = data.optString("json_res");
@@ -110,31 +145,31 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 			    		
 			    		if(DomainMap.NAME.equalsIgnoreCase(domain)){
 			    			DomainMap map = JSON.parseObject(item.toString(), DomainMap.class);
-			    			answer = map.doAction(mContext);
+			    			answer = map.doAction(mActivity);
 			    			dom = map;
 			    		}else if(DomainApp.NAME.equalsIgnoreCase(domain)){
 			    			DomainApp domainApp = JSON.parseObject(item.toString(), DomainApp.class);
-			    			answer = domainApp.doAction(mContext);
+			    			answer = domainApp.doAction(mActivity);
 			    			dom = domainApp;
 			    		}else if(DomainWeather.NAME.equalsIgnoreCase(domain)){
 			    			DomainWeather domainWeather = JSON.parseObject(item.toString(), DomainWeather.class);
-			    			answer = domainWeather.doAction(mContext);
+			    			answer = domainWeather.doAction(mActivity);
 			    			dom = domainWeather;
 			    		}else if(DomainCalender.NAME.equalsIgnoreCase(domain)){
 			    			DomainCalender domainCalender = JSON.parseObject(item.toString(), DomainCalender.class);
-			    			answer = domainCalender.doAction(mContext);
+			    			answer = domainCalender.doAction(mActivity);
 			    			dom = domainCalender;
 			    		}else if(DomainTelephone.NAME.equalsIgnoreCase(domain)){
 			    			DomainTelephone domainTelephone = JSON.parseObject(item.toString(), DomainTelephone.class);
-			    			answer = domainTelephone.doAction(mContext);
+			    			answer = domainTelephone.doAction(mActivity);
 			    			dom = domainTelephone;
 			    		}else if(DomainJoke.NAME.equalsIgnoreCase(domain)){
 			    			DomainJoke domainJoke = JSON.parseObject(item.toString(), DomainJoke.class);
-			    			answer = domainJoke.doAction(mContext);
+			    			answer = domainJoke.doAction(mActivity);
 			    			dom = domainJoke;
 			    		}else if(DomainNavIns.NAME.equalsIgnoreCase(domain)){
 			    			DomainNavIns domainNavIns = JSON.parseObject(item.toString(), DomainNavIns.class);
-			    			answer = domainNavIns.doAction(mContext);
+			    			answer = domainNavIns.doAction(mActivity);
 			    			dom = domainNavIns;
 			    		}
 			    	}
@@ -148,9 +183,10 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
     		Log.d("TAG", "not find json_res");
     	}
 		if(dom==null || dom.doActionRunnable == null){
+			MyLog.D("语音识别完成 doActionRunnable = null");
 			addInputEorror(answer);
 		}else{
-			addAnswer(answer, dom.doActionRunnable,true);
+			addASKAnswer(answer, dom.doActionRunnable,false);
 		}
     }
     
@@ -180,11 +216,11 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 		// TODO Auto-generated method stub
 		switch (what) {
 		case 1:
-			if(mLastAnasyItem != null && mLastAnasyItem.mDoRun != null)
+			if(mLastAnasyItem != null && mLastAnasyItem.mDoRun != null){
 				new Handler().post(mLastAnasyItem.mDoRun);
+			}
 			if(mLastAnasyItem.needFinsh){
-				mContext.finish();
-				mContext.overridePendingTransition(0, 0);
+				finishActivity();
 			}
 			break;
 
@@ -204,11 +240,54 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			mContext.finish();
-			mContext.overridePendingTransition(0, 0);
+			mActivity.finish();
+			mActivity.overridePendingTransition(0, 0);
 		}
 	};
 	
 	abstract public void reTry();
 
+	public boolean isOK(String str){
+		ArrayList<String> okList = new ArrayList<String>(){{add("是");add("对");add("是的");}};
+		for(String item:okList){
+			if(item.equals(str))
+				return true;
+		}
+		return false;
+	}
+	public boolean isNo(String str){
+		ArrayList<String> noList = new ArrayList<String>(){{add("不是");add("不对");add("否");}};
+		for(String item:noList){
+			if(item.equals(str))
+				return true;
+		}
+		return false;
+	}
+	public boolean cunstomAction(String str){
+		switch (mLastType) {
+		case 1:
+			if(isOK(str)){
+				mLastType = 0;
+				mLastAnasyItem.mDoRun = mLastRunnanle;
+				new Handler().post(mLastAnasyItem.mDoRun);
+				finishActivity();
+			}else if(isNo(str)){
+				mLastType = 0;
+				addAnswer("您需要什么帮助", reTryRunnable);
+			}else{
+				addAnswer("没有听清，请说是或者不是", reTryRunnable);
+			}
+			
+			return true;
+		default:
+			break;
+		}
+		return false;
+	}
+	private void finishActivity(){
+		if(mActivity != null){
+			mActivity.finish();
+			mActivity.overridePendingTransition(0, 0);
+		}
+	}
 }
