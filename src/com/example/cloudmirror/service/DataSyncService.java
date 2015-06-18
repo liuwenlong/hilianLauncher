@@ -22,8 +22,12 @@ import com.umeng.analytics.MobclickAgent;
 
 import de.greenrobot.event.EventBus;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -34,6 +38,24 @@ import android.util.Log;
 
 public class DataSyncService extends Service{
 	
+	public static final String ACTION_LIST_REFRESH = "com.concox.BLUETOOTH_LIST_REFRESH";
+	public static final String ACTION_IG = "com.concox.BLUETOOTH_IG";
+	public static final String ACTION_IF = "com.concox.BLUETOOTH_IF";
+	public static final String ACTION_MD = "com.concox.BLUETOOTH_MD";
+	public static final String ACTION_CX = "com.concox.BLUETOOTH_CX";
+	public static final String ACTION_CE = "com.concox.BLUETOOTH_CE";
+	public static final String ACTION_CO = "com.concox.BLUETOOTH_CO";
+	public static final String ACTION_CG = "com.concox.BLUETOOTH_CG";
+	public static final String ACTION_CF = "com.concox.BLUETOOTH_CF";
+	public static final String ACTION_CW = "com.concox.BLUETOOTH_CW";
+	public static final String ACTION_CK = "com.concox.BLUETOOTH_CK";
+	public static final String ACTION_CL = "com.concox.BLUETOOTH_CL";
+	public static final String ACTION_IK = "com.concox.BLUETOOTH_IK";
+	public static final String ACTION_IB = "com.concox.BLUETOOTH_IB";
+	public static final String ACTION_MY = "com.concox.BLUETOOTH_MY";
+	public static final String ACTION_PC = "com.concox.BLUETOOTH_PC";
+	public static final String ACTION_MX = "com.concox.BLUETOOTH_MX";
+	public static final String ACTION_PA1 = "com.concox.BLUETOOTH_PA1";
 	private static String TAG = "DataSyncService";
 	private GetLoaction mGetLoaction = new GetLoaction();
 	NetWork mNetWork = new NetWork();
@@ -48,11 +70,79 @@ public class DataSyncService extends Service{
 	public void onCreate() {
 		super.onCreate();
 		 Log.i(TAG, "onCreate");
-		 locationInit();
+		// locationInit();
 		//openADB();
-		getIMEI();
-		initSingle();
-		mNetWork.start();
+		//getIMEI();
+		//initSingle();
+		//mNetWork.start();
+		 registReceiver();
+	}
+	
+    private BroadcastReceiver mMyReceiver = new BroadcastReceiver(){
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			
+			// TODO Auto-generated method stub
+			if(intent != null){
+				MyLog.D("action="+intent.getAction());
+				
+				//
+			}
+			isBlueToothConnect();
+		}
+    	
+    };
+    
+    
+	private void getContact(){
+		try{
+		Cursor phone = getContentResolver().query(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"), null, null, null, null);
+		if(phone!=null){
+			phone.moveToFirst();
+			int colum = phone.getColumnCount();
+			for(int i=0;i<colum;i++){
+				
+				MyLog.D(phone.getColumnName(i)+"="+phone.getString(i));
+				
+			}
+		}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void isBlueToothConnect(){
+		try{
+			String connect = getContentResolver().getType(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/isconnect"));
+			MyLog.D("connect="+connect);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private void registReceiver(){
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_LIST_REFRESH);
+		filter.addAction(ACTION_IG);
+		filter.addAction(ACTION_IF);
+		filter.addAction(ACTION_MD);
+		filter.addAction(ACTION_CX);
+		filter.addAction(ACTION_CE);
+		filter.addAction(ACTION_CO);
+		filter.addAction(ACTION_CG);
+		filter.addAction(ACTION_CF);
+		filter.addAction(ACTION_CW);
+		filter.addAction(ACTION_CK);
+		filter.addAction(ACTION_CL);
+		filter.addAction(ACTION_IK);
+		filter.addAction(ACTION_IB);
+		filter.addAction(ACTION_MY);
+		filter.addAction(ACTION_PC);
+		filter.addAction(ACTION_MX);
+		filter.addAction(ACTION_PA1);
+		registerReceiver(mMyReceiver, filter);
+		
 	}
 	
 	private void initSingle(){

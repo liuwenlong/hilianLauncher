@@ -386,8 +386,10 @@ public class VoliceRecActivity extends ActionBarActivity {
 		@Override
 		public void onReceiveLocation(BDLocation location) {
 			if (location == null)	{ return;}
-			if(location.getLatitude() != Double.MIN_VALUE)
+			if(location.getLatitude() != Double.MIN_VALUE){
 				mBDLocation = location;
+				mLocClient.stop();
+			}
 			MyLog.D("lat="+location.getLatitude()+",lon="+location.getLongitude()+",adr="+mBDLocation.getAddrStr());
 		}
 		public void onReceivePoi(BDLocation poiLocation) {}

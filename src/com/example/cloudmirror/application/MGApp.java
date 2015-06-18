@@ -5,7 +5,9 @@ import com.car.brand.db.AppInitUtils;
 import com.example.cloudmirror.api.ApiClient;
 import com.example.cloudmirror.api.MyVolley;
 import com.example.cloudmirror.utils.DBmanager;
+import com.example.cloudmirror.utils.DatabaseHelper;
 import com.example.cloudmirror.utils.QuickShPref;
+import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -58,7 +60,22 @@ public class MGApp extends Application {
 
 		ImageLoader.getInstance().init(config);
 	}
+	/**
+	 * You'll need this in your class to cache the helper in the class.
+	 */
+	protected static DatabaseHelper mDatabaseHelper = null;
 
+	/**
+	 * You'll need this in your class to get the helper from the manager once
+	 * per class.
+	 */
+	public static DatabaseHelper getHelper() {
+		if (mDatabaseHelper == null) {
+			mDatabaseHelper = OpenHelperManager.getHelper(pThis, DatabaseHelper.class);
+		}
+
+		return mDatabaseHelper;
+	}
 
 	// FIXME 再整个App生命周期中， 维持数据的链接，是不是不太好？
 	@Override

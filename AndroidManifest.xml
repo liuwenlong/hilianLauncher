@@ -106,6 +106,10 @@
             android:name="com.mapgoo.volice.ui.VoliceRecActivity"
             android:theme="@style/AppTheme.backgroudTransparent"
             android:configChanges="keyboardHidden|orientation" />        
+        <activity
+            android:name="com.example.cloudmirror.ui.CameraTestActivity"
+            android:theme="@style/AppTheme.backgroudTransparent"
+            android:configChanges="keyboardHidden|orientation" />            
         
     </application>
 

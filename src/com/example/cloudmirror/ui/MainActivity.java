@@ -20,15 +20,22 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,14 +60,32 @@ public class MainActivity extends BaseActivity implements Callback {
 	private ViewPager mViewPager;
 	private FlipperIndicatorDotView mIndicatorrView ;
 	private Camera mCamera;  
-    private boolean mPreviewRunning = true; 
+    private boolean mPreviewRunning = false; 
     private LinearLayout home_adv_view;
+    private boolean  IS_CAMREA_OPEN = false; 
+    
+    private BroadcastReceiver mMyReceiver = new BroadcastReceiver(){
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			
+			// TODO Auto-generated method stub
+			if(intent != null){
+				MyLog.D("action="+intent.getAction());
+				
+				//
+			}
+			isBlueToothConnect();
+		}
+    	
+    };
     
 	@Override
 	protected void setContentView() {
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main);
 		//printApp();
+		getContact();
 	}
 
 	@Override
@@ -75,7 +100,8 @@ public class MainActivity extends BaseActivity implements Callback {
 		mViewPager = (ViewPager)findViewById(R.id.vPager);
 		mIndicatorrView = (FlipperIndicatorDotView)findViewById(R.id.vPager_Indicator);
 		home_adv_view = (LinearLayout)findViewById(R.id.home_adv_view);
-		iniCamera();	
+		if(IS_CAMREA_OPEN)
+			iniCamera();	
 	}
 
 	@Override
@@ -83,9 +109,9 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		 loadImages();
 	}
-	
+	SurfaceView mSurfaceView;
 	private void iniCamera(){
-		SurfaceView mSurfaceView;
+		
 		mSurfaceView = (SurfaceView) findViewById(R.id.surface_camera); 
 		SurfaceHolder mSurfaceHolder = mSurfaceView.getHolder(); 
 		mSurfaceHolder.addCallback(this); 
@@ -169,10 +195,12 @@ public class MainActivity extends BaseActivity implements Callback {
 				startActivity(new Intent(mContext, VoliceRecActivity.class));
 				break;
 			case R.id.surface_camera_btn:
-				//startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+				startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+				//startActivity("com.android.camera", "com.android.camera.Camera", null);
+				//startActivity(new Intent(mContext, CameraTestActivity.class));
 				break;
 			case R.id.home_icon_blue_btn:
-				startActivity(new Intent( android.provider.Settings.ACTION_BLUETOOTH_SETTINGS)); 
+				startActivity("com.concox.bluetooth","com.concox.bluetooth.MainActivity",null); 
 				break;
 			case R.id.home_icon_wifi_btn:
 				startActivity(new Intent( android.provider.Settings.ACTION_WIFI_SETTINGS)); 				
@@ -182,6 +210,21 @@ public class MainActivity extends BaseActivity implements Callback {
 				break;
 			case R.id.home_icon_navi_btn:
 				startActivity("com.autonavi.xmgd.navigator", "com.autonavi.xmgd.navigator.Warn", null);
+				break;
+			case R.id.function_item_1:
+				callPhoneNum(mContext,"+8613728767253");
+				break;
+			case R.id.function_item_2:
+				callPhoneNum(mContext,"10086");
+				break;
+			case R.id.function_item_3:
+				callPhoneNum(mContext,"10086");
+				break;
+			case R.id.function_item_4:
+				callPhoneNum(mContext,"10086");
+				break;
+			case R.id.function_item_5:
+				callPhoneNum(mContext,"10086");
 				break;
 			default:
 				break;
@@ -248,18 +291,20 @@ public class MainActivity extends BaseActivity implements Callback {
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
 		// TODO Auto-generated method stub
-        Camera.Parameters p = mCamera.getParameters();  
-        //p.setPreviewSize(width, height);  
-        //p.set("rotation", 90);  
-       //mCamera.setParameters(p);  
-        try{  
-            mCamera.setPreviewDisplay(holder);  
-        } catch (IOException e){
-            e.printStackTrace();  
-        }  
-  
-        mCamera.startPreview();  
-        mPreviewRunning = true;  		
+		MyLog.D("surfaceChanged");
+		if(mCamera!=null && mPreviewRunning==false){
+	        Camera.Parameters p = mCamera.getParameters();
+	        //p.setPreviewSize(width, height);  
+	        //p.set("rotation", 90);  
+	       //mCamera.setParameters(p);  
+	        try{
+	            mCamera.setPreviewDisplay(holder);
+	        } catch (IOException e){
+	            e.printStackTrace();  
+	        }
+	        mCamera.startPreview();
+	        mPreviewRunning = true;  		
+		}
 	}
 
 	@Override
@@ -267,7 +312,8 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		MyLog.D("surfaceCreated");
 		try{
-			mCamera = Camera.open(); 
+			if(mCamera == null)
+				mCamera = Camera.open(); 
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -283,6 +329,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		mCamera.stopPreview();  
         mPreviewRunning = false;  
        mCamera.release();
+       mCamera = null;
         
 	}
 	
@@ -295,8 +342,8 @@ public class MainActivity extends BaseActivity implements Callback {
 	private static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
 	private static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
     private void startToCarRecord(String action, int mode) {
-        
-		Intent mIntent = new Intent(Intent.ACTION_MAIN); 
+    	surfaceDestroyed(null);
+		final Intent mIntent = new Intent(Intent.ACTION_MAIN); 
 		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
 		mIntent.setComponent(compName); 
 		mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -305,7 +352,15 @@ public class MainActivity extends BaseActivity implements Callback {
 		mBundle.putInt(RECORD_MODE, mode);
 		mIntent.putExtras(mBundle);
 		try{
-			startActivity(mIntent); 
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					startActivity(mIntent); 
+				}
+			}, 300);
+			
 		}catch(Exception e){
 			mToast.toastMsg("没有安装该应用");
 		}
@@ -326,25 +381,102 @@ public class MainActivity extends BaseActivity implements Callback {
     }
 	private void startActivity(String pkg,String cls,String name){
 		try{
-			Intent inten = new Intent().setClassName(pkg, cls);
-			startActivity(inten);
+			Intent intent = new Intent().setClassName(pkg, cls);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(intent);
 		}catch(Exception e){
 			if(!StringUtils.isEmpty(name))
 				mToast.toastMsg("没有安装"+name);
 		}
+	}
+	public  static void callPhoneNum(Context context,String Num){
+		try{
+			int calltype = 1;
+			if(calltype == 0){
+				Intent intent = new Intent().setClassName("com.concox.bluetooth","com.concox.bluetooth.MainActivity");
+				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				//intent.putExtra("PhoneNum", Num);
+				context.startActivity(intent);
+			}else{
+				Intent intent = new Intent(DataSyncService.ACTION_CW);
+				Bundle bundle = new Bundle();
+				bundle.putString("Number", Num);
+				intent.putExtras(bundle);
+				context.sendBroadcast(intent);
+			}
+		}catch(Exception e){
+
+		}		
 	}
 
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		//MyLog.D("onResume");
+
+		
 	}
 
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
+		
+		//MyLog.D("onPause");
 	}
 	
 	
+	
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		// TODO Auto-generated method stub
+		super.onWindowFocusChanged(hasFocus);
+		MyLog.D("onWindowFocusChanged:"+hasFocus);
+		if(IS_CAMREA_OPEN){
+			if(hasFocus){
+				new Handler().postDelayed(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						surfaceCreated(null);
+						surfaceChanged(mSurfaceView.getHolder(), 0, 0, 0);
+						
+					}
+				}, 500);		
+			}else{
+				surfaceDestroyed(null);
+			}
+		}
+	}
+
+	private void getContact(){
+		try{
+			isBlueToothConnect();
+		Cursor phone = getContentResolver().query(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"), null, null, null, null);
+		if(phone!=null){
+			phone.moveToFirst();
+			int colum = phone.getColumnCount();
+			for(int i=0;i<colum;i++){
+				
+				MyLog.D(phone.getColumnName(i)+"="+phone.getString(i));
+				
+			}
+		}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void isBlueToothConnect(){
+		try{
+			String connect = getContentResolver().getType(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/isconnect"));
+			MyLog.D("connect="+connect);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+
 }
