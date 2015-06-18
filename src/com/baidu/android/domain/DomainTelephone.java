@@ -13,6 +13,9 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.util.Log;
 
 import com.baidu.android.domain.DomainMap.MapObject;
+import com.example.cloudmirror.bean.ContactDBPref;
+import com.example.cloudmirror.ui.MainActivity;
+import com.example.cloudmirror.utils.StringUtils;
 import com.mapgoo.volice.ui.VoliceRecActivity;
 
 public class DomainTelephone extends Domain{
@@ -20,7 +23,7 @@ public class DomainTelephone extends Domain{
 	
 	public static class TelObject{
 		public String name;
-		
+		public String number;
 	}
 	
 	public TelObject Object;
@@ -31,33 +34,34 @@ public class DomainTelephone extends Domain{
 	@Override
 	public String doAction(Context context) {
 		// TODO Auto-generated method stub
-		if(Object.name != null){
-			if(intent != null && intent.equals("call")){
+		if(intent != null && intent.equals("call")){
 				return getTelNum(context,Object.name);
-			}
 		}
 		return null;
 	}
 
-	private String getTelNum(final Context context,String name){
-    	String[] PHONES_PROJECTION = new String[] {
-     	       Phone.DISPLAY_NAME, Phone.NUMBER, Phone.CONTACT_ID }; 
-     	final Cursor phone = context.getContentResolver().query(Phone.CONTENT_URI, PHONES_PROJECTION, Phone.DISPLAY_NAME+"='"+name+"'", null, null);
+	private String getTelNum(final Context context,final String name){
+		String calName = name;
+		String number = ContactDBPref.getInstance().getTelPhone(name);
+		
+		if(StringUtils.isEmpty(number)){
+			number = Object.number;
+			calName = Object.number;
+		}
+		final String telphone = number;
+		
+		if(StringUtils.isEmpty(telphone)){
+			return "没有找到"+name;
+		}else{
+				doActionRunnable = new Runnable() {
+					@Override
+					public void run() {
+			     		MainActivity.callPhoneNum(context, telphone);
+					}
+				};
+				return "您是否要打电话给"+calName+",请说是或者不是";
+		}
      	
-     	if(phone!=null && phone.getCount()>0){
-			doActionRunnable = new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-		     		String number = VoliceRecActivity.getCursorString(phone, Phone.NUMBER, 0);
-		     		context.startActivity(new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+number)));
-				}
-			};
-     		//return "正在打给"+name;
-			//return "是";
-			return "您是否要打电话给"+name+",请说是或者不是";
-     	}
-     	return "没有找到"+name;
 	}
 	
 }

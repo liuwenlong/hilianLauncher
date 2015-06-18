@@ -73,7 +73,7 @@ public class VoliceRecActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_volice_recogin);
 		initVolice();
-		uploadContacts();
+		//uploadContacts();
 		locationInit();
 		mListAdapter = new ListAdapter(getBaseContext(), mResultAnasy.mAnasyList);
 		mListView = (ListView)findViewById(R.id.list);
@@ -257,67 +257,7 @@ public class VoliceRecActivity extends ActionBarActivity {
 		}
 	}
 	
-    /**
-     * 上传通讯录
-     * */
-    private void uploadContacts(){
-    	boolean upload = QuickShPref.getInstance().getBoolean(QuickShPref.UPLOAD_CONTACTS);
-    	if(upload){
-    		
-    	}else{
-	    	DataUploader dataUploader = new DataUploader(this);
-	    	dataUploader.setApiKey(Constants.API_KEY, Constants.SECRET_KEY);
-	    	
-	    	//String jsonString = "[{\"name\":\"蔡毓宏\", \"frequency\":1}, {\"name\":\"林新汝\", \"frequency\":2}, {\"name\":\"文胜\", \"frequency\":3}]";
-	    	String jsonString = getContact();
-	    	MyLog.D(jsonString);
-	    	try{
-	    		if(jsonString != null){
-	    			dataUploader.uploadContactsData(jsonString.getBytes("utf-8"));
-	    			QuickShPref.getInstance().putValueObject(QuickShPref.UPLOAD_CONTACTS, true);
-	    		}
-	    	}catch (Exception e){
-	    		e.printStackTrace();
-	    	}
-    	}
-    }
-    
-    public static class DataUploaderBean extends Object implements Serializable{
-    	public String name;
-    	public int frequency;
-    	public DataUploaderBean(){}
-    	public DataUploaderBean(String name,int p){
-    		this.name = name;
-    		frequency = p;
-    	}
-    }
-    private String getContact(){
-    	ArrayList<DataUploaderBean> list = new ArrayList<DataUploaderBean>();
-    	String[] PHONES_PROJECTION = new String[] {
-    	       Phone.DISPLAY_NAME, Phone.NUMBER, Phone.CONTACT_ID }; 
-    	int count = 1;
-    	Cursor phone = getContentResolver().query(Phone.CONTENT_URI, PHONES_PROJECTION, null, null, null);
-    	if(phone!=null){
-	    	for(int i=0;i<phone.getCount();i++){
-	    		String name = getCursorString(phone, Phone.DISPLAY_NAME, i);
-	    		DataUploaderBean item = new DataUploaderBean(name,count);
-	    		list.add(item);
-	    		count++;
-	    	}
-    	}
-    	
-    	Map<String, Object> reqBodyParams = new HashMap<String, Object>();
-    	reqBodyParams.put("DataUploader", list);
-    	com.alibaba.fastjson.JSONObject object = new com.alibaba.fastjson.JSONObject(reqBodyParams);
 
-		return object.getJSONArray("DataUploader").toString();
-    }
-    
-    public static  String getCursorString(Cursor cur,String key,int pos){
-    	cur.moveToPosition(pos);
-    	int index = cur.getColumnIndex(key);
-    	return cur.getString(index);
-    }
     
     class ListAdapter extends BaseAdapter{
     	ArrayList<AnasyItem> mAnasyList = new ArrayList<AnasyItem>();

@@ -46,7 +46,7 @@
         
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="y88CAfH8U9muSmjfrdcavg1v" />
+            android:value="tkuGdIes3IWCRZGLMsVr9hnb" />
         <meta-data
             android:name="UMENG_APPKEY"
             android:value="556fc89467e58e5bb80035fb" >
@@ -111,6 +111,9 @@
             android:theme="@style/AppTheme.backgroudTransparent"
             android:configChanges="keyboardHidden|orientation" />            
         
+          <activity
+            android:name="com.example.cloudmirror.ui.activity.GasStationActivity"
+            android:configChanges="keyboardHidden|orientation" />
     </application>
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

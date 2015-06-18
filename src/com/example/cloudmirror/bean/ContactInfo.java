@@ -5,10 +5,17 @@ import android.util.Log;
 
 import com.example.cloudmirror.utils.DatabaseHelper;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.field.DatabaseField;
 
 public class ContactInfo {
+	@DatabaseField(generatedId = true)
+	public int id;
+	@DatabaseField
 	public String name;
+	@DatabaseField
 	public String telPhone;
+	@DatabaseField
+	public String remark;
 	private static Dao<ContactInfo, String> msgDao = null;
 
 	/**

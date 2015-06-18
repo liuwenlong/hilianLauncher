@@ -53,6 +53,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ImageView.ScaleType;
+import android.widget.Toast;
 
 
 public class MainActivity extends BaseActivity implements Callback {
@@ -62,7 +63,7 @@ public class MainActivity extends BaseActivity implements Callback {
 	private Camera mCamera;  
     private boolean mPreviewRunning = false; 
     private LinearLayout home_adv_view;
-    private boolean  IS_CAMREA_OPEN = false; 
+    private boolean  IS_CAMREA_OPEN = true; 
     
     private BroadcastReceiver mMyReceiver = new BroadcastReceiver(){
 
@@ -85,7 +86,8 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main);
 		//printApp();
-		getContact();
+		//getContact();
+		startService(new Intent(mContext, DataSyncService.class));
 	}
 
 	@Override
@@ -389,26 +391,49 @@ public class MainActivity extends BaseActivity implements Callback {
 				mToast.toastMsg("没有安装"+name);
 		}
 	}
-	public  static void callPhoneNum(Context context,String Num){
+	public  static boolean callPhoneNum(Context context,String Num){
+		if(isBlueToothConnect(context)){
+			try{
+				int calltype = 0;
+				if(calltype == 0){
+					Intent intent = new Intent().setClassName("com.concox.bluetooth","com.concox.bluetooth.MainActivity");
+					intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+					intent.putExtra("PhoneNum", Num);
+					context.startActivity(intent);
+				}else{
+					Intent intentp = new Intent().setClassName("com.concox.bluetooth","com.concox.bluetooth.MainActivity");
+					intentp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					intentp.putExtra("PhoneNum", Num);
+					context.startActivity(intentp);		
+					
+					Intent intent = new Intent(DataSyncService.ACTION_CW);
+					Bundle bundle = new Bundle();
+					bundle.putString("Number", Num);
+					intent.putExtras(bundle);
+					context.sendBroadcast(intent);
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			return true;
+		}else{
+			Toast.makeText(context, "蓝牙没有连接", Toast.LENGTH_SHORT).show();
+			return false;
+		}
+	}
+	public static boolean isBlueToothConnect(Context c){
 		try{
-			int calltype = 1;
-			if(calltype == 0){
-				Intent intent = new Intent().setClassName("com.concox.bluetooth","com.concox.bluetooth.MainActivity");
-				intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				//intent.putExtra("PhoneNum", Num);
-				context.startActivity(intent);
-			}else{
-				Intent intent = new Intent(DataSyncService.ACTION_CW);
-				Bundle bundle = new Bundle();
-				bundle.putString("Number", Num);
-				intent.putExtras(bundle);
-				context.sendBroadcast(intent);
+			String connect = c.getContentResolver().getType(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/isconnect"));
+			MyLog.D("connect="+connect);
+			if(!StringUtils.isEmpty(connect)){
+				if("connect".equals(connect))
+					return true;
 			}
 		}catch(Exception e){
-
-		}		
+			e.printStackTrace();
+		}
+		return false;
 	}
-
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub

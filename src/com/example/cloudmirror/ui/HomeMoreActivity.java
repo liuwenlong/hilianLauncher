@@ -1,5 +1,6 @@
 package com.example.cloudmirror.ui;
 
+import com.example.cloudmirror.ui.activity.GasStationActivity;
 import com.mapgoo.eagle.R;
 
 import android.content.Intent;
@@ -110,6 +111,9 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutJY = new ShortcutItem(R.drawable.home_more_jiayou,R.string.home_more_jiayou){
 		@Override
 		protected void doAction() {
+			Intent intent = new Intent();
+			intent.setClass(mContext, GasStationActivity.class);
+			startActivity(intent);
 		}
 	};
 	ShortcutItem  shortcutZS = new ShortcutItem(R.drawable.home_more_zhushou,R.string.home_more_zhushou){

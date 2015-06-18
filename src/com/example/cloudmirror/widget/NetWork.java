@@ -17,6 +17,8 @@ public class NetWork {
 	private OutputStream mSocketWriter;
 	private DBmanager mDBmanager;
 	
+	public final  static int ReConnectTime = 60*1000;
+	
 	public NetWork(){
 		mDBmanager = DBmanager.getInase();
 	}
@@ -45,13 +47,13 @@ public class NetWork {
 					mDBmanager.deleteItem(item.id);
 					sleep(200);
 				}else{
-					sleep(30*1000);
+					sleep(ReConnectTime);
 					reStartSocket();
 				}
 				
 			}else{
 				MyLog.D("没有数据,等待30秒");
-				sleep(30*1000);
+				sleep(ReConnectTime);
 			}
 		
 		}
@@ -121,6 +123,13 @@ public class NetWork {
 		}
 	}
 	
+	public boolean isNetWorkConnect(){
+		if(mSocketWriter == null)
+			return false;
+		else{
+			return true;
+		}
+	}
 	public void sleep(int dur){
 		
 		try {

@@ -1,6 +1,10 @@
 package com.example.cloudmirror.service;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -14,10 +18,17 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.baidu.voicerecognition.android.DataUploader;
+import com.baidu.voicerecognition.android.DataUploaderListener;
+import com.example.cloudmirror.bean.ContactDBPref;
+import com.example.cloudmirror.bean.ContactInfo;
+import com.example.cloudmirror.utils.DBmanager;
 import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
+import com.example.cloudmirror.utils.StringUtils;
 import com.example.cloudmirror.widget.GetLoaction;
 import com.example.cloudmirror.widget.NetWork;
+import com.mapgoo.volice.api.Constants;
 import com.umeng.analytics.MobclickAgent;
 
 import de.greenrobot.event.EventBus;
@@ -31,12 +42,13 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-public class DataSyncService extends Service{
+public class DataSyncService extends Service implements DataUploaderListener{
 	
 	public static final String ACTION_LIST_REFRESH = "com.concox.BLUETOOTH_LIST_REFRESH";
 	public static final String ACTION_IG = "com.concox.BLUETOOTH_IG";
@@ -69,13 +81,36 @@ public class DataSyncService extends Service{
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		 Log.i(TAG, "onCreate");
+		MyLog.D("DataSyncService onCreate");
 		// locationInit();
 		//openADB();
 		//getIMEI();
 		//initSingle();
-		//mNetWork.start();
+		mNetWork.start();
 		 registReceiver();
+		 //uploadContacts();
+		 startUpdateThread();
+	}
+	Thread mContactUpdateThread;
+	private void startUpdateThread(){
+		mContactUpdateThread =new Thread(){
+    		@Override
+    		public void run() {
+    			super.run();
+    			while(true){
+    				
+	    			if(mNetWork.isNetWorkConnect()){
+	    				MyLog.D("电话号码更新中......");
+	    				uploadContacts();
+	    			}else{
+	    				MyLog.D("电话号码更新,网络无连接，30秒后重试");
+	    			}
+	    			DBmanager.getInase().insert("nothing");
+	    			mNetWork.sleep(NetWork.ReConnectTime);
+    			}
+    		}
+    	};
+    	mContactUpdateThread.start();
 	}
 	
     private BroadcastReceiver mMyReceiver = new BroadcastReceiver(){
@@ -85,17 +120,112 @@ public class DataSyncService extends Service{
 			
 			// TODO Auto-generated method stub
 			if(intent != null){
+				String action = intent.getAction();
+				
 				MyLog.D("action="+intent.getAction());
 				
-				//
+				if(ACTION_PC.equals(action)){
+					new Handler().postDelayed(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							CheckContact();
+						}
+					}, 5000);
+				}
 			}
-			isBlueToothConnect();
 		}
     	
     };
     
+    private void CheckContact(){
+
+	    	new Thread(){
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					super.run();
+					Cursor phone = getContentResolver().query(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"), null, null, null, null);
+					if(ContactDBPref.getInstance().isCursorSame(phone)){
+						MyLog.D("电话号码有多个一样，不更新");
+					}else{
+						mContactUpdateThread.interrupt();
+						MyLog.D("电话号码不一样，打断睡眠，立刻更新");
+					}
+				}
+	    	}.start();
+    }
+    /**
+     * 上传通讯录
+     * */
+    private void uploadContacts(){
+    	boolean upload = QuickShPref.getInstance().getBoolean(QuickShPref.UPLOAD_CONTACTS);
+    	if(upload==false){
+	    	DataUploader dataUploader = new DataUploader(this);
+	    	dataUploader.setApiKey(Constants.API_KEY, Constants.SECRET_KEY);
+	    	
+	    	//String jsonString = "[{\"name\":\"蔡毓宏\", \"frequency\":1}, {\"name\":\"林新汝\", \"frequency\":2}, {\"name\":\"文胜\", \"frequency\":3}]";
+	    	String jsonString = getContact();
+	    	MyLog.D(jsonString);
+	    	try{
+	    		if(jsonString != null){
+	    			dataUploader.uploadContactsData(jsonString.getBytes("utf-8"));
+	    			dataUploader.setDataUploaderListener(this);
+	    			if(mNetWork.isNetWorkConnect())
+	    				QuickShPref.getInstance().putValueObject(QuickShPref.UPLOAD_CONTACTS, true);
+	    		}
+	    	}catch (Exception e){
+	    		e.printStackTrace();
+	    	}
+    	}else{
+    		MyLog.D("没有需要更新的电话号码");
+    	}
+    }
     
-	private void getContact(){
+    public static class DataUploaderBean extends Object implements Serializable{
+    	public String name;
+    	public int frequency;
+    	public DataUploaderBean(){}
+    	public DataUploaderBean(String name,int p){
+    		this.name = name;
+    		frequency = p;
+    	}
+    }
+    private String getContact(){
+    	try{
+	    	ArrayList<DataUploaderBean> list = new ArrayList<DataUploaderBean>();
+	    	String[] PHONES_PROJECTION = new String[] {
+	    	       Phone.DISPLAY_NAME, Phone.NUMBER, Phone.CONTACT_ID }; 
+	    	int count = 1;
+	    	//Cursor phone = getContentResolver().query(Phone.CONTENT_URI, PHONES_PROJECTION, null, null, null);
+	    	
+	    	Cursor phone = getContentResolver().query(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"), null, null, null, null);
+	    	if(phone!=null){
+		    	for(int i=0;i<phone.getCount();i++){
+		    		String name = getCursorString(phone, "name", i);
+		    		DataUploaderBean item = new DataUploaderBean(name,count);
+		    		list.add(item);
+		    		count++;
+		    	}
+	    	}
+	    	
+	    	Map<String, Object> reqBodyParams = new HashMap<String, Object>();
+	    	reqBodyParams.put("DataUploader", list);
+	    	com.alibaba.fastjson.JSONObject object = new com.alibaba.fastjson.JSONObject(reqBodyParams);
+	    	return object.getJSONArray("DataUploader").toString();
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+		return null;
+    }
+    
+    public static  String getCursorString(Cursor cur,String key,int pos){
+    	cur.moveToPosition(pos);
+    	int index = cur.getColumnIndex(key);
+    	return cur.getString(index);
+    }   
+	private void getContactrr(){
 		try{
 		Cursor phone = getContentResolver().query(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"), null, null, null, null);
 		if(phone!=null){
@@ -112,14 +242,7 @@ public class DataSyncService extends Service{
 		}
 	}
 	
-	private void isBlueToothConnect(){
-		try{
-			String connect = getContentResolver().getType(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/isconnect"));
-			MyLog.D("connect="+connect);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
+
 
 	private void registReceiver(){
 		IntentFilter filter = new IntentFilter();
@@ -279,6 +402,10 @@ public class DataSyncService extends Service{
          mGetLoaction.setGSMsingle(signalStrength.getGsmSignalStrength());
       }
 	}
-	
-	
+
+	@Override
+	public void onCompleted(DataUploader arg0, int arg1) {
+		// TODO Auto-generated method stub
+		MyLog.D("arg1="+arg1);
+	}	
 }

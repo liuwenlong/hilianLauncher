@@ -74,7 +74,7 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
     	mLastType = 1;
     	mLastRunnanle = r;
     	addAnswer(answer, reTryRunnable, needFinish);
-    }    
+    }
     public void addAnasyItem(String answer,AnasyItem anasy,boolean needFinish){
     	anasy.needFinsh = true;
     	anasy.content = answer;
