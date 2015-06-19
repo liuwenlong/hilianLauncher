@@ -63,7 +63,7 @@ public class MainActivity extends BaseActivity implements Callback {
 	private Camera mCamera;  
     private boolean mPreviewRunning = false; 
     private LinearLayout home_adv_view;
-    private boolean  IS_CAMREA_OPEN = true; 
+    private boolean  IS_CAMREA_OPEN = false; 
     
     private BroadcastReceiver mMyReceiver = new BroadcastReceiver(){
 
@@ -196,8 +196,11 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.home_click_volice:
 				startActivity(new Intent(mContext, VoliceRecActivity.class));
 				break;
+			case R.id.home_icon_carrecord_btn:	
 			case R.id.surface_camera_btn:
 				startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+				
+				//startToCarRecord(CARBACK_ACTION, RECORD_MODE_NORMAL);
 				//startActivity("com.android.camera", "com.android.camera.Camera", null);
 				//startActivity(new Intent(mContext, CameraTestActivity.class));
 				break;
@@ -228,6 +231,7 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.function_item_5:
 				callPhoneNum(mContext,"10086");
 				break;
+			
 			default:
 				break;
 		}
@@ -344,6 +348,7 @@ public class MainActivity extends BaseActivity implements Callback {
 	private static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
 	private static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
     private void startToCarRecord(String action, int mode) {
+    	
     	surfaceDestroyed(null);
 		final Intent mIntent = new Intent(Intent.ACTION_MAIN); 
 		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
@@ -373,7 +378,6 @@ public class MainActivity extends BaseActivity implements Callback {
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);	
         List<ResolveInfo> mApps = getPackageManager().queryIntentActivities(mainIntent, 0);
 
-        
         for(final ResolveInfo app:mApps){
         	String name = app.activityInfo.name;
         	String pack = app.activityInfo.packageName;
@@ -439,8 +443,6 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		super.onResume();
 		//MyLog.D("onResume");
-
-		
 	}
 
 	@Override
@@ -473,24 +475,6 @@ public class MainActivity extends BaseActivity implements Callback {
 			}else{
 				surfaceDestroyed(null);
 			}
-		}
-	}
-
-	private void getContact(){
-		try{
-			isBlueToothConnect();
-		Cursor phone = getContentResolver().query(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"), null, null, null, null);
-		if(phone!=null){
-			phone.moveToFirst();
-			int colum = phone.getColumnCount();
-			for(int i=0;i<colum;i++){
-				
-				MyLog.D(phone.getColumnName(i)+"="+phone.getString(i));
-				
-			}
-		}
-		}catch(Exception e){
-			e.printStackTrace();
 		}
 	}
 	
