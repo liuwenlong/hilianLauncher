@@ -8,6 +8,8 @@ import java.net.Socket;
 import com.example.cloudmirror.utils.DBmanager;
 import com.example.cloudmirror.utils.DBmanager.DbItem;
 import com.example.cloudmirror.utils.MyLog;
+
+import de.greenrobot.event.EventBus;
 public class NetWork {
 	private final String Server_ip = "183.62.138.9";
 	private final int Server_port = 2233;
@@ -17,7 +19,9 @@ public class NetWork {
 	private OutputStream mSocketWriter;
 	private DBmanager mDBmanager;
 	
-	public final  static int ReConnectTime = 60*1000;
+	public final  static int ReConnectTime = 30*1000;
+	
+	private boolean NetWorkConnect = false;
 	
 	public NetWork(){
 		mDBmanager = DBmanager.getInase();
@@ -124,9 +128,15 @@ public class NetWork {
 	}
 	
 	public boolean isNetWorkConnect(){
-		if(mSocketWriter == null)
+		if(mSocketWriter == null){
+			if(NetWorkConnect)
+				EventBus.getDefault().post("NetWorkDisConnect");
+			NetWorkConnect = false;
 			return false;
-		else{
+		}else{
+			if(NetWorkConnect == false)
+				EventBus.getDefault().post("NetWorkConnect");
+			NetWorkConnect = true;
 			return true;
 		}
 	}

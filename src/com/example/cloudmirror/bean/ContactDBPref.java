@@ -14,6 +14,7 @@ import android.util.Log;
 import com.example.cloudmirror.application.MGApp;
 import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
+import com.example.cloudmirror.utils.StringUtils;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;
@@ -36,6 +37,15 @@ public class ContactDBPref {
 		return mMsgDBPref;
 	}
 	
+	public List<ContactInfo> queryAllContact(){
+		try {
+			return msgDao.queryForAll();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 	public boolean isExsitContact(ContactInfo info){
 		try{
 			long count = msgDao.queryBuilder().where().eq("name", info.name).and().eq("telPhone", info.telPhone).countOf();
@@ -91,11 +101,31 @@ public class ContactDBPref {
 	public void updateDbFromCursor(Cursor cur,ArrayList<ContactInfo> list){
 		try{
 			TableUtils.clearTable(msgDao.getConnectionSource(), ContactInfo.class);
+			InsertCustomContact(list);
 			for(ContactInfo info:list){
 				msgDao.createIfNotExists(info);	
 			}
 		}catch(Exception e){
 			e.printStackTrace();
+		}
+	}
+	
+	public void InsertCustomContact(ArrayList<ContactInfo> list){
+		CarHomeBean home = CarHomeBean.getFromJson(QuickShPref.getInstance().getString(CarHomeBean.TAG));
+		if(home!=null){
+			addTelNum("租赁",CarHomeBean.TELTYPE_ZL,list,home);
+			addTelNum("代驾",CarHomeBean.TELTYPE_DJ,list,home);
+			addTelNum("保险",CarHomeBean.TELTYPE_BX,list,home);
+			addTelNum("4s店",CarHomeBean.TELTYPE_4S,list,home);
+			addTelNum("sos",CarHomeBean.TELTYPE_SOS,list,home);
+		}
+	}
+	public void addTelNum(String name,int type,ArrayList<ContactInfo> list,CarHomeBean home){
+		String num = home.getTelNum(type);
+		if(StringUtils.isEmpty(num)){
+			MyLog.W(name+"号码不存在");
+		}else{
+			list.add(new ContactInfo(name,num));
 		}
 	}
 	

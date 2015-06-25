@@ -17,7 +17,12 @@ public class ContactInfo {
 	@DatabaseField
 	public String remark;
 	private static Dao<ContactInfo, String> msgDao = null;
-
+	
+	public ContactInfo(){}
+	public ContactInfo(String name,String telPhone){
+		this.name = name;
+		this.telPhone = telPhone;
+	}
 	/**
 	 * Returns the Database Access Object (DAO) for our SimpleData class. It
 	 * will create it or just give the cached value.

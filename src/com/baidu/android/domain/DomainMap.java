@@ -5,8 +5,10 @@ import java.net.URISyntaxException;
 import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
 import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.baidu.mapapi.utils.route.RouteParaOption.EBusStrategyType;
+import com.example.cloudmirror.ui.activity.GasStationActivity;
+import com.example.cloudmirror.utils.MyLog;
+import com.mapgoo.eagle.R;
 import com.mapgoo.volice.ui.VoliceRecActivity;
-
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -57,6 +59,7 @@ public class DomainMap extends Domain{
 				// TODO Auto-generated method stub
 			    RouteParaOption para = new RouteParaOption()
 			    	.startName(start)
+			    	.startPoint(VoliceRecActivity.getLocLatLng())
 			        .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
 			    try {
 			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
@@ -65,17 +68,22 @@ public class DomainMap extends Domain{
 			    }
 			}
 		};
-		return "您是否要导航到"+Object.arrival+",请说是或者不是";
+		return "您是否要导航到"+Object.arrival+context.getString(R.string.do_ask);
 	    //return "正在导航到"+VoliceRecActivity.mBDLocation.getCity()+Object.arrival;
 	    //return "是";
 	}
 
-	private String startNearby(Context context){
-		
-		if(Object.keywords!=null){
-			Object.start = Object.keywords;
-			startNavi(context);
-			return "是";
+	private String startNearby(final Context context){
+		MyLog.D("----->startNearby:Object.keywords="+Object.keywords);
+		if(Object.keywords != null){
+			doActionRunnable = new Runnable() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					context.startActivity(new Intent(context, GasStationActivity.class).putExtra("keywords", Object.keywords));
+				}
+			};
+			return "您是否要搜索附近的"+Object.keywords+context.getString(R.string.do_ask);
 		}else
 			return null;
 	}

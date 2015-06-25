@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mapgoo.eagle"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0.0" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -22,7 +22,6 @@
 				 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
-
             </intent-filter>
         </activity>
 
@@ -49,7 +48,7 @@
             android:value="tkuGdIes3IWCRZGLMsVr9hnb" />
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="556fc89467e58e5bb80035fb" >
+            android:value="558bc57767e58e4643002b85" >
         </meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
@@ -63,7 +62,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-
+        
         <service
             android:name="com.example.cloudmirror.service.DataSyncService"
             android:enabled="true" />
@@ -105,7 +104,12 @@
         <activity
             android:name="com.mapgoo.volice.ui.VoliceRecActivity"
             android:theme="@style/AppTheme.backgroudTransparent"
-            android:configChanges="keyboardHidden|orientation" />        
+            android:launchMode="singleInstance"
+            android:configChanges="keyboardHidden|orientation" />
+         	<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         <activity
             android:name="com.example.cloudmirror.ui.CameraTestActivity"
             android:theme="@style/AppTheme.backgroudTransparent"

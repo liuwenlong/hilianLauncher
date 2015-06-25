@@ -8,6 +8,7 @@ import com.baidu.mapapi.navi.NaviParaOption;
 import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
 import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.baidu.mapapi.utils.route.RouteParaOption.EBusStrategyType;
+import com.mapgoo.eagle.R;
 import com.mapgoo.volice.ui.VoliceRecActivity;
 
 import android.app.SearchManager;
@@ -55,6 +56,7 @@ public class DomainNavIns extends Domain{
 				// TODO Auto-generated method stub
 			    RouteParaOption para = new RouteParaOption()
 			    .startName(start)
+			    .startPoint(VoliceRecActivity.getLocLatLng())
 			    .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
 			    try {
 			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
@@ -64,6 +66,6 @@ public class DomainNavIns extends Domain{
 			}
 		};
 
-	    return "您是否要导航到"+Object.arrival+",请说是或者不是";
+	    return "您是否要导航到"+Object.arrival+context.getString(R.string.do_ask);
 	}
 }

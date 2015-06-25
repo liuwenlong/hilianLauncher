@@ -25,10 +25,11 @@
     <string name="home_more_liuliang">流量查询</string>
     <string name="home_more_settings">设置</string>
     <string name="home_more_about">关于</string>
-    
+    <string name="home_more_back">返回</string>
+        
     <string name="name_call_zl">租赁</string>
-    <string name="name_call_dj">代价</string>
-    <string name="name_call_fw">服务</string>
+    <string name="name_call_dj">代驾</string>
+    <string name="name_call_fw">保险</string>
     <string name="name_call_4s">4S店</string>
     <string name="name_call_sos">SOS</string>
     
@@ -36,4 +37,6 @@
     <string name="volice_tip">您可以这样说\n\n电话:打电话给小明\n\n导航:导航到天安门\n\n打开:打开行车助手</string>
     
     <string name="volice_start">你好，请问需要什么帮助？</string>
+    <string name="volice_network_disconnect">网络无连接，请检查网络设置！</string>
+    <string name="do_ask">，请说是或者不是？</string>
 </resources>

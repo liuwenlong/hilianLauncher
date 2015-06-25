@@ -237,7 +237,9 @@ public class RequestUtils {
 		if (!StringUtils.isEmpty(appKey))
 			mAppKey = appKey;
 	}
-
+	public static String getAppKey() {
+		return mAppKey;
+	}
 	/**
 	 * 概述: GET请求-URL拼接
 	 * 

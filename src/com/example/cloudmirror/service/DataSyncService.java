@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -13,13 +13,16 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.baidu.voicerecognition.android.Candidate;
 import com.baidu.voicerecognition.android.DataUploader;
 import com.baidu.voicerecognition.android.DataUploaderListener;
+import com.baidu.voicerecognition.android.VoiceRecognitionClient;
+import com.baidu.voicerecognition.android.VoiceRecognitionConfig;
+import com.baidu.voicerecognition.android.VoiceRecognitionClient.VoiceClientStatusChangeListener;
 import com.example.cloudmirror.bean.ContactDBPref;
 import com.example.cloudmirror.bean.ContactInfo;
 import com.example.cloudmirror.utils.DBmanager;
@@ -28,7 +31,9 @@ import com.example.cloudmirror.utils.QuickShPref;
 import com.example.cloudmirror.utils.StringUtils;
 import com.example.cloudmirror.widget.GetLoaction;
 import com.example.cloudmirror.widget.NetWork;
+import com.mapgoo.volice.api.Config;
 import com.mapgoo.volice.api.Constants;
+import com.mapgoo.volice.ui.VoliceRecActivity;
 import com.umeng.analytics.MobclickAgent;
 
 import de.greenrobot.event.EventBus;
@@ -84,12 +89,13 @@ public class DataSyncService extends Service implements DataUploaderListener{
 		MyLog.D("DataSyncService onCreate");
 		// locationInit();
 		//openADB();
-		//getIMEI();
+		getIMEI();
 		//initSingle();
 		mNetWork.start();
 		 registReceiver();
 		 //uploadContacts();
 		 startUpdateThread();
+		 startVoiceRecord();
 	}
 	Thread mContactUpdateThread;
 	private void startUpdateThread(){
@@ -110,7 +116,14 @@ public class DataSyncService extends Service implements DataUploaderListener{
     			}
     		}
     	};
-    	mContactUpdateThread.start();
+    	
+    	mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				mContactUpdateThread.start();
+			}
+		}, 5000);  	
 	}
 	
     private BroadcastReceiver mMyReceiver = new BroadcastReceiver(){
@@ -166,7 +179,7 @@ public class DataSyncService extends Service implements DataUploaderListener{
 	    	dataUploader.setApiKey(Constants.API_KEY, Constants.SECRET_KEY);
 	    	
 	    	//String jsonString = "[{\"name\":\"蔡毓宏\", \"frequency\":1}, {\"name\":\"林新汝\", \"frequency\":2}, {\"name\":\"文胜\", \"frequency\":3}]";
-	    	String jsonString = getContact();
+	    	String jsonString = getContactFromDB();//getContact();
 	    	MyLog.D(jsonString);
 	    	try{
 	    		if(jsonString != null){
@@ -199,7 +212,6 @@ public class DataSyncService extends Service implements DataUploaderListener{
 	    	       Phone.DISPLAY_NAME, Phone.NUMBER, Phone.CONTACT_ID }; 
 	    	int count = 1;
 	    	//Cursor phone = getContentResolver().query(Phone.CONTENT_URI, PHONES_PROJECTION, null, null, null);
-	    	
 	    	Cursor phone = getContentResolver().query(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"), null, null, null, null);
 	    	if(phone!=null){
 		    	for(int i=0;i<phone.getCount();i++){
@@ -217,6 +229,27 @@ public class DataSyncService extends Service implements DataUploaderListener{
     	}catch(Exception e){
     		e.printStackTrace();
     	}
+		return null;
+    }
+    public String getContactFromDB(){
+    	ArrayList<DataUploaderBean> list = new ArrayList<DataUploaderBean>();
+    	 List<ContactInfo> contactlist = ContactDBPref.getInstance().queryAllContact();
+    	 try{
+	    	 int count = 1;
+	    	 if(contactlist!=null && contactlist.size()>0){
+		    	 for(ContactInfo info:contactlist){
+			    		DataUploaderBean item = new DataUploaderBean(info.name,count);
+			    		list.add(item);
+			    		count++;
+		    	 }
+	    	 }
+		    Map<String, Object> reqBodyParams = new HashMap<String, Object>();
+		    reqBodyParams.put("DataUploader", list);
+		    com.alibaba.fastjson.JSONObject object = new com.alibaba.fastjson.JSONObject(reqBodyParams);
+		    return object.getJSONArray("DataUploader").toString();
+	 	}catch(Exception e){
+	 		e.printStackTrace();
+	 	}
 		return null;
     }
     
@@ -288,12 +321,27 @@ public class DataSyncService extends Service implements DataUploaderListener{
         return mBinder;
     }
 
+    public final static String COMMAND = "command";
+    public final static int COMMAND_NONE = 0;
+    public final static int COMMAND_START = 1;
+    public final static int COMMAND_STOP = 2;
 	@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "Received start id " + startId + ": " + intent);
         if(intent!=null && intent.getExtras()!=null){
-
+        	int command = intent.getIntExtra(COMMAND, 0);
+        	switch (command) {
+			case COMMAND_START:
+				startVoiceRecord();
+				break;
+			case COMMAND_STOP:
+				stopVoiceRecord();
+				break;			
+			default:
+				break;
+			}
         }
+        
         return START_STICKY;
     }
 	
@@ -407,5 +455,140 @@ public class DataSyncService extends Service implements DataUploaderListener{
 	public void onCompleted(DataUploader arg0, int arg1) {
 		// TODO Auto-generated method stub
 		MyLog.D("arg1="+arg1);
-	}	
+	}
+	
+	 private VoiceRecognitionClient mASREngine;
+	 private MyVoiceRecogListener mListener = new MyVoiceRecogListener();
+	 private boolean isRecognition = false;
+	 
+	private void stopVoiceRecord(){
+		isRecognition = false;
+		if(mASREngine != null){
+			mASREngine.stopVoiceRecognition();
+			mASREngine = null;
+		}
+    	VoiceRecognitionClient.releaseInstance(); 
+    	 MyLog.D("------>停止后台语音识别");
+	}
+	private void startVoiceRecord(){
+		if(isRecognition == true)
+			return;
+		if(mASREngine == null){
+	        mASREngine = VoiceRecognitionClient.getInstance(this);
+	        mASREngine.setTokenApis(Constants.API_KEY, Constants.SECRET_KEY);
+		}
+		 VoiceRecognitionConfig config = new VoiceRecognitionConfig();
+         config.setProp(Config.CURRENT_PROP);
+         config.setLanguage(Config.getCurrentLanguage());
+//         config.enableContacts(); // 启用通讯录
+//         config.enableVoicePower(Config.SHOW_VOL); // 音量反馈。
+//         if (Config.PLAY_START_SOUND) {
+//             config.enableBeginSoundEffect(R.raw.bdspeech_recognition_start); // 设置识别开始提示音
+//         }
+//         if (Config.PLAY_END_SOUND) {
+//             config.enableEndSoundEffect(R.raw.bdspeech_speech_end); // 设置识别结束提示音
+//         }
+         config.setSampleRate(VoiceRecognitionConfig.SAMPLE_RATE_8K); // 设置采样率,需要与外部音频一致
+         // 下面发起识别
+         int code = mASREngine.startVoiceRecognition(mListener, config);
+         
+         mHandler.removeCallbacks(startVoiceRunnable);
+         if(code == VoiceRecognitionClient.START_WORK_RESULT_WORKING){
+        	 MyLog.I("------>开始后台语音识别成功");
+         }else{
+        	 MyLog.E("------>后台语音识别,开始失败:code="+code+",30秒后重试");
+        	 mHandler.postDelayed(startVoiceRunnable, 30*1000);//启动失败30秒后重试
+         }
+	}
+	private Runnable startVoiceRunnable = new Runnable(){
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			startVoiceRecord();
+		}
+	};
+    /**
+     * 重写用于处理语音识别回调的监听器
+     */
+    class MyVoiceRecogListener implements VoiceClientStatusChangeListener {
+
+        @Override
+        public void onClientStatusChange(int status, Object obj) {
+            switch (status) {
+            // 语音识别实际开始，这是真正开始识别的时间点，需在界面提示用户说话。
+                case VoiceRecognitionClient.CLIENT_STATUS_START_RECORDING:
+                    isRecognition = true;
+                    MyLog.D("--------->语音识别实际开始");
+                    break;
+                case VoiceRecognitionClient.CLIENT_STATUS_SPEECH_START: // 检测到语音起点
+                	 MyLog.D("--------->检测到语音起点");
+                    break;
+                // 已经检测到语音终点，等待网络返回
+                case VoiceRecognitionClient.CLIENT_STATUS_SPEECH_END:
+                	 MyLog.D("--------->已经检测到语音终点，等待网络返回");
+                    break;
+                // 语音识别完成，显示obj中的结果
+                case VoiceRecognitionClient.CLIENT_STATUS_FINISH:
+                	MyLog.D("--------->语音识别完成");
+                	isRecognition = false;
+                    updateRecognitionResult(obj);          
+                    break;
+                // 处理连续上屏
+                case VoiceRecognitionClient.CLIENT_STATUS_UPDATE_RESULTS:
+                	MyLog.D("--------->处理连续上屏");
+                    updateRecognitionResult(obj);
+                    break;
+                // 用户取消
+                case VoiceRecognitionClient.CLIENT_STATUS_USER_CANCELED: 
+                	MyLog.D("--------->用户取消");
+                    isRecognition = false;
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        @Override
+        public void onError(int errorType, int errorCode) {
+            isRecognition = false;
+            updateRecognitionResult(null);
+        }
+
+        @Override
+        public void onNetworkStatusChange(int status, Object obj) {
+            // 这里不做任何操作不影响简单识别
+        }
+    }
+    private void updateRecognitionResult(Object result) {
+    	String voiceRlt = null;
+        if (result != null && result instanceof List) {
+            List results = (List) result;
+            if (results.size() > 0) {
+                if (results.get(0) instanceof List) {
+                    List<List<Candidate>> sentences = (List<List<Candidate>>) result;
+                    StringBuffer sb = new StringBuffer();
+                    for (List<Candidate> candidates : sentences) {
+                        if (candidates != null && candidates.size() > 0) {
+                            sb.append(candidates.get(0).getWord());
+                        }
+                    }
+                    voiceRlt = sb.toString();
+                    //mResult.setText(sb.toString());
+                } else {
+                	voiceRlt = results.get(0).toString();
+                    //mResult.setText(results.get(0).toString());
+                }
+            }
+        }
+        MyLog.D("voiceRlt="+voiceRlt);
+        if(!StringUtils.isEmpty(voiceRlt) && voiceRlt.contains("小瑞你好")){
+        	startActivity(new Intent(this, VoliceRecActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+//        	startActivity(new Intent(this, VoliceRecActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        }else{
+        	if(isRecognition == false){
+        		mHandler.postDelayed(startVoiceRunnable, 50);
+        	}
+        }
+    }
 }

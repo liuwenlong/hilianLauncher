@@ -19,12 +19,46 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="horizontal" >
+            
+         <LinearLayout
+                android:id="@+id/home_call"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.95"
+                android:background="@drawable/home_button_bg"
+                android:onClick="onClick"
+                android:orientation="vertical" >
 
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:layout_gravity="bottom"
+                        android:scaleType="center"
+                        android:src="@drawable/home_icon_call" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:text="一键呼叫"
+                    android:textColor="@color/home_text_color" />
+            </LinearLayout>
+            
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.57"
                 android:background="@drawable/home_button_bg"
+                android:layout_marginLeft="@dimen/activity_item_margin"
                 android:orientation="horizontal"
                 android:padding="1px" >
 
@@ -86,7 +120,7 @@
                     android:onClick="onClick"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="@dimen/activity_item_margin"
+
                     android:layout_weight="1"
                     android:background="@drawable/home_button_bg"
                     android:orientation="vertical" >
@@ -133,39 +167,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/home_call"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/activity_item_margin"
-                android:layout_weight="1"
-                android:background="@drawable/home_button_bg"
-                android:onClick="onClick"
-                android:orientation="vertical" >
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" >
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_centerHorizontal="true"
-                        android:layout_gravity="bottom"
-                        android:scaleType="center"
-                        android:src="@drawable/home_icon_call" />
-                </RelativeLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:gravity="center"
-                    android:text="一键呼叫"
-                    android:textColor="@color/home_text_color" />
-            </LinearLayout>
+               
         </LinearLayout>
 
         <LinearLayout
@@ -261,7 +263,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:gravity="center"
-                        android:text="Wifi"
+                        android:text="Wifi热点"
                         android:textColor="@color/home_text_color"
                         android:textSize="11sp" />
                 </LinearLayout>
@@ -286,7 +288,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="3"
                         android:gravity="center"
-                        android:text="蓝牙"
+                        android:text="蓝牙电话"
                         android:textColor="@color/home_text_color"
                         android:textSize="11sp" />
                 </LinearLayout>

@@ -1,31 +1,28 @@
 package com.baidu.android.domain;
 
-import java.util.ArrayList;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Handler;
+import android.util.Log;
+
+import com.alibaba.fastjson.JSON;
+import com.android.volley.Response.Listener;
+import com.baidu.speechsynthesizer.SpeechSynthesizer;
+import com.example.cloudmirror.api.ApiClient;
+import com.example.cloudmirror.api.GlobalNetErrorHandler;
+import com.example.cloudmirror.bean.VoiceYesNoBean;
+import com.example.cloudmirror.ui.activity.GasStationActivity;
+import com.example.cloudmirror.utils.MyLog;
+import com.example.cloudmirror.utils.QuickShPref;
+import com.example.cloudmirror.utils.StringUtils;
+import com.mapgoo.volice.api.VoliceSpeeh;
+import com.mapgoo.volice.api.VoliceSpeeh.OnSpeechChangeListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Handler;
-import android.util.Log;
-import com.alibaba.fastjson.JSON;
-import com.baidu.android.domain.DomainApp;
-import com.baidu.android.domain.DomainCalender;
-import com.baidu.android.domain.DomainMap;
-import com.baidu.android.domain.DomainWeather;
-import com.baidu.mapapi.navi.BaiduMapAppNotSupportNaviException;
-import com.baidu.mapapi.navi.BaiduMapNavigation;
-import com.baidu.speechsynthesizer.SpeechSynthesizer;
-import com.example.cloudmirror.utils.MyLog;
-import com.example.cloudmirror.utils.StringUtils;
-import com.mapgoo.volice.api.VoliceSpeeh;
-import com.mapgoo.volice.api.VoliceSpeeh.OnSpeechChangeListener;
-import com.mapgoo.volice.ui.WebViewActivity;
+import java.util.ArrayList;
 
 public abstract class ResultAnasy implements OnSpeechChangeListener {
 	public static class AnasyItem{
@@ -66,7 +63,8 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 		anasy.mDoRun =  r;
 		anasy.needFinsh = needFinish;
 		mAnasyList.add(anasy);
-		mVoliceSpeeh.startSpeaker(answer);
+		if(mVoliceSpeeh!=null)
+			mVoliceSpeeh.startSpeaker(answer);
 		mLastAnasyItem = anasy;
     }
     
@@ -83,7 +81,7 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
     		mVoliceSpeeh.startSpeaker(answer);
     	}
 		mLastAnasyItem = anasy;
-    }    
+    }
     public void addAnswer(String answer,Runnable r){
     	addAnswer(answer, r, false);
     }
@@ -92,27 +90,50 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
     	Log.i("TAG", "enter anasyJSON="+data.toString());
     	String answer = null;
     	Domain dom = null;
+    	String content = null;
     	if(visiable || (data!=null&&data.has("item"))){
     		
     		try {
     			JSONArray itemlist = data.getJSONArray("item");
-    			addSpeak(itemlist.get(0).toString());
-    			if(mLastType == 2){
-    				mLastType = 0;
-    				DomainNavIns domainNavIns = new DomainNavIns();
-    				domainNavIns.Object.arrival = itemlist.get(0).toString();
-    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("导航到", "");
-    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("导航", "");
-    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("到", "");
-    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("去", "");
-    				answer = domainNavIns.doAction(mActivity);
-    				dom = domainNavIns;
-    			}
-    			if(cunstomAction(itemlist.get(0).toString())){
-    				return;
+    			content = itemlist.get(0).toString();
+    			addSpeak(content);
+    			switch(mLastType){
+    				case 1:
+    					if(isOK(itemlist)){
+    						mLastType = 0;
+    						mLastAnasyItem.mDoRun = mLastRunnanle;
+    						new Handler().postDelayed(mLastAnasyItem.mDoRun,300);
+    						new Handler().postDelayed(new Runnable() {
+								
+								@Override
+								public void run() {
+									// TODO Auto-generated method stub
+									finishActivity();
+								}
+							},500);
+    						
+    					}else if(isNo(itemlist)){
+    						mLastType = 0;
+    						addAnswer("您需要什么帮助", reTryRunnable);
+    					}else{
+    						postVoiceContent(data.toString());
+    						addAnswer("没有听清，请说是或者不是", reTryRunnable);
+    					}
+    					return;
+	    			case 2:
+	    				mLastType = 0;
+	    				DomainNavIns domainNavIns = new DomainNavIns();
+	    				domainNavIns.Object.arrival = itemlist.get(0).toString();
+	    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("导航到", "");
+	    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("导航", "");
+	    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("到", "");
+	    				domainNavIns.Object.arrival = domainNavIns.Object.arrival.replace("去", "");
+	    				answer = domainNavIns.doAction(mActivity);
+	    				dom = domainNavIns;    				
+	    				break;
     			}
     			CustomDomain customDomain = new CustomDomain(this);
-    			if(customDomain.isCustomDomain(itemlist.get(0).toString())){
+    			if(customDomain.isCustomDomain(itemlist)){
     				mLastType = customDomain.type;
     				addAnswer(customDomain.answer, customDomain.doActionRunnable,customDomain.needFinish);
     				return;
@@ -176,15 +197,16 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 				}else{
 
 				}
-			} catch (JSONException e) {
+			}catch(JSONException e){
 				e.printStackTrace();
-			}	
+			}
     	}else{
     		Log.d("TAG", "not find json_res");
     	}
 		if(dom==null || dom.doActionRunnable == null){
 			MyLog.D("语音识别完成 doActionRunnable = null");
 			addInputEorror(answer);
+			postVoiceContent(data.toString());
 		}else{
 			addASKAnswer(answer, dom.doActionRunnable,false);
 		}
@@ -236,6 +258,15 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 			reTry();
 		}
 	};
+	Runnable searchGasStation = new Runnable() {
+		@Override
+		public void run() {
+			Intent intent = new Intent();
+			intent.setClass(mActivity, GasStationActivity.class);
+			mActivity.startActivity(intent);
+			mActivity.finish();
+		}
+	};
 	Runnable finishRunnable = new Runnable(){
 		@Override
 		public void run() {
@@ -247,42 +278,40 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 	
 	abstract public void reTry();
 
-	public boolean isOK(String str){
+	public boolean isOK(JSONArray list){
 		ArrayList<String> okList = new ArrayList<String>(){{add("是");add("对");add("是的");}};
-		for(String item:okList){
-			if(item.equals(str))
-				return true;
+		VoiceYesNoBean volice = VoiceYesNoBean.getFromJson(QuickShPref.getInstance().getString(VoiceYesNoBean.TAG));
+		if(volice!=null && volice.yes!=null && volice.yes.size()>0){
+			okList = volice.yes;
 		}
-		return false;
+		return checkStringList(list,okList);
 	}
-	public boolean isNo(String str){
+	public boolean isNo(JSONArray list){
 		ArrayList<String> noList = new ArrayList<String>(){{add("不是");add("不对");add("否");}};
-		for(String item:noList){
-			if(item.equals(str))
-				return true;
+		VoiceYesNoBean volice = VoiceYesNoBean.getFromJson(QuickShPref.getInstance().getString(VoiceYesNoBean.TAG));
+		if(volice!=null && volice.no!=null && volice.no.size()>0){
+			noList = volice.no;
 		}
-		return false;
+		return checkStringList(list,noList);
 	}
-	public boolean cunstomAction(String str){
-		switch (mLastType) {
-		case 1:
-			if(isOK(str)){
-				mLastType = 0;
-				mLastAnasyItem.mDoRun = mLastRunnanle;
-				new Handler().post(mLastAnasyItem.mDoRun);
-				finishActivity();
-			}else if(isNo(str)){
-				mLastType = 0;
-				addAnswer("您需要什么帮助", reTryRunnable);
-			}else{
-				addAnswer("没有听清，请说是或者不是", reTryRunnable);
+	public static boolean checkStringList(JSONArray list,ArrayList<String> array){
+		for(int i=0;i<list.length();i++){
+			String str = null;
+			try {
+				str = list.get(i).toString();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			
-			return true;
-		default:
-			break;
+			if(!StringUtils.isEmpty(str)){
+				for(String item:array){
+					if(item.equals(str))
+						return true;
+				}
+			}
 		}
-		return false;
+		
+		return false;		
 	}
 	private void finishActivity(){
 		if(mActivity != null){
@@ -290,4 +319,13 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 			mActivity.overridePendingTransition(0, 0);
 		}
 	}
+	
+    public void postVoiceContent(String content){
+    	ApiClient.postVoiceContent(content, null, new Listener<JSONObject>(){
+			@Override
+			public void onResponse(JSONObject response) {
+				MyLog.D("onResponse:"+response.toString());
+			}
+    	}, GlobalNetErrorHandler.getInstance(mActivity, null, null));
+    }
 }

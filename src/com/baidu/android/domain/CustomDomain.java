@@ -1,10 +1,13 @@
 package com.baidu.android.domain;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 
-import com.baidu.location.an;
+import org.json.JSONArray;
+import org.json.JSONException;
 
-import android.content.Context;
+import com.example.cloudmirror.utils.StringUtils;
 
 public class CustomDomain extends Domain{
 	ResultAnasy mResultAnasy;
@@ -29,13 +32,27 @@ public class CustomDomain extends Domain{
 		add(new Custom("关闭语音",1));
 		add(new Custom("退出",1));
 		add(new Custom("导航",2));
+		add(new Custom("加油站",3));
 	}};
 	
-	public boolean isCustomDomain(String key){
-		for(Custom item:mCustomList){
-			if(key.equals(item.key)){
-				startCustom(item);
-				return true;
+	public boolean isCustomDomain(JSONArray list){
+		if(list != null && list.length()>0){
+			for(int i=0;i<list.length();i++){
+				String key=null;
+				try {
+					key = list.get(i).toString();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(!StringUtils.isEmpty(key)){
+					for(Custom item:mCustomList){
+						if(key.equals(item.key)){
+							startCustom(item);
+							return true;
+						}
+					}
+				}
 			}
 		}
 		return false;
@@ -51,6 +68,10 @@ public class CustomDomain extends Domain{
 			answer = "请问您要导航到什么地方？";
 			type = item.value;
 			doActionRunnable = mResultAnasy.reTryRunnable;
+			break;
+		case 3:
+			answer = "开始搜索加油站";
+			doActionRunnable = mResultAnasy.searchGasStation;
 			break;
 		default:
 			type = 0;

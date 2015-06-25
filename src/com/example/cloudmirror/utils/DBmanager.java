@@ -71,8 +71,8 @@ public class DBmanager {
     	database.insert(DATABACKUP_TABLE, null, values);
     	MyLog.I("backup insert " + content);
     }
-    public String getTime(){
-	    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+    public static String getTime(){
+	    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	    String t=format.format(new Date());
 	    return t;
     }

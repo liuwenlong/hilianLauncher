@@ -15,9 +15,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.android.volley.Request;
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
+import com.example.cloudmirror.application.MGApp;
+import com.example.cloudmirror.utils.DBmanager;
+import com.example.cloudmirror.utils.QuickShPref;
 
 /**
  * 概述: API客户端接口：用于访问网络数据 <br>
@@ -72,7 +76,9 @@ public class ApiClient {
 	public static void initAppKey(Context context) {
 		RequestUtils.setAppKey(RequestUtils.getAppKey(context));
 	}
-
+	public static String getAppKey() {
+		return RequestUtils.getAppKey();
+	}
 	/**
 	 * 概述: 请求开始的回调监听器
 	 * 
@@ -258,17 +264,25 @@ public class ApiClient {
 
 		_GET(URLs.SMS_VERIFY, null, reqParams);
 	}
-	/**
-	 * 概述: 请求短信验证码
-	 * 
-	 * @auther yao
-	 * @param phoneNum
-	 *            手机号
-	 */
-	public static void reqVerifyCode(String phoneNum,String model) {
+	public static Request<JSONObject> getVoiceYesNo(onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
 		Map<String, String> reqParams = new HashMap<String, String>();
-		reqParams.put("sim", phoneNum);
-		reqParams.put("model", model);
-		_GET(URLs.SMS_VERIFY, null, reqParams);
+		//reqParams.put("imei", iemi);
+		 _GET_WITH_LISTENERS(URLs.VOICE_YES_NO, null, null, reqStartListener, responseListener, errorListener);
+		 return null;
+	}
+	public static void postVoiceContent(String content,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
+		Map<String, Object> reqBodyParams = new HashMap<String, Object>();
+		reqBodyParams.put("imei", QuickShPref.getInstance().getString(QuickShPref.IEMI));
+		reqBodyParams.put("appver", VersionUpdate.getVersionString(MGApp.pThis));
+		reqBodyParams.put("date", DBmanager.getTime());
+		reqBodyParams.put("content",content.replace("\\", ""));
+		_POST_WITH_LISTENERS(URLs.VOICE_YES_NO, null, null, reqBodyParams, reqStartListener, responseListener, errorListener);
+	}
+	public static Request<JSONObject> getCarHome(String imei,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
+		Map<String, String> reqParams = new HashMap<String, String>();
+		reqParams.put("imei", imei);
+		reqParams.put("ak", getAppKey());
+		 _GET_WITH_LISTENERS(URLs.CAR_HOME, null, reqParams, reqStartListener, responseListener, errorListener);
+		 return null;
 	}
 }

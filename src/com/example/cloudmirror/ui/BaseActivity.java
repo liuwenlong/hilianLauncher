@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -143,6 +146,15 @@ public abstract class BaseActivity extends Activity implements OnClickListener {
 	 */
 	protected abstract void handleData();
 
+	public boolean checkConnectionOnDemand() {
+		final NetworkInfo info =  ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+		if (info == null || info.getState() != State.CONNECTED) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 	/**
 	 * 概述: 设置ActionBar，如果有就设置，没有就返回， 见内部调用的方法
 	 * 

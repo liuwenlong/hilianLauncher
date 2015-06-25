@@ -9,6 +9,9 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
 import com.baidu.android.domain.ResultAnasy;
 import com.baidu.android.domain.ResultAnasy.AnasyItem;
 import com.baidu.location.BDLocation;
@@ -26,6 +29,12 @@ import com.baidu.voicerecognition.android.DataUploader;
 import com.baidu.voicerecognition.android.VoiceRecognitionClient;
 import com.baidu.voicerecognition.android.VoiceRecognitionConfig;
 import com.baidu.voicerecognition.android.VoiceRecognitionClient.VoiceClientStatusChangeListener;
+import com.example.cloudmirror.api.ApiClient;
+import com.example.cloudmirror.api.ApiClient.onReqStartListener;
+import com.example.cloudmirror.api.GlobalNetErrorHandler;
+import com.example.cloudmirror.api.GlobalNetErrorHandler.GlobalNetErrorCallback;
+import com.example.cloudmirror.bean.VoiceYesNoBean;
+import com.example.cloudmirror.service.DataSyncService;
 import com.example.cloudmirror.ui.widget.VoliceInView;
 import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
@@ -33,6 +42,7 @@ import com.mapgoo.eagle.R;
 import com.mapgoo.volice.api.Config;
 import com.mapgoo.volice.api.Constants;
 import com.mapgoo.volice.api.VoliceSpeeh;
+import com.umeng.analytics.MobclickAgent;
 
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -40,6 +50,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -79,14 +93,11 @@ public class VoliceRecActivity extends ActionBarActivity {
 		mListView = (ListView)findViewById(R.id.list);
 		mListView.setAdapter(mListAdapter);
 		voliceInView = (VoliceInView)findViewById(R.id.voliceInView);
-		WifiManager wm = (WifiManager)getSystemService(Context.WIFI_SERVICE); 
-		String m_szWLANMAC = wm.getConnectionInfo().getMacAddress();
-		MyLog.D("MAC="+m_szWLANMAC);
+
 	}
 	
 	private void initVolice(){
-	       mASREngine = VoiceRecognitionClient.getInstance(this);
-	       mASREngine.setTokenApis(Constants.API_KEY, Constants.SECRET_KEY);
+			startService(new Intent(this, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_STOP));
 	       mResultAnasy = new ResultAnasy(this){
 				@Override
 				public void reTry() {
@@ -94,16 +105,32 @@ public class VoliceRecActivity extends ActionBarActivity {
 					startSpeak(null);
 				}
 	       };
-	       mResultAnasy.addAnswer(getString(R.string.volice_start), new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				startVolice();
-			}
-		});
+	       
+	       if(checkConnectionOnDemand()){
+			  mResultAnasy.addAnswer(getString(R.string.volice_start), new Runnable() {
+							@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					startVolice();
+				}
+			 });
+	       }else{
+			 mResultAnasy.addAnswer(getString(R.string.volice_network_disconnect), new Runnable() {
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						finish();
+					}
+				 });	    	   
+	       }
+	    setVolumeControlStream(AudioManager.STREAM_MUSIC);  	
 	}
+	
 	private void startVolice(){
+		if(mASREngine == null){
+			mASREngine = VoiceRecognitionClient.getInstance(this);
+		    mASREngine.setTokenApis(Constants.API_KEY, Constants.SECRET_KEY);
+		}
         VoiceRecognitionConfig config = new VoiceRecognitionConfig();
         int prop = Config.CURRENT_PROP;
         // 输入法暂不支持语义解析
@@ -147,7 +174,15 @@ public class VoliceRecActivity extends ActionBarActivity {
 				}
                  mResultAnasy.anasyJSON(temp_json, true);
                  mListAdapter.notifyDataSetChanged();
-                 mListView.setSelection(mListAdapter .getCount()-1);
+                 new Handler().postDelayed(new Runnable() {
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						mListView.setSelection(mListAdapter .getCount()-1);
+					}
+				}, 100);
+                 
         }
     }
     /**
@@ -228,6 +263,7 @@ public class VoliceRecActivity extends ActionBarActivity {
         if(mASREngine!=null){
         	mASREngine.stopVoiceRecognition();
         }
+        startService(new Intent(this, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_START));
         BaiduMapRoutePlan.finish(this);
     }
     
@@ -328,9 +364,10 @@ public class VoliceRecActivity extends ActionBarActivity {
 			if (location == null)	{ return;}
 			if(location.getLatitude() != Double.MIN_VALUE){
 				mBDLocation = location;
-				mLocClient.stop();
+				//mLocClient.stop();
+				MyLog.D("lat="+location.getLatitude()+",lon="+location.getLongitude()+",adr="+mBDLocation.getAddrStr());
 			}
-			MyLog.D("lat="+location.getLatitude()+",lon="+location.getLongitude()+",adr="+mBDLocation.getAddrStr());
+			
 		}
 		public void onReceivePoi(BDLocation poiLocation) {}
 	}
@@ -394,8 +431,8 @@ public class VoliceRecActivity extends ActionBarActivity {
             }
         }
     };
-    
-    public void onVoiceRecognitionStart(){
+
+	public void onVoiceRecognitionStart(){
     	mHandler.removeCallbacksAndMessages(this);
     	maxVolume = 0;
     	mHandler.post(mUpdateVolume);
@@ -406,4 +443,12 @@ public class VoliceRecActivity extends ActionBarActivity {
     	mHandler.removeCallbacksAndMessages(this);
     	voliceInView.stopAnim();
     }
+	public boolean checkConnectionOnDemand() {
+		final NetworkInfo info =  ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+		if (info == null || info.getState() != State.CONNECTED) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 }

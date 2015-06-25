@@ -8,6 +8,7 @@ public class QuickShPref {
 	public final static String IEMI = "imei";
 	public final static String LAT = "lat";
 	public final static String LON = "lon";
+	public final static String VOICE = "voice";
 	
 	public final static String UPLOAD_CONTACTS = "UPLOAD_CONTACTS";
 	

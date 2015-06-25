@@ -16,7 +16,7 @@ public class URLs implements Serializable {
 	public final static String VERSION_CODE = "0201001";
 	
 	// 公网/生产服务器
-	private final static String SERVER_PRODUCT = "app056.u12580.com";
+	private final static String SERVER_PRODUCT = "app001.u12580.com";
 
 	// 局域网服务器
 	private final static String LOCAL_TEST_SERVER = "192.168.1.69";
@@ -27,13 +27,14 @@ public class URLs implements Serializable {
 	// 默认局域网服务器
 	private static String HOST = LOCAL_TEST_SERVER;
 
-	private static String PRODUCT_NAME = "snow_v4";	// 雪豹业务相关接品
-	private static String LOC_SERVICE = "snow_v3";	// 位置服务相关接口 : 位置服务、消息箱、参数设置等
-	private static String LOC_SERVICE_4S = "snow_v2";	// 位置服务-4S : 行车宝典、常用电话等H5页面
+	private static String PRODUCT_NAME = "v4";	// 雪豹业务相关接品
+	private static String LOC_SERVICE = "v3";	// 位置服务相关接口 : 位置服务、消息箱、参数设置等
+	private static String LOC_SERVICE_4S = "v2";	// 位置服务-4S : 行车宝典、常用电话等H5页面
 	
-	private final static String TEST_PRODUCT_NAME = "v4";	// 雪豹业务相关接品
+	private final static String TEST_PRODUCT_NAME = "v1";	// 雪豹业务相关接品
 	private final static String TEST_LOC_SERVICE = "v3";	// 位置服务相关接口 : 位置服务、消息箱、参数设置等
 	private final static String TEST_LOC_SERVICE_4S = "v2";	// 位置服务-4S : 行车宝典、常用电话等H5页面
+	private final static String TEST_VOICE_NAME = "v1";	// 雪豹业务相关接品
 	
 	public static final boolean isInternelTest = false;
 	public static final boolean isLocalServer = true;
@@ -63,13 +64,19 @@ public class URLs implements Serializable {
 
 	
 	private final static String API = "api";
+	private final static String OPENAPI = "openapi";
 	private final static String H5 = "H5";
+	
+	private final static String PRODUCT_OPENAPI_HOST = "open.u12580.com";	
+	private final static String PRODUCT_OPENAPI_PATH = API + URL_SPLITTER +TEST_VOICE_NAME ;	
 	private final static String PRODUCT_API_PATH = PRODUCT_NAME + URL_SPLITTER + API;
 	private final static String PRODUCT_H5_PATH = PRODUCT_NAME + URL_SPLITTER + H5;
 	private final static String TOOLS = LOC_SERVICE + "/tools";
 	
 	// api地址
 	private final static String URL_API_HTTP_HOST = HTTP + HOST + URL_SPLITTER + PRODUCT_API_PATH + URL_SPLITTER;
+	// openapi地址
+	private final static String URL_OPENAPI_HTTP_HOST = HTTP + PRODUCT_OPENAPI_HOST + URL_SPLITTER + PRODUCT_OPENAPI_PATH + URL_SPLITTER;	
 	// H5地址
 	private final static String URL_H5_HTTP_HOST = HTTP + HOST + URL_SPLITTER + PRODUCT_H5_PATH + URL_SPLITTER;
 	// 工具接口
@@ -85,5 +92,9 @@ public class URLs implements Serializable {
 
 	// 获取短信验证码
 	public final static String SMS_VERIFY = URL_API_HTTP_HOST + "smsVerify";
+	
+	public final static String VOICE_YES_NO = URL_OPENAPI_HTTP_HOST + "voice";
+	public final static String CAR_HOME = URL_API_HTTP_HOST + "car_homeinfo/homeinfo";
+	
 	
 }

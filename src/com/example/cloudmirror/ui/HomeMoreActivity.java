@@ -6,6 +6,7 @@ import com.mapgoo.eagle.R;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -41,12 +42,13 @@ public class HomeMoreActivity extends BaseActivity {
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
-		case R.id.home_more_close:
-			finish();
-			break;
-
-		default:
-			break;
+			case R.id.item_back_click:
+			case R.id.home_more_close:
+				finish();
+				break;
+	
+			default:
+				break;
 		}
 	}
 	
@@ -68,7 +70,7 @@ public class HomeMoreActivity extends BaseActivity {
 		shortcutLL.setResShortcutId(resShortcutId[i]);i++;
 		shortcutST.setResShortcutId(resShortcutId[i]);i++;
 		shortcutAB.setResShortcutId(resShortcutId[i]);i++;
-		
+		shortcutBACK.setResShortcutId(resShortcutId[8]);
 	}
 	public abstract class ShortcutItem{
 		int resShortcutIcon;
@@ -100,12 +102,16 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutGP = new ShortcutItem(R.drawable.home_more_gupiao,R.string.home_more_gupiao){
 		@Override
 		protected void doAction() {
+			startActivity("com.hexin.plat.android","com.hexin.plat.android.AndroidLogoActivity",null); 
 		}
 	};
 	ShortcutItem  shortcutFM = new ShortcutItem(R.drawable.home_more_fm,R.string.home_more_fm){
 		@Override
 		protected void doAction() {
-			startActivity("com.rdafm.fmtx", "com.rdafm.fmtx.MainActivity",  getString(R.string.home_more_fm));
+			//startActivity("com.mediatek.FMRadio", "com.mediatek.FMRadio.FMRadioActivity",  getString(R.string.home_more_fm));
+			//startActivity("InternetRadio.all", "InternetRadio.all.Welcome",  getString(R.string.home_more_fm));
+			//startActivity("com.ximalaya.ting.android", "com.ximalaya.ting.android.activity.login.WelcomeActivity",  getString(R.string.home_more_fm));
+			startActivity("com.itings.myradio", "com.itings.myradio.kaolafm.home.FlashActivity",  getString(R.string.home_more_fm));//name=com.itings.myradio.kaolafm.home.FlashActivity,pack=com.itings.myradio
 		}
 	};
 	ShortcutItem  shortcutJY = new ShortcutItem(R.drawable.home_more_jiayou,R.string.home_more_jiayou){
@@ -125,6 +131,8 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutLL = new ShortcutItem(R.drawable.home_more_liuliang,R.string.home_more_liuliang){
 		@Override
 		protected void doAction() {
+			
+			startActivity("com.android.settings","com.android.settings.Settings$DataUsageSummaryActivity",null); 
 		}
 	};
 	ShortcutItem  shortcutST = new ShortcutItem(R.drawable.home_more_settings,R.string.home_more_settings){
@@ -136,8 +144,13 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutAB = new ShortcutItem(R.drawable.home_more_about,R.string.home_more_about){
 		@Override
 		protected void doAction() {
-		
-			
+			startActivity("com.android.settings","com.android.settings.Settings$DeviceInfoSettingsActivity",null); 
+		}
+	};
+	ShortcutItem  shortcutBACK = new ShortcutItem(R.drawable.home_more_back,R.string.home_more_back){
+		@Override
+		protected void doAction() {
+			finish();
 		}
 	};
 	private void startActivity(String pkg,String cls,String name){

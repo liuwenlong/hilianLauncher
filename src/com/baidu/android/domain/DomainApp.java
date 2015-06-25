@@ -30,14 +30,13 @@ public class DomainApp extends Domain{
 	public String doAction(Context context) {
 		// TODO Auto-generated method stub
 		if(Object.appname != null){
-			if(intent.equalsIgnoreCase("open") || intent.equalsIgnoreCase("uninstall")){
+			if(intent.equalsIgnoreCase("open")
+					//|| intent.equalsIgnoreCase("uninstall")
+					//|| intent.equalsIgnoreCase("close")
+					){
 				return openApp(context, Object.appname);
 			}else{
-				Intent intent = new Intent(); 
-				intent.setAction(Intent.ACTION_WEB_SEARCH); 
-				intent.putExtra(SearchManager.QUERY,String.format("%s",Object.appname));
-				context.startActivity(intent); 
-				return "正在搜索"+Object.appname;
+				return null;
 			}
 		}
 		
@@ -78,6 +77,17 @@ public class DomainApp extends Domain{
 						};
 						return "是";
 	        			//return "正在删除"+label;
+	        		}else if(intent.equalsIgnoreCase("close")){
+	        			doActionRunnable = new Runnable() {
+							@Override
+							public void run() {
+								// TODO Auto-generated method stub
+								Intent home = new Intent(Intent.ACTION_MAIN);  
+								home.addCategory(Intent.CATEGORY_HOME);   
+								context.startActivity(home); 
+							}
+						};
+						return "您是否要关闭"+label+",请说是或者不是";
 	        		}
 	        		break;
 	        	}

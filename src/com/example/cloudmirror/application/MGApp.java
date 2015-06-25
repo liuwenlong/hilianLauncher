@@ -1,5 +1,6 @@
 package com.example.cloudmirror.application;
 
+import com.baidu.android.domain.ResultAnasy;
 import com.baidu.mapapi.SDKInitializer;
 import com.car.brand.db.AppInitUtils;
 import com.example.cloudmirror.api.ApiClient;
@@ -8,6 +9,7 @@ import com.example.cloudmirror.utils.DBmanager;
 import com.example.cloudmirror.utils.DatabaseHelper;
 import com.example.cloudmirror.utils.QuickShPref;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.mapgoo.volice.api.VoliceSpeeh;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -34,20 +36,19 @@ public class MGApp extends Application {
 
 		// 初始化网络请求库volley
 		MyVolley.init(this);
-
 		// 初始化请求头的appkey
 		ApiClient.initAppKey(this);
-
-		
+		ApiClient.setToken("mapgoo.net2015");
 		initImageLoader(this);
-
-		
 		//初始化
 		AppInitUtils.initApplication(this);
 
 		QuickShPref.init(this);
 		DBmanager.init(this);
 		SDKInitializer.initialize(this);
+		
+//		new VoliceSpeeh(this,null);
+		
 	}
 
 	public static void initImageLoader(Context context) {

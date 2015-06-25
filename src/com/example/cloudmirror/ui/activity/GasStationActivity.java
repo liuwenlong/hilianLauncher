@@ -1,6 +1,7 @@
 package com.example.cloudmirror.ui.activity;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -43,7 +44,9 @@ import com.baidu.mapapi.utils.DistanceUtil;
 import com.example.cloudmirror.application.MGApp;
 import com.example.cloudmirror.ui.BaseActivity;
 import com.example.cloudmirror.ui.widget.FlipperIndicatorDotView;
+import com.example.cloudmirror.utils.StringUtils;
 import com.mapgoo.eagle.R;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -97,7 +100,11 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
 
     LocationClient mLocClient;
     MyLocationListenner myListener= new MyLocationListenner();
+    ProgressDialog progressDialog;
     private void locationInit(){
+        progressDialog = new ProgressDialog(mContext);
+        progressDialog.setMessage("定位中...");
+        progressDialog.show();
         mLocClient = new LocationClient(this);
         mLocClient.registerLocationListener(myListener);
         LocationClientOption option = new LocationClientOption();
@@ -116,16 +123,21 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
             if (location == null)	{ return;}
             if(location.getLatitude() != Double.MIN_VALUE){
                 myLocation = new LatLng(location.getLatitude(),location.getLongitude());
+
                 startSearchNearby();
             }
         }
     }
-
+    
     private void startSearchNearby(){
+    	String keywords = getIntent().getStringExtra("keywords");
+    	if(StringUtils.isEmpty(keywords)){
+    		keywords = "加油站";
+    	}	
         mLocClient.stop();
         if(myLocation != null){
             boolean result = mPoiSearch.searchNearby(new PoiNearbySearchOption()
-                    .keyword("加油站")
+                    .keyword(keywords)
                     .location(myLocation)
                     .radius(5000)
                     .pageCapacity(9));
@@ -382,45 +394,47 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
                 View station2View =  poiView.findViewById(R.id.gas_stition_station2);
                 View station3View =  poiView.findViewById(R.id.gas_stition_station3);
 
-                ((TextView)station1View.findViewById(R.id.gas_stition_station1_name)).setText("1."+list.get(0 + i*3).name);
+                ((TextView)station1View.findViewById(R.id.gas_stition_station1_name)).setText(i*3+1+"."+list.get(0 + i*3).name);
                 station1View.findViewById(R.id.gas_stition_station1_road).setVisibility(View.GONE);
                 //((TextView)station1View.findViewById(R.id.gas_stition_station1_road)).setText(list.get(0 + i*3).address);
                 ((TextView)station1View.findViewById(R.id.gas_stition_station1_address)).setText(list.get(0 + i * 3).address);
                 double distance = roundResult(DistanceUtil.getDistance(myLocation, list.get(0 + i * 3).location),1);
                 ((TextView)station1View.findViewById(R.id.gas_stition_station1_distance)).setText(distance+"米");
                 final int  j = i;
-                station1View.findViewById(R.id.gas_stition_station1_daohang).setOnClickListener(new View.OnClickListener() {
+                station1View.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        startNavi(mContext,myLocation,list.get(0 + j*3).location);
+                        startNavi(mContext, myLocation, list.get(0 + j * 3).location);
                     }
                 });
 
-                ((TextView)station2View.findViewById(R.id.gas_stition_station2_name)).setText("2."+list.get(1 + i*3).name);
+
+
+                ((TextView)station2View.findViewById(R.id.gas_stition_station2_name)).setText(i * 3 + 2 + "." + list.get(1 + i * 3).name);
                 station2View.findViewById(R.id.gas_stition_station2_road).setVisibility(View.GONE);
                 //((TextView)station1View.findViewById(R.id.gas_stition_station1_road)).setText(list.get(0 + i*3).address);
                 ((TextView)station2View.findViewById(R.id.gas_stition_station2_address)).setText(list.get(1 + i*3).address);
                 distance = roundResult(DistanceUtil.getDistance(myLocation, list.get(1 + i * 3).location),1);
                 ((TextView)station2View.findViewById(R.id.gas_stition_station2_distance)).setText(distance+"米");
-                final int  k = i;
-                station2View.findViewById(R.id.gas_stition_station2_daohang).setOnClickListener(new View.OnClickListener() {
+
+                station2View.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        startNavi(mContext,myLocation,list.get(1 + k*3).location);
+                        startNavi(mContext, myLocation, list.get(1 + j * 3).location);
                     }
                 });
 
-                ((TextView)station3View.findViewById(R.id.gas_stition_station3_name)).setText("3."+list.get(2 + i*3).name);
+                ((TextView)station3View.findViewById(R.id.gas_stition_station3_name)).setText(i*3+3+"."+list.get(2 + i*3).name);
                 station3View.findViewById(R.id.gas_stition_station3_road).setVisibility(View.GONE);
                 //((TextView)station1View.findViewById(R.id.gas_stition_station1_road)).setText(list.get(0 + i*3).address);
                 ((TextView)station3View.findViewById(R.id.gas_stition_station3_address)).setText(list.get(2 + i*3).address);
                 distance = roundResult(DistanceUtil.getDistance(myLocation, list.get(2 + i * 3).location),1);
                 ((TextView)station3View.findViewById(R.id.gas_stition_station3_distance)).setText(distance+"米");
-                final int  l = i;
-                station3View.findViewById(R.id.gas_stition_station3_daohang).setOnClickListener(new View.OnClickListener() {
+
+                station3View.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        startNavi(mContext,myLocation,list.get(2 + l*3).location);
+                        startNavi(mContext, myLocation, list.get(2 + j * 3).location);
                     }
                 });
                 viewList.add(poiView);
@@ -439,10 +453,10 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
             ((TextView)station1View.findViewById(R.id.gas_stition_station1_address)).setText(list.get(0).address);
             double distance = roundResult(DistanceUtil.getDistance(myLocation, list.get(0).location),1);
             ((TextView)station1View.findViewById(R.id.gas_stition_station1_distance)).setText(distance+"米");
-            station1View.findViewById(R.id.gas_stition_station1_daohang).setOnClickListener(new View.OnClickListener() {
+            station1View.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startNavi(mContext,myLocation,list.get(0).location);
+                    startNavi(mContext, myLocation, list.get(0).location);
                 }
             });
 
@@ -451,22 +465,23 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
             ((TextView)station2View.findViewById(R.id.gas_stition_station2_address)).setText(list.get(1 ).address);
             distance = roundResult(DistanceUtil.getDistance(myLocation, list.get(1).location),1);
             ((TextView)station2View.findViewById(R.id.gas_stition_station2_distance)).setText(distance+"米");
-            station2View.findViewById(R.id.gas_stition_station2_daohang).setOnClickListener(new View.OnClickListener() {
+
+            station2View.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startNavi(mContext,myLocation,list.get(1).location);
+                    startNavi(mContext, myLocation, list.get(1).location);
                 }
             });
-
             ((TextView)station3View.findViewById(R.id.gas_stition_station3_name)).setText("3."+list.get(2).name);
             station3View.findViewById(R.id.gas_stition_station3_road).setVisibility(View.GONE);
             ((TextView)station3View.findViewById(R.id.gas_stition_station3_address)).setText(list.get(2).address);
             distance = roundResult(DistanceUtil.getDistance(myLocation, list.get(2).location),1);
             ((TextView)station3View.findViewById(R.id.gas_stition_station3_distance)).setText(distance+"米");
-            station3View.findViewById(R.id.gas_stition_station3_daohang).setOnClickListener(new View.OnClickListener() {
+
+            station3View.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startNavi(mContext,myLocation,list.get(2).location);
+                    startNavi(mContext, myLocation, list.get(2).location);
                 }
             });
             viewList.add(poiView);
@@ -483,10 +498,11 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
             ((TextView)station1View.findViewById(R.id.gas_stition_station1_address)).setText(list.get(0).address);
             double distance = roundResult(DistanceUtil.getDistance(myLocation, list.get(0).location),1);
             ((TextView)station1View.findViewById(R.id.gas_stition_station1_distance)).setText(distance+"米");
-            station1View.findViewById(R.id.gas_stition_station1_daohang).setOnClickListener(new View.OnClickListener() {
+
+            station1View.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startNavi(mContext,myLocation,list.get(0).location);
+                    startNavi(mContext, myLocation, list.get(0).location);
                 }
             });
             viewList.add(poiView);
@@ -496,6 +512,8 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
 
     @Override
     public void onGetPoiResult(PoiResult poiResult) {
+        if (progressDialog.isShowing())
+            progressDialog.hide();
         try {
 
 

@@ -3,8 +3,17 @@ package com.example.cloudmirror.ui;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 import com.mapgoo.eagle.R;
 import com.mapgoo.volice.ui.VoliceRecActivity;
+import com.android.volley.Response.Listener;
+import com.example.cloudmirror.api.ApiClient;
+import com.example.cloudmirror.api.GlobalNetErrorHandler;
+import com.example.cloudmirror.api.ApiClient.onReqStartListener;
+import com.example.cloudmirror.bean.CarHomeBean;
+import com.example.cloudmirror.bean.VoiceYesNoBean;
+import com.example.cloudmirror.bean.CarHomeBean.AdvBean;
 import com.example.cloudmirror.service.DataSyncService;
 import com.example.cloudmirror.ui.activity.CarBrandUpdateActivity;
 import com.example.cloudmirror.ui.activity.GetInvadationCodeActivity;
@@ -13,7 +22,10 @@ import com.example.cloudmirror.ui.widget.FlipperIndicatorDotView;
 import com.example.cloudmirror.ui.widget.RoundedRectangleBitmapDisplayer;
 import com.example.cloudmirror.ui.widget.SimpleDialogBuilder;
 import com.example.cloudmirror.utils.MyLog;
+import com.example.cloudmirror.utils.QuickShPref;
 import com.example.cloudmirror.utils.StringUtils;
+
+import de.greenrobot.event.EventBus;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -63,31 +75,17 @@ public class MainActivity extends BaseActivity implements Callback {
 	private Camera mCamera;  
     private boolean mPreviewRunning = false; 
     private LinearLayout home_adv_view;
-    private boolean  IS_CAMREA_OPEN = false; 
-    
-    private BroadcastReceiver mMyReceiver = new BroadcastReceiver(){
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			
-			// TODO Auto-generated method stub
-			if(intent != null){
-				MyLog.D("action="+intent.getAction());
-				
-				//
-			}
-			isBlueToothConnect();
-		}
-    	
-    };
+    private final static boolean  IS_CAMREA_OPEN = false; 
     
 	@Override
 	protected void setContentView() {
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main);
+		
+		EventBus.getDefault().register(this);
 		//printApp();
-		//getContact();
-		startService(new Intent(mContext, DataSyncService.class));
+		
+		startService(new Intent(mContext, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_NONE));
 	}
 
 	@Override
@@ -109,7 +107,7 @@ public class MainActivity extends BaseActivity implements Callback {
 	@Override
 	protected void handleData() {
 		// TODO Auto-generated method stub
-		 loadImages();
+		 refreshHome();
 	}
 	SurfaceView mSurfaceView;
 	private void iniCamera(){
@@ -119,13 +117,27 @@ public class MainActivity extends BaseActivity implements Callback {
 		mSurfaceHolder.addCallback(this); 
 		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 	}
-	
-	private void loadImages(){
+	CarHomeBean mCarHomeBean;
+	private void refreshHome(){
+		CarHomeBean home = getCarHomeBean();
+		
+		if(home!=null && home.advlist!=null && !home.advlist.isEmpty()){
+			loadImages(home.advlist);
+		}else{
+			ArrayList<AdvBean> advlist = new ArrayList<AdvBean> (){};
+			AdvBean adv = new AdvBean();
+			adv.imgurl = "";
+			advlist.add(adv);
+			loadImages(advlist);
+		}
+	}
+	private void loadImages(ArrayList<AdvBean> advlist){
+		
 		ArrayList<View> pageViews = new ArrayList<View>();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < advlist.size(); i++) {
 			View adView = mInflater.inflate(R.layout.home_ad_info, null); 
 			AsyncImageView adImgView = (AsyncImageView) adView.findViewById(R.id.ad_img);
-			adImgView.setImage("e", R.drawable.home_adv_def, new RoundedRectangleBitmapDisplayer(0));
+			adImgView.setImage(advlist.get(i).imgurl, R.drawable.home_adv_def, new RoundedRectangleBitmapDisplayer(0));
 			adImgView.setScaleType(ScaleType.FIT_XY);
 			pageViews.add(adView);
 		}
@@ -134,7 +146,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		mIndicatorrView.setCount(pageViews.size());
 	}
 	
-	public class MyViewPagerAdapter extends PagerAdapter{  
+	public class MyViewPagerAdapter extends PagerAdapter{
         private ArrayList<View> mListViews;  
           
         public MyViewPagerAdapter(ArrayList<View> mListViews) {  
@@ -208,35 +220,57 @@ public class MainActivity extends BaseActivity implements Callback {
 				startActivity("com.concox.bluetooth","com.concox.bluetooth.MainActivity",null); 
 				break;
 			case R.id.home_icon_wifi_btn:
-				startActivity(new Intent( android.provider.Settings.ACTION_WIFI_SETTINGS)); 				
+				startActivity("com.android.settings","com.android.settings.Settings$TetherSettingsActivity",null); 
 				break;
 			case R.id.home_icon_music_btn:
-				startActivity("com.android.music", "com.android.music.MusicBrowserActivity", "音乐");
+				startActivity("com.sds.ttpod.hd", "com.sds.ttpod.hd.app.EntryActivity", "音乐");
 				break;
 			case R.id.home_icon_navi_btn:
 				startActivity("com.autonavi.xmgd.navigator", "com.autonavi.xmgd.navigator.Warn", null);
 				break;
 			case R.id.function_item_1:
-				callPhoneNum(mContext,"+8613728767253");
-				break;
 			case R.id.function_item_2:
-				callPhoneNum(mContext,"10086");
-				break;
 			case R.id.function_item_3:
-				callPhoneNum(mContext,"10086");
-				break;
 			case R.id.function_item_4:
-				callPhoneNum(mContext,"10086");
-				break;
 			case R.id.function_item_5:
-				callPhoneNum(mContext,"10086");
+				callPhone(v.getId());
 				break;
-			
 			default:
 				break;
 		}
 	}
 
+	private void callPhone(int id){
+		CarHomeBean home = getCarHomeBean();
+		String num = null;
+		if(home != null){
+			switch (id) {
+			case R.id.function_item_1:
+				num = home.getTelNum(CarHomeBean.TELTYPE_ZL);
+				break;
+			case R.id.function_item_2:
+				num = home.getTelNum(CarHomeBean.TELTYPE_DJ);
+				break;
+			case R.id.function_item_3:
+				num = home.getTelNum(CarHomeBean.TELTYPE_BX);
+				break;
+			case R.id.function_item_4:
+				num = home.getTelNum(CarHomeBean.TELTYPE_4S);
+				break;
+			case R.id.function_item_5:
+				num = home.getTelNum(CarHomeBean.TELTYPE_SOS);
+				break;
+			default:
+				break;
+			}
+		}
+		if(StringUtils.isEmpty(num)){
+			Toast.makeText(mContext, "号码为空", Toast.LENGTH_SHORT).show();
+		}else{
+			callPhoneNum(mContext, num);
+		}
+	}
+	
 	private View mCallView;
 	private int resShortcutId[]={R.id.function_item_1,R.id.function_item_2,R.id.function_item_3 ,R.id.function_item_4,R.id.function_item_5};
 	private int resShortcutIcon[]={R.drawable.icon_call_zl,R.drawable.icon_call_dj,R.drawable.icon_call_fw ,R.drawable.icon_call_4s,R.drawable.icon_call_sos};
@@ -395,7 +429,14 @@ public class MainActivity extends BaseActivity implements Callback {
 				mToast.toastMsg("没有安装"+name);
 		}
 	}
+	public CarHomeBean getCarHomeBean(){
+		if(mCarHomeBean == null){
+			mCarHomeBean = CarHomeBean.getFromJson(QuickShPref.getInstance().getString(CarHomeBean.TAG));
+		}
+		return mCarHomeBean;
+	}
 	public  static boolean callPhoneNum(Context context,String Num){
+		MyLog.D("callPhoneNum:"+Num);
 		if(isBlueToothConnect(context)){
 			try{
 				int calltype = 0;
@@ -438,23 +479,20 @@ public class MainActivity extends BaseActivity implements Callback {
 		}
 		return false;
 	}
+	
+	public void onEventMainThread(String result) {
+		MyLog.D("onEventMainThread String ret="+result);
+		getCarHome();
+		getVoiceYseNo();
+	}
+	
 	@Override
-	protected void onResume() {
+	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		super.onResume();
-		//MyLog.D("onResume");
+		super.onDestroy();
+		EventBus.getDefault().unregister(this);
 	}
 
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-		
-		//MyLog.D("onPause");
-	}
-	
-	
-	
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		// TODO Auto-generated method stub
@@ -487,5 +525,38 @@ public class MainActivity extends BaseActivity implements Callback {
 		}
 	}
 	
-
+    private void getVoiceYseNo(){
+    	ApiClient.getVoiceYesNo(new onReqStartListener(){
+			@Override
+			public void onReqStart() {}
+    	}, new Listener<JSONObject>(){
+			@Override
+			public void onResponse(JSONObject response) {
+				MyLog.D("onResponse:"+response.toString());
+				try {
+					QuickShPref.getInstance().putValueObject(VoiceYesNoBean.TAG, response.getString("result"));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+    	}, GlobalNetErrorHandler.getInstance(getBaseContext(), null, null));
+    }
+    private void getCarHome(){
+    	String imei = QuickShPref.getInstance().getString(QuickShPref.IEMI);
+    	//imei = "862609000000773";
+    	ApiClient.getCarHome(imei,null, new Listener<JSONObject>(){
+			@Override
+			public void onResponse(JSONObject response) {
+				MyLog.D("onResponse:"+response.toString());
+				try {
+					QuickShPref.getInstance().putValueObject(CarHomeBean.TAG, response.getString("result"));
+					refreshHome();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+    	}, GlobalNetErrorHandler.getInstance(getBaseContext(), null, null));
+    }
 }

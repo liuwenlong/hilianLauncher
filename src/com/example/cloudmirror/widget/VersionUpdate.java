@@ -1,4 +1,4 @@
-package com.example.cloudmirror.api;
+package com.example.cloudmirror.widget;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,6 +47,7 @@ public class VersionUpdate  extends AsyncTask<String, Integer, Boolean>{
 Context mContext ;
 int status;
 private ProgressDialog mProgressDialog;
+public  static final String VersionCode = "";
 
 public VersionUpdate(Context  c){
 	mContext = c;
@@ -276,17 +277,6 @@ public static int getVersionName(Context context) {
 	}
 
 	return version;
-}
-public static String getVersionString(Context context) {
-	String pkName = context.getPackageName();
-	String versionName = "1.0.0";
-	try {
-		versionName = context.getPackageManager().getPackageInfo(pkName, 0).versionName;
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-
-	return versionName;
 }
 /**
  * 获取软件最新版本号
