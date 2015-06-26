@@ -29,6 +29,7 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.map.Polyline;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.navi.BaiduMapAppNotSupportNaviException;
 import com.baidu.mapapi.navi.BaiduMapNavigation;
@@ -292,6 +293,11 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
         public void clear() {
             this.optionsList.clear();
         }
+		@Override
+		public boolean onPolylineClick(Polyline arg0) {
+			// TODO Auto-generated method stub
+			return false;
+		}
     }
 
     private Handler myHandler = new Handler();

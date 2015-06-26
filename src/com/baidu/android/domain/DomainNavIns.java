@@ -8,12 +8,16 @@ import com.baidu.mapapi.navi.NaviParaOption;
 import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
 import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.baidu.mapapi.utils.route.RouteParaOption.EBusStrategyType;
+import com.example.cloudmirror.utils.MyLog;
 import com.mapgoo.eagle.R;
 import com.mapgoo.volice.ui.VoliceRecActivity;
+
+import de.greenrobot.event.EventBus;
 
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 
 public class DomainNavIns extends Domain{
@@ -54,12 +58,13 @@ public class DomainNavIns extends Domain{
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-			    RouteParaOption para = new RouteParaOption()
-			    .startName(start)
-			    .startPoint(VoliceRecActivity.getLocLatLng())
-			    .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
-			    try {
-			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
+				try {
+					RouteParaOption para = new RouteParaOption()
+					.startName(start)
+					.startPoint(VoliceRecActivity.getLocLatLng())
+					.endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
+					
+					EventBus.getDefault().post(para);
 				} catch (Exception e) {
 			        e.printStackTrace();
 			    }

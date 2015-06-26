@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import com.mapgoo.eagle.R;
 import com.mapgoo.volice.ui.VoliceRecActivity;
 import com.android.volley.Response.Listener;
+import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
+import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.example.cloudmirror.api.ApiClient;
 import com.example.cloudmirror.api.GlobalNetErrorHandler;
 import com.example.cloudmirror.api.ApiClient.onReqStartListener;
@@ -45,6 +47,7 @@ import android.database.Cursor;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
@@ -83,8 +86,8 @@ public class MainActivity extends BaseActivity implements Callback {
 		setContentView(R.layout.activity_main);
 		
 		EventBus.getDefault().register(this);
-		//printApp();
-		
+		printApp();
+		//MyLog.D("Build.CPU_ABI="+android.os.Build.SERIAL);
 		startService(new Intent(mContext, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_NONE));
 	}
 
@@ -201,6 +204,7 @@ public class MainActivity extends BaseActivity implements Callback {
 				break;
 			case R.id.home_call:
 				showTipView();
+				//startNavi();
 				break;
 			case R.id.violation_tip_img:
 				dismissTipView();
@@ -234,6 +238,7 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.function_item_4:
 			case R.id.function_item_5:
 				callPhone(v.getId());
+				
 				break;
 			default:
 				break;
@@ -370,7 +375,6 @@ public class MainActivity extends BaseActivity implements Callback {
         mPreviewRunning = false;  
        mCamera.release();
        mCamera = null;
-        
 	}
 	
 	private static final String RECORD_MODE = "record_mode";
@@ -382,7 +386,6 @@ public class MainActivity extends BaseActivity implements Callback {
 	private static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
 	private static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
     private void startToCarRecord(String action, int mode) {
-    	
     	surfaceDestroyed(null);
 		final Intent mIntent = new Intent(Intent.ACTION_MAIN); 
 		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
@@ -393,15 +396,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		mBundle.putInt(RECORD_MODE, mode);
 		mIntent.putExtras(mBundle);
 		try{
-			new Handler().postDelayed(new Runnable() {
-				
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					startActivity(mIntent); 
-				}
-			}, 300);
-			
+			startActivity(mIntent); 
 		}catch(Exception e){
 			mToast.toastMsg("没有安装该应用");
 		}
@@ -481,7 +476,6 @@ public class MainActivity extends BaseActivity implements Callback {
 	}
 	
 	public void onEventMainThread(String result) {
-		MyLog.D("onEventMainThread String ret="+result);
 		getCarHome();
 		getVoiceYseNo();
 	}
@@ -513,15 +507,6 @@ public class MainActivity extends BaseActivity implements Callback {
 			}else{
 				surfaceDestroyed(null);
 			}
-		}
-	}
-	
-	private void isBlueToothConnect(){
-		try{
-			String connect = getContentResolver().getType(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/isconnect"));
-			MyLog.D("connect="+connect);
-		}catch(Exception e){
-			e.printStackTrace();
 		}
 	}
 	
@@ -559,4 +544,18 @@ public class MainActivity extends BaseActivity implements Callback {
 			}
     	}, GlobalNetErrorHandler.getInstance(getBaseContext(), null, null));
     }
+    
+    private void startNavi(){
+	    RouteParaOption para = new RouteParaOption()
+	    .startName("白石洲")
+	    .endName("华强北");
+	     BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, this);
+    }
+	public void onEventMainThread( RouteParaOption para) {
+	    try {
+		       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, this);
+		} catch (Exception e) {
+		        e.printStackTrace();
+		}
+	}
 }

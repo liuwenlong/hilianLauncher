@@ -14,6 +14,7 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.baidu.android.domain.ResultAnasy;
 import com.baidu.android.domain.ResultAnasy.AnasyItem;
+
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
@@ -264,7 +265,6 @@ public class VoliceRecActivity extends ActionBarActivity {
         	mASREngine.stopVoiceRecognition();
         }
         startService(new Intent(this, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_START));
-        BaiduMapRoutePlan.finish(this);
     }
     
     public void onClick(View v){
@@ -285,7 +285,6 @@ public class VoliceRecActivity extends ActionBarActivity {
     }
     
 	public void startSpeak(View v){
-		BaiduMapRoutePlan.finish(this);
 		if(isRecognition){
 			mASREngine.speakFinish();
 		}else{

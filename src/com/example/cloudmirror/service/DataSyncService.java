@@ -17,6 +17,8 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
+import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.baidu.voicerecognition.android.Candidate;
 import com.baidu.voicerecognition.android.DataUploader;
 import com.baidu.voicerecognition.android.DataUploaderListener;
@@ -96,6 +98,7 @@ public class DataSyncService extends Service implements DataUploaderListener{
 		 //uploadContacts();
 		 startUpdateThread();
 		 startVoiceRecord();
+		 EventBus.getDefault().register(this);
 	}
 	Thread mContactUpdateThread;
 	private void startUpdateThread(){
@@ -313,6 +316,7 @@ public class DataSyncService extends Service implements DataUploaderListener{
     public void onDestroy() {
         mLocClient.stop();
         MobclickAgent.onPause(this);
+        EventBus.getDefault().unregister(this);
         startService(new Intent(this, DataSyncService.class));
     }
     private final IBinder mBinder = new LocalBinder();
@@ -535,7 +539,7 @@ public class DataSyncService extends Service implements DataUploaderListener{
                     break;
                 // 处理连续上屏
                 case VoiceRecognitionClient.CLIENT_STATUS_UPDATE_RESULTS:
-                	MyLog.D("--------->处理连续上屏");
+                	//MyLog.D("--------->处理连续上屏");
                     updateRecognitionResult(obj);
                     break;
                 // 用户取消
@@ -581,14 +585,21 @@ public class DataSyncService extends Service implements DataUploaderListener{
                 }
             }
         }
-        MyLog.D("voiceRlt="+voiceRlt);
-        if(!StringUtils.isEmpty(voiceRlt) && voiceRlt.contains("小瑞你好")){
+        if(voiceRlt!=null)
+        	MyLog.D("voiceRlt="+voiceRlt);
+        if(!StringUtils.isEmpty(voiceRlt) && (
+        		voiceRlt.contains("小麦你好") 
+        		|| voiceRlt.contains("小曼你好")
+        		|| voiceRlt.contains("小妹你好")
+        		)){
         	startActivity(new Intent(this, VoliceRecActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-//        	startActivity(new Intent(this, VoliceRecActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }else{
         	if(isRecognition == false){
         		mHandler.postDelayed(startVoiceRunnable, 50);
         	}
         }
     }
+	public void onEventMainThread( RouteParaOption para) {
+		
+	}
 }

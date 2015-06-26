@@ -9,6 +9,8 @@ import com.example.cloudmirror.ui.activity.GasStationActivity;
 import com.example.cloudmirror.utils.MyLog;
 import com.mapgoo.eagle.R;
 import com.mapgoo.volice.ui.VoliceRecActivity;
+
+import de.greenrobot.event.EventBus;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -61,6 +63,7 @@ public class DomainMap extends Domain{
 			    	.startName(start)
 			    	.startPoint(VoliceRecActivity.getLocLatLng())
 			        .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
+			    EventBus.getDefault().post(para);
 			    try {
 			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
 				} catch (Exception e) {
