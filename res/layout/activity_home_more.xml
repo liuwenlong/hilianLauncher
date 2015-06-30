@@ -16,6 +16,7 @@
 	        android:layout_alignParentRight="true"
 	        android:layout_alignParentTop="true"	        
 	        android:onClick="onClick"
+	        android:visibility="invisible"
 	        android:orientation="vertical"
 	        android:paddingBottom="10dp"
 	        android:paddingLeft="10dp"
@@ -121,7 +122,5 @@
                 layout="@layout/home_more_item" />
         </LinearLayout>
     </LinearLayout>
-    
 
-    
 </RelativeLayout>

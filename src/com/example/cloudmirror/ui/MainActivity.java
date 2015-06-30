@@ -114,7 +114,6 @@ public class MainActivity extends BaseActivity implements Callback {
 	}
 	SurfaceView mSurfaceView;
 	private void iniCamera(){
-		
 		mSurfaceView = (SurfaceView) findViewById(R.id.surface_camera); 
 		SurfaceHolder mSurfaceHolder = mSurfaceView.getHolder(); 
 		mSurfaceHolder.addCallback(this); 
@@ -152,14 +151,14 @@ public class MainActivity extends BaseActivity implements Callback {
 	public class MyViewPagerAdapter extends PagerAdapter{
         private ArrayList<View> mListViews;  
           
-        public MyViewPagerAdapter(ArrayList<View> mListViews) {  
+        public MyViewPagerAdapter(ArrayList<View> mListViews) {
             this.mListViews = mListViews;//构造方法，参数是我们的页卡，这样比较方便。  
         }
   
         @Override  
-        public void destroyItem(ViewGroup container, int position, Object object)   {     
+        public void destroyItem(ViewGroup container, int position, Object object)   {   
             container.removeView(mListViews.get(position));//删除页卡  
-        }  
+        }
   
   
         @Override  
@@ -170,12 +169,12 @@ public class MainActivity extends BaseActivity implements Callback {
         }
   
         @Override  
-        public int getCount() {         
+        public int getCount() {
             return  mListViews.size();//返回页卡的数量  
-        }  
+        }
           
         @Override  
-        public boolean isViewFromObject(View arg0, Object arg1) {             
+        public boolean isViewFromObject(View arg0, Object arg1) {
             return arg0==arg1;//官方提示这样写  
         }
     }

@@ -339,6 +339,7 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.gas_stition_left_memu:
+            case R.id.gas_stition_left_memu_l:
                 finish();
                 break;
             case R.id.gas_stition_right_menu:
