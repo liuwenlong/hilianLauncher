@@ -1,7 +1,9 @@
 package com.example.cloudmirror.ui;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,6 +56,7 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
@@ -72,45 +75,45 @@ import android.widget.Toast;
 
 
 public class MainActivity extends BaseActivity implements Callback {
-
+	public final static int LOCK_OUT_TIME = 5*1000;//1*60*1000;
 	private ViewPager mViewPager;
 	private FlipperIndicatorDotView mIndicatorrView ;
 	private Camera mCamera;  
     private boolean mPreviewRunning = false; 
     private LinearLayout home_adv_view;
     private final static boolean  IS_CAMREA_OPEN = false; 
-    
+    Handler mHandler = new Handler();
 	@Override
 	protected void setContentView() {
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main);
-		
 		EventBus.getDefault().register(this);
-		printApp();
+		//printApp();
 		//MyLog.D("Build.CPU_ABI="+android.os.Build.SERIAL);
 		startService(new Intent(mContext, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_NONE));
 	}
-
 	@Override
 	protected void initData(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		
 	}
-
 	@Override
 	protected void initViews() {
 		// TODO Auto-generated method stub
 		mViewPager = (ViewPager)findViewById(R.id.vPager);
 		mIndicatorrView = (FlipperIndicatorDotView)findViewById(R.id.vPager_Indicator);
 		home_adv_view = (LinearLayout)findViewById(R.id.home_adv_view);
-		if(IS_CAMREA_OPEN)
+		if(IS_CAMREA_OPEN){
+			findViewById(R.id.surface_camera_btn).setVisibility(View.VISIBLE);
+			findViewById(R.id.home_icon_carrecord_btn).setVisibility(View.GONE);			
 			iniCamera();	
+		}
 	}
-
 	@Override
 	protected void handleData() {
 		// TODO Auto-generated method stub
 		 refreshHome();
+		 VoliceRecActivity.getVoiceYseNo(this);
 	}
 	SurfaceView mSurfaceView;
 	private void iniCamera(){
@@ -133,6 +136,7 @@ public class MainActivity extends BaseActivity implements Callback {
 			loadImages(advlist);
 		}
 	}
+	
 	private void loadImages(ArrayList<AdvBean> advlist){
 		
 		ArrayList<View> pageViews = new ArrayList<View>();
@@ -149,17 +153,16 @@ public class MainActivity extends BaseActivity implements Callback {
 	}
 	
 	public class MyViewPagerAdapter extends PagerAdapter{
-        private ArrayList<View> mListViews;  
-          
+        private ArrayList<View> mListViews;
+        
         public MyViewPagerAdapter(ArrayList<View> mListViews) {
             this.mListViews = mListViews;//构造方法，参数是我们的页卡，这样比较方便。  
         }
-  
+
         @Override  
-        public void destroyItem(ViewGroup container, int position, Object object)   {   
+        public void destroyItem(ViewGroup container, int position, Object object){
             container.removeView(mListViews.get(position));//删除页卡  
         }
-  
   
         @Override  
         public Object instantiateItem(ViewGroup container, int position) { //这个方法用来实例化页卡
@@ -214,7 +217,8 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.home_icon_carrecord_btn:	
 			case R.id.surface_camera_btn:
 				startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
-				
+				//startToCarRecord(PHOTO_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+				//startToCarPhoto(PHOTO_ACTION, RECORD_MODE_NORMAL);
 				//startToCarRecord(CARBACK_ACTION, RECORD_MODE_NORMAL);
 				//startActivity("com.android.camera", "com.android.camera.Camera", null);
 				//startActivity(new Intent(mContext, CameraTestActivity.class));
@@ -226,10 +230,11 @@ public class MainActivity extends BaseActivity implements Callback {
 				startActivity("com.android.settings","com.android.settings.Settings$TetherSettingsActivity",null); 
 				break;
 			case R.id.home_icon_music_btn:
-				startActivity("com.sds.ttpod.hd", "com.sds.ttpod.hd.app.EntryActivity", "音乐");
+				if(!startActivity("com.kugou.android", "com.kugou.android.app.splash.SplashActivity", null))
+					startActivity("com.sds.android.ttpod", "com.sds.android.ttpod.EntryActivity", "音乐");
 				break;
 			case R.id.home_icon_navi_btn:
-				startActivity("com.autonavi.xmgd.navigator", "com.autonavi.xmgd.navigator.Warn", null);
+				startActivity("com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
 				break;
 			case R.id.function_item_1:
 			case R.id.function_item_2:
@@ -237,7 +242,6 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.function_item_4:
 			case R.id.function_item_5:
 				callPhone(v.getId());
-				
 				break;
 			default:
 				break;
@@ -377,10 +381,12 @@ public class MainActivity extends BaseActivity implements Callback {
 	}
 	
 	private static final String RECORD_MODE = "record_mode";
+	private static final String PHOTO_MODE = "photo_mode";
 	private static final int RECORD_MODE_NORMAL = 1;//全屏窗口模式
 	private static final int RECORD_MODE_BACK = 2;//小窗口模式
 	private static final int RECORD_MODE_HIDE = 3;//后台隐藏窗口模式
 	private static final String RECORD_ACTION = "record_action";//行车记录
+	private static final String PHOTO_ACTION = "photo_action";//行车记录
 	private static final String CARBACK_ACTION = "carback_action";//倒车后视
 	private static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
 	private static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
@@ -400,12 +406,26 @@ public class MainActivity extends BaseActivity implements Callback {
 			mToast.toastMsg("没有安装该应用");
 		}
     }
-    
+    private void startToCarPhoto(String action, int mode) {
+    	surfaceDestroyed(null);
+		final Intent mIntent = new Intent(Intent.ACTION_MAIN); 
+		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
+		mIntent.setComponent(compName); 
+		mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		mIntent.setAction(action);
+		Bundle mBundle = new Bundle();
+		mBundle.putInt(PHOTO_MODE, mode);
+		mIntent.putExtras(mBundle);
+		try{
+			startActivity(mIntent); 
+		}catch(Exception e){
+			mToast.toastMsg("没有安装该应用");
+		}
+    }    
     private void printApp(){
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);	
         List<ResolveInfo> mApps = getPackageManager().queryIntentActivities(mainIntent, 0);
-
         for(final ResolveInfo app:mApps){
         	String name = app.activityInfo.name;
         	String pack = app.activityInfo.packageName;
@@ -413,14 +433,16 @@ public class MainActivity extends BaseActivity implements Callback {
         	MyLog.D("name="+name+",pack="+pack+",label="+label);
         }
     }
-	private void startActivity(String pkg,String cls,String name){
+	private boolean startActivity(String pkg,String cls,String name){
 		try{
 			Intent intent = new Intent().setClassName(pkg, cls);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			startActivity(intent);
+			return true;
 		}catch(Exception e){
 			if(!StringUtils.isEmpty(name))
 				mToast.toastMsg("没有安装"+name);
+			return false;
 		}
 	}
 	public CarHomeBean getCarHomeBean(){
@@ -476,7 +498,6 @@ public class MainActivity extends BaseActivity implements Callback {
 	
 	public void onEventMainThread(String result) {
 		getCarHome();
-		getVoiceYseNo();
 	}
 	
 	@Override
@@ -508,24 +529,20 @@ public class MainActivity extends BaseActivity implements Callback {
 			}
 		}
 	}
-	
-    private void getVoiceYseNo(){
-    	ApiClient.getVoiceYesNo(new onReqStartListener(){
-			@Override
-			public void onReqStart() {}
-    	}, new Listener<JSONObject>(){
-			@Override
-			public void onResponse(JSONObject response) {
-				MyLog.D("onResponse:"+response.toString());
-				try {
-					QuickShPref.getInstance().putValueObject(VoiceYesNoBean.TAG, response.getString("result"));
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-    	}, GlobalNetErrorHandler.getInstance(getBaseContext(), null, null));
-    }
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		onUsrActivity();
+		registerReceiver(TimeTickRcv, new IntentFilter(Intent.ACTION_TIME_TICK));
+	}
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		unregisterReceiver(TimeTickRcv);
+	}
+
     private void getCarHome(){
     	String imei = QuickShPref.getInstance().getString(QuickShPref.IEMI);
     	//imei = "862609000000773";
@@ -544,12 +561,6 @@ public class MainActivity extends BaseActivity implements Callback {
     	}, GlobalNetErrorHandler.getInstance(getBaseContext(), null, null));
     }
     
-    private void startNavi(){
-	    RouteParaOption para = new RouteParaOption()
-	    .startName("白石洲")
-	    .endName("华强北");
-	     BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, this);
-    }
 	public void onEventMainThread( RouteParaOption para) {
 	    try {
 		       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, this);
@@ -557,4 +568,60 @@ public class MainActivity extends BaseActivity implements Callback {
 		        e.printStackTrace();
 		}
 	}
+	private void showLockScreen(){
+		findViewById(R.id.lock_screen).setVisibility(View.VISIBLE);
+		updateLockTime();
+	}
+	private boolean dismissLockScreen(){
+		View lock = findViewById(R.id.lock_screen);
+		if(lock.getVisibility() == View.VISIBLE){
+			findViewById(R.id.lock_screen).setVisibility(View.GONE);
+			return true;
+		}else{
+			return false;
+		}
+	}
+	Runnable showLockRun = new Runnable(){
+		@Override
+		public void run() {
+			showLockScreen();
+		}
+	};
+	
+	private boolean onUsrActivity(){
+		mHandler.removeCallbacks(showLockRun);
+		mHandler.postDelayed(showLockRun, LOCK_OUT_TIME);
+		return dismissLockScreen();
+	}
+	
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		// TODO Auto-generated method stub
+		if(onUsrActivity())
+			return true;
+		return super.dispatchTouchEvent(ev);
+	}
+	
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		// TODO Auto-generated method stub
+		onUsrActivity();
+		return super.dispatchKeyEvent(event);
+	}
+	
+	private void updateLockTime(){
+        Date date = new Date();  
+        SimpleDateFormat locktime = new SimpleDateFormat("HH:mm");  
+        SimpleDateFormat lockdate = new SimpleDateFormat("MM月dd日");  
+       ((TextView)findViewById(R.id.lock_time)).setText(locktime.format(date));
+       ((TextView)findViewById(R.id.lock_date)).setText(lockdate.format(date));
+	}
+	
+	BroadcastReceiver TimeTickRcv = new BroadcastReceiver() {  
+        @Override  
+        public void onReceive(Context context, Intent intent) {  
+            // TODO Auto-generated method stub  
+        	updateLockTime();
+        }
+    };  
 }

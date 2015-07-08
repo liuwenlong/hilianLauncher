@@ -99,9 +99,10 @@ public class GlobalNetErrorHandler implements ErrorListener {
 
 			String errorMsg = getMessage(error, context, curUser);
 
-			if (!StringUtils.isEmpty(errorMsg))
-				MyToast.getInstance(mContext).toastMsg(errorMsg);
-			else if(mGlobalNetErrorCallback != null)
+			if (!StringUtils.isEmpty(errorMsg)){
+				if(mContext!=null)
+					MyToast.getInstance(mContext).toastMsg(errorMsg);
+			}else if(mGlobalNetErrorCallback != null)
 				mGlobalNetErrorCallback.OnNetErrorCallback(error);
 				
 		}

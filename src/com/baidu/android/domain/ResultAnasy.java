@@ -49,6 +49,10 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
     	mActivity = context;
     	mVoliceSpeeh = new VoliceSpeeh(context,this);
     }
+    public void stopSpeaker(){
+    	if(mVoliceSpeeh != null)
+    		mVoliceSpeeh.stopSpeaker();
+    }
     
     public void addSpeak(String answer){
 		AnasyItem anasy = new AnasyItem();

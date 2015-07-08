@@ -52,6 +52,7 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
@@ -88,13 +89,17 @@ public class VoliceRecActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_volice_recogin);
 		initVolice();
-		//uploadContacts();
 		locationInit();
+		initView();
+		requestFocus();
+		getVoiceYseNo(this);
+	}
+	
+	private void initView(){
 		mListAdapter = new ListAdapter(getBaseContext(), mResultAnasy.mAnasyList);
 		mListView = (ListView)findViewById(R.id.list);
 		mListView.setAdapter(mListAdapter);
-		voliceInView = (VoliceInView)findViewById(R.id.voliceInView);
-
+		voliceInView = (VoliceInView)findViewById(R.id.voliceInView);		
 	}
 	
 	private void initVolice(){
@@ -122,7 +127,7 @@ public class VoliceRecActivity extends ActionBarActivity {
 						// TODO Auto-generated method stub
 						finish();
 					}
-				 });	    	   
+				 });
 	       }
 	    setVolumeControlStream(AudioManager.STREAM_MUSIC);  	
 	}
@@ -260,11 +265,23 @@ public class VoliceRecActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        VoiceRecognitionClient.releaseInstance(); 
-        if(mASREngine!=null){
+         if(mASREngine != null){
         	mASREngine.stopVoiceRecognition();
         }
-        startService(new Intent(this, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_START));
+        VoiceRecognitionClient.releaseInstance(); 
+        if(mResultAnasy != null){
+        	mResultAnasy.stopSpeaker();
+        }
+        mAm.abandonAudioFocus(mOnAudioFocusChangeListener);
+        new Handler().postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				startService(new Intent(VoliceRecActivity.this, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_START));
+			}
+		}, 1000);
+		
     }
     
     public void onClick(View v){
@@ -450,4 +467,42 @@ public class VoliceRecActivity extends ActionBarActivity {
 			return true;
 		}
 	}
+    public static void getVoiceYseNo(Context context){
+    	ApiClient.getVoiceYesNo(new onReqStartListener(){
+			@Override
+			public void onReqStart() {}
+    	}, new Listener<JSONObject>(){
+			@Override
+			public void onResponse(JSONObject response) {
+				MyLog.D("onResponse:"+response.toString());
+				try {
+					QuickShPref.getInstance().putValueObject(VoiceYesNoBean.TAG, response.getString("result"));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+    	}, GlobalNetErrorHandler.getInstance(context, null, null));
+    }
+    
+	private AudioManager mAm;  
+	private OnAudioFocusChangeListener mOnAudioFocusChangeListener = new OnAudioFocusChangeListener(){
+		@Override
+		public void onAudioFocusChange(int focusChange) {
+			MyLog.D("OnAudioFocusChangeListener:"+focusChange);
+		}
+	};
+	
+	private void requestFocus() {
+		if(mAm == null)
+			mAm = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		
+		int result = mAm.requestAudioFocus(mOnAudioFocusChangeListener,AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+		if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+			MyLog.I("requestAudioFocus successfully.");
+		} else {
+			MyLog.D("requestAudioFocus successfully.");
+		}
+	}
+	
 }

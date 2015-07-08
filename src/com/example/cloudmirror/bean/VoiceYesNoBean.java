@@ -10,6 +10,7 @@ public class VoiceYesNoBean implements Serializable{
 	public String version;
 	public ArrayList<String> yes;
 	public ArrayList<String> no;
+	public ArrayList<String> pwd;
 	
 	public static VoiceYesNoBean getFromJson(String json){
 		return JSON.parseObject(json, VoiceYesNoBean.class);

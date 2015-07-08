@@ -44,9 +44,11 @@ public class DomainTelephone extends Domain{
 		String calName = name;
 		String number = ContactDBPref.getInstance().getTelPhone(name);
 		
-		if(StringUtils.isEmpty(number)){
+		if(StringUtils.isEmpty(number) && !StringUtils.isEmpty(Object.number)){
 			number = Object.number;
 			calName = Object.number;
+		}else if(StringUtils.isEmpty(name) && StringUtils.isEmpty(Object.number)){
+			return null;
 		}
 		final String telphone = number;
 		

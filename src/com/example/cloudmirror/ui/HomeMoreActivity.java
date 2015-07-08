@@ -93,6 +93,7 @@ public class HomeMoreActivity extends BaseActivity {
 				@Override
 				public void onClick(View v) {
 						doAction();
+						finish();
 				}
 			});
 		}
