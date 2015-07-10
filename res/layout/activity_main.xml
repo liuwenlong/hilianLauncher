@@ -330,7 +330,7 @@
         android:layout_height="match_parent"
         android:background="#FF000000"
         android:padding="40dp"
-        android:visibility="visible" 
+        android:visibility="gone" 
         android:orientation="vertical">
 
         <TextView

@@ -53,6 +53,7 @@ import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
@@ -81,6 +82,9 @@ public class DataSyncService extends Service implements DataUploaderListener {
 	public static final String ACTION_PC = "com.concox.BLUETOOTH_PC";
 	public static final String ACTION_MX = "com.concox.BLUETOOTH_MX";
 	public static final String ACTION_PA1 = "com.concox.BLUETOOTH_PA1";
+	
+	public static final String MSG_PHOTO_DONE_ACTION = "android.intent.action.concox.carrecorder.photo.done";
+	
 	private static String TAG = "DataSyncService";
 	private GetLoaction mGetLoaction = new GetLoaction();
 	NetWork mNetWork = new NetWork();
@@ -104,6 +108,7 @@ public class DataSyncService extends Service implements DataUploaderListener {
 		startUpdateThread();
 		startVoiceRecord();
 		EventBus.getDefault().register(this);
+		
 	}
 
 	Thread mContactUpdateThread;
@@ -331,7 +336,8 @@ public class DataSyncService extends Service implements DataUploaderListener {
 		filter.addAction(ACTION_MX);
 		filter.addAction(ACTION_PA1);
 		registerReceiver(mMyReceiver, filter);
-
+		
+		registerReceiver(mReceiver, new IntentFilter(MSG_PHOTO_DONE_ACTION));
 	}
 
 	private void initSingle() {
@@ -348,6 +354,7 @@ public class DataSyncService extends Service implements DataUploaderListener {
 		MobclickAgent.onPause(this);
 		EventBus.getDefault().unregister(this);
 		startService(new Intent(this, DataSyncService.class));
+		unregisterReceiver(mReceiver);
 	}
 
 	private final IBinder mBinder = new LocalBinder();
@@ -681,4 +688,19 @@ public class DataSyncService extends Service implements DataUploaderListener {
 			MyLog.D("focusChange=" + focusChange);
 		}
 	}
+	
+	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action= intent.getAction();
+			MyLog.D("action="+action);
+			if(action.equals(MSG_PHOTO_DONE_ACTION)) {
+				Bundle mBundle = intent.getExtras();  
+				if (mBundle != null) {
+					String strPath = mBundle.getString("path");
+					MyLog.D("strPath="+strPath);
+				}
+			}
+		}
+	};
 }

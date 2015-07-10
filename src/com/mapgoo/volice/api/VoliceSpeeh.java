@@ -23,7 +23,7 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
 	private SpeechSynthesizer speechSynthesizer;
 	private OnSpeechChangeListener mOnSpeechChangeListener;
 	public static interface OnSpeechChangeListener{
-		public void OnSpeechChangeListener(SpeechSynthesizer sp,int what,Object arg);
+		public void OnSpeechChange(SpeechSynthesizer sp,int what,Object arg);
 	}
 	
     /** 指定license路径，需要保证该路径的可读写权限 */
@@ -122,37 +122,32 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
 	@Override
 	public void onSpeechFinish(SpeechSynthesizer arg0) {
 		// TODO Auto-generated method stub
-		mOnSpeechChangeListener.OnSpeechChangeListener(arg0, 1, null);
+		mOnSpeechChangeListener.OnSpeechChange(arg0, 1, null);
 	}
 	@Override
 	public void onSpeechPause(SpeechSynthesizer arg0) {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void onSpeechProgressChanged(SpeechSynthesizer arg0, int arg1) {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void onSpeechResume(SpeechSynthesizer arg0) {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void onSpeechStart(SpeechSynthesizer arg0) {
 		// TODO Auto-generated method stub
-		mOnSpeechChangeListener.OnSpeechChangeListener(arg0, 0, null);
+		mOnSpeechChangeListener.OnSpeechChange(arg0, 0, null);
 	}
 	@Override
 	public void onStartWorking(SpeechSynthesizer arg0) {
 		// TODO Auto-generated method stub
-		
 	}
 	@Override
 	public void onSynthesizeFinish(SpeechSynthesizer arg0) {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	public void startSpeaker(String str){

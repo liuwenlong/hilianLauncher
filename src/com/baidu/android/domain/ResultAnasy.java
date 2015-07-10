@@ -238,7 +238,7 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
     }
     AnasyItem mLastAnasyItem;
 	@Override
-	public void OnSpeechChangeListener(SpeechSynthesizer sp, int what,Object arg) {
+	public void OnSpeechChange(SpeechSynthesizer sp, int what,Object arg) {
 		// TODO Auto-generated method stub
 		switch (what) {
 		case 1:

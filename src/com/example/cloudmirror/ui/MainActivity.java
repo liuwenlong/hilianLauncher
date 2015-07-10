@@ -19,6 +19,7 @@ import com.example.cloudmirror.bean.CarHomeBean;
 import com.example.cloudmirror.bean.VoiceYesNoBean;
 import com.example.cloudmirror.bean.CarHomeBean.AdvBean;
 import com.example.cloudmirror.service.DataSyncService;
+import com.example.cloudmirror.service.FxService;
 import com.example.cloudmirror.ui.activity.CarBrandUpdateActivity;
 import com.example.cloudmirror.ui.activity.GetInvadationCodeActivity;
 import com.example.cloudmirror.ui.widget.AsyncImageView;
@@ -75,7 +76,7 @@ import android.widget.Toast;
 
 
 public class MainActivity extends BaseActivity implements Callback {
-	public final static int LOCK_OUT_TIME = 5*1000;//1*60*1000;
+	public final static int LOCK_OUT_TIME = 1*60*1000;//5*1000;
 	private ViewPager mViewPager;
 	private FlipperIndicatorDotView mIndicatorrView ;
 	private Camera mCamera;  
@@ -89,12 +90,13 @@ public class MainActivity extends BaseActivity implements Callback {
 		setContentView(R.layout.activity_main);
 		EventBus.getDefault().register(this);
 		//printApp();
-		//MyLog.D("Build.CPU_ABI="+android.os.Build.SERIAL);
 		startService(new Intent(mContext, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_NONE));
+		startService(new Intent(mContext, FxService.class));
 	}
 	@Override
 	protected void initData(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
+		//startToCarRecord(RECORD_ACTION, RECORD_MODE_BACK);
 		
 	}
 	@Override
@@ -120,7 +122,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		mSurfaceView = (SurfaceView) findViewById(R.id.surface_camera); 
 		SurfaceHolder mSurfaceHolder = mSurfaceView.getHolder(); 
 		mSurfaceHolder.addCallback(this); 
-		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		//mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 	}
 	CarHomeBean mCarHomeBean;
 	private void refreshHome(){
@@ -129,7 +131,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		if(home!=null && home.advlist!=null && !home.advlist.isEmpty()){
 			loadImages(home.advlist);
 		}else{
-			ArrayList<AdvBean> advlist = new ArrayList<AdvBean> (){};
+			ArrayList<AdvBean> advlist = new ArrayList<AdvBean>(){private static final long serialVersionUID = 1L;};
 			AdvBean adv = new AdvBean();
 			adv.imgurl = "";
 			advlist.add(adv);
@@ -141,7 +143,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		
 		ArrayList<View> pageViews = new ArrayList<View>();
 		for (int i = 0; i < advlist.size(); i++) {
-			View adView = mInflater.inflate(R.layout.home_ad_info, null); 
+			View adView = mInflater.inflate(R.layout.home_ad_info, (ViewGroup)null); 
 			AsyncImageView adImgView = (AsyncImageView) adView.findViewById(R.id.ad_img);
 			adImgView.setImage(advlist.get(i).imgurl, R.drawable.home_adv_def, new RoundedRectangleBitmapDisplayer(0));
 			adImgView.setScaleType(ScaleType.FIT_XY);
@@ -166,7 +168,6 @@ public class MainActivity extends BaseActivity implements Callback {
   
         @Override  
         public Object instantiateItem(ViewGroup container, int position) { //这个方法用来实例化页卡
-        	
              container.addView(mListViews.get(position), 0);//添加页卡  
              return mListViews.get(position); 
         }
@@ -182,8 +183,6 @@ public class MainActivity extends BaseActivity implements Callback {
         }
     }
 
-	
-	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
@@ -206,7 +205,7 @@ public class MainActivity extends BaseActivity implements Callback {
 				break;
 			case R.id.home_call:
 				showTipView();
-				//startNavi();
+				sendBroadcast(new Intent(FxService.ACTION_START_RECORD));
 				break;
 			case R.id.violation_tip_img:
 				dismissTipView();
@@ -218,13 +217,10 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.surface_camera_btn:
 				startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
 				//startToCarRecord(PHOTO_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
-				//startToCarPhoto(PHOTO_ACTION, RECORD_MODE_NORMAL);
-				//startToCarRecord(CARBACK_ACTION, RECORD_MODE_NORMAL);
-				//startActivity("com.android.camera", "com.android.camera.Camera", null);
-				//startActivity(new Intent(mContext, CameraTestActivity.class));
 				break;
 			case R.id.home_icon_blue_btn:
 				startActivity("com.concox.bluetooth","com.concox.bluetooth.MainActivity",null); 
+				//startToCarRecord(RECORD_ACTION, RECORD_MODE_HIDE);
 				break;
 			case R.id.home_icon_wifi_btn:
 				startActivity("com.android.settings","com.android.settings.Settings$TetherSettingsActivity",null); 
@@ -341,7 +337,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		MyLog.D("surfaceChanged");
 		if(mCamera!=null && mPreviewRunning==false){
-	        Camera.Parameters p = mCamera.getParameters();
+	        //Camera.Parameters p = mCamera.getParameters();
 	        //p.setPreviewSize(width, height);  
 	        //p.set("rotation", 90);  
 	       //mCamera.setParameters(p);  
@@ -380,17 +376,17 @@ public class MainActivity extends BaseActivity implements Callback {
        mCamera = null;
 	}
 	
-	private static final String RECORD_MODE = "record_mode";
-	private static final String PHOTO_MODE = "photo_mode";
-	private static final int RECORD_MODE_NORMAL = 1;//全屏窗口模式
-	private static final int RECORD_MODE_BACK = 2;//小窗口模式
-	private static final int RECORD_MODE_HIDE = 3;//后台隐藏窗口模式
-	private static final String RECORD_ACTION = "record_action";//行车记录
-	private static final String PHOTO_ACTION = "photo_action";//行车记录
-	private static final String CARBACK_ACTION = "carback_action";//倒车后视
-	private static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
-	private static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
-    private void startToCarRecord(String action, int mode) {
+	public static final String RECORD_MODE = "record_mode";
+	public static final String PHOTO_MODE = "photo_mode";
+	public static final int RECORD_MODE_NORMAL = 1;//全屏窗口模式
+	public static final int RECORD_MODE_BACK = 2;//小窗口模式
+	public static final int RECORD_MODE_HIDE = 3;//后台隐藏窗口模式
+	public static final String RECORD_ACTION = "record_action";//行车记录
+	public static final String PHOTO_ACTION = "photo_action";//拍照
+	public static final String CARBACK_ACTION = "carback_action";//倒车后视
+	public static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
+	public static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
+	public void startToCarRecord(String action, int mode) {
     	surfaceDestroyed(null);
 		final Intent mIntent = new Intent(Intent.ACTION_MAIN); 
 		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
@@ -406,22 +402,6 @@ public class MainActivity extends BaseActivity implements Callback {
 			mToast.toastMsg("没有安装该应用");
 		}
     }
-    private void startToCarPhoto(String action, int mode) {
-    	surfaceDestroyed(null);
-		final Intent mIntent = new Intent(Intent.ACTION_MAIN); 
-		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
-		mIntent.setComponent(compName); 
-		mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		mIntent.setAction(action);
-		Bundle mBundle = new Bundle();
-		mBundle.putInt(PHOTO_MODE, mode);
-		mIntent.putExtras(mBundle);
-		try{
-			startActivity(mIntent); 
-		}catch(Exception e){
-			mToast.toastMsg("没有安装该应用");
-		}
-    }    
     private void printApp(){
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);	
@@ -515,15 +495,13 @@ public class MainActivity extends BaseActivity implements Callback {
 		if(IS_CAMREA_OPEN){
 			if(hasFocus){
 				new Handler().postDelayed(new Runnable() {
-					
 					@Override
 					public void run() {
 						// TODO Auto-generated method stub
 						surfaceCreated(null);
 						surfaceChanged(mSurfaceView.getHolder(), 0, 0, 0);
-						
 					}
-				}, 500);		
+				}, 500);
 			}else{
 				surfaceDestroyed(null);
 			}
@@ -561,7 +539,7 @@ public class MainActivity extends BaseActivity implements Callback {
     	}, GlobalNetErrorHandler.getInstance(getBaseContext(), null, null));
     }
     
-	public void onEventMainThread( RouteParaOption para) {
+	public void onEventMainThread(RouteParaOption para) {
 	    try {
 		       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, this);
 		} catch (Exception e) {
@@ -587,41 +565,36 @@ public class MainActivity extends BaseActivity implements Callback {
 			showLockScreen();
 		}
 	};
-	
 	private boolean onUsrActivity(){
 		mHandler.removeCallbacks(showLockRun);
 		mHandler.postDelayed(showLockRun, LOCK_OUT_TIME);
 		return dismissLockScreen();
 	}
-	
 	@Override
-	public boolean dispatchTouchEvent(MotionEvent ev) {
+	public boolean dispatchTouchEvent(MotionEvent ev){
 		// TODO Auto-generated method stub
 		if(onUsrActivity())
 			return true;
 		return super.dispatchTouchEvent(ev);
 	}
-	
 	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
+	public boolean dispatchKeyEvent(KeyEvent event){
 		// TODO Auto-generated method stub
 		onUsrActivity();
 		return super.dispatchKeyEvent(event);
 	}
-	
 	private void updateLockTime(){
-        Date date = new Date();  
-        SimpleDateFormat locktime = new SimpleDateFormat("HH:mm");  
-        SimpleDateFormat lockdate = new SimpleDateFormat("MM月dd日");  
+        Date date = new Date();
+        SimpleDateFormat locktime = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat lockdate = new SimpleDateFormat("MM月dd日");
        ((TextView)findViewById(R.id.lock_time)).setText(locktime.format(date));
        ((TextView)findViewById(R.id.lock_date)).setText(lockdate.format(date));
 	}
-	
-	BroadcastReceiver TimeTickRcv = new BroadcastReceiver() {  
-        @Override  
-        public void onReceive(Context context, Intent intent) {  
+	BroadcastReceiver TimeTickRcv = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent){
             // TODO Auto-generated method stub  
         	updateLockTime();
         }
-    };  
+    };
 }
