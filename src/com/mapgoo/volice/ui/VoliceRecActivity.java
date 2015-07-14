@@ -113,11 +113,18 @@ public class VoliceRecActivity extends ActionBarActivity {
 	       };
 	       
 	       if(checkConnectionOnDemand()){
-			  mResultAnasy.addAnswer(getString(R.string.volice_start), new Runnable() {
+	    	   boolean hasEnter = QuickShPref.getInstance().getBoolean(QuickShPref.HAS_ENTER);
+	    	   boolean startFromVoice = getIntent().getBooleanExtra("startfromvoice", false);
+	    	   int startRes = R.string.volice_start;
+	    	   if(startFromVoice){
+	    		   startRes = R.string.volice_start_short;
+	    	   }
+			  mResultAnasy.addAnswer(getString(startRes)+(hasEnter?"":"您可以说：导航到天安门"), new Runnable() {
 							@Override
-				public void run() {
+				public void run(){
 					// TODO Auto-generated method stub
 					startVolice();
+					QuickShPref.getInstance().putValueObject(QuickShPref.HAS_ENTER, true);
 				}
 			 });
 	       }else{

@@ -80,7 +80,7 @@ public class FxService extends Service implements Callback {
 		// 设置图片格式，效果为背景透明
 		wmParams.format = PixelFormat.RGBA_8888;
 		// 设置浮动窗口不可聚焦（实现操作除浮动窗口外的其他可见窗口的操作）
-		wmParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE;
+		wmParams.flags = LayoutParams.FLAG_NOT_FOCUSABLE|LayoutParams.FLAG_NOT_TOUCHABLE;
 		// 调整悬浮窗显示的停靠位置为左侧置顶
 		wmParams.gravity = Gravity.LEFT | Gravity.TOP;
 		// 以屏幕左上角为原点，设置x、y初始值，相对于gravity
@@ -97,49 +97,49 @@ public class FxService extends Service implements Callback {
 
 		LayoutInflater inflater = LayoutInflater.from(getApplication());
 		// 获取浮动窗口视图所在布局
-		mFloatLayout = (LinearLayout) inflater.inflate(
-				R.layout.activity_camera_test, null);
+		mFloatLayout = (LinearLayout) inflater.inflate(R.layout.activity_camera_test, null);
 		// 添加mFloatLayout
+		
 		mWindowManager.addView(mFloatLayout, wmParams);
 		// 浮动窗口按钮
-		mFloatView = (Button) mFloatLayout.findViewById(R.id.test_camera_btn);
-
-		mFloatLayout.measure(View.MeasureSpec.makeMeasureSpec(0,
-				View.MeasureSpec.UNSPECIFIED), View.MeasureSpec
-				.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-		Log.i(TAG, "Width/2--->" + mFloatView.getMeasuredWidth() / 2);
-		Log.i(TAG, "Height/2--->" + mFloatView.getMeasuredHeight() / 2);
-		// 设置监听浮动窗口的触摸移动
-		mFloatView.setOnTouchListener(new OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				// TODO Auto-generated method stub
-				// getRawX是触摸位置相对于屏幕的坐标，getX是相对于按钮的坐标
-				wmParams.x = (int) event.getRawX()
-						- mFloatView.getMeasuredWidth() / 2;
-				Log.i(TAG, "RawX" + event.getRawX());
-				Log.i(TAG, "X" + event.getX());
-				// 减25为状态栏的高度
-				wmParams.y = (int) event.getRawY()
-						- mFloatView.getMeasuredHeight() / 2 - 25;
-				Log.i(TAG, "RawY" + event.getRawY());
-				Log.i(TAG, "Y" + event.getY());
-				// 刷新
-				mWindowManager.updateViewLayout(mFloatLayout, wmParams);
-				return false; // 此处必须返回false，否则OnClickListener获取不到监听
-			}
-		});
-
-		mFloatView.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				Toast.makeText(FxService.this, "onClick", Toast.LENGTH_SHORT)
-						.show();
-			}
-		});
+//		mFloatView = (Button) mFloatLayout.findViewById(R.id.test_camera_btn);
+//
+//		mFloatLayout.measure(View.MeasureSpec.makeMeasureSpec(0,
+//				View.MeasureSpec.UNSPECIFIED), View.MeasureSpec
+//				.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+//		Log.i(TAG, "Width/2--->" + mFloatView.getMeasuredWidth() / 2);
+//		Log.i(TAG, "Height/2--->" + mFloatView.getMeasuredHeight() / 2);
+//		// 设置监听浮动窗口的触摸移动
+//		mFloatView.setOnTouchListener(new OnTouchListener() {
+//
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				// TODO Auto-generated method stub
+//				// getRawX是触摸位置相对于屏幕的坐标，getX是相对于按钮的坐标
+//				wmParams.x = (int) event.getRawX()
+//						- mFloatView.getMeasuredWidth() / 2;
+//				Log.i(TAG, "RawX" + event.getRawX());
+//				Log.i(TAG, "X" + event.getX());
+//				// 减25为状态栏的高度
+//				wmParams.y = (int) event.getRawY()
+//						- mFloatView.getMeasuredHeight() / 2 - 25;
+//				Log.i(TAG, "RawY" + event.getRawY());
+//				Log.i(TAG, "Y" + event.getY());
+//				// 刷新
+//				mWindowManager.updateViewLayout(mFloatLayout, wmParams);
+//				return false; // 此处必须返回false，否则OnClickListener获取不到监听
+//			}
+//		});
+//
+//		mFloatView.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				Toast.makeText(FxService.this, "onClick", Toast.LENGTH_SHORT)
+//						.show();
+//			}
+//		});
 
 		iniCamera();
 	}
@@ -154,13 +154,13 @@ public class FxService extends Service implements Callback {
 		}
 		unregisterReceiver(mReceiver);
 	}
-
-	private void iniCamera() {
-		SurfaceView mSurfaceView;
-		mSurfaceView = (SurfaceView) mFloatLayout.findViewById(R.id.surface_camera);
+	SurfaceView mSurfaceView;
+	private void iniCamera(){
+		mSurfaceView = (SurfaceView) mFloatLayout.findViewById(R.id.surfaceview);
 		mSurfaceHolder = mSurfaceView.getHolder();
 		mSurfaceHolder.addCallback(this);
 		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+		//mHandler.postDelayed(mStopRecordRun, 3000);
 	}
 
 	@Override
@@ -186,13 +186,14 @@ public class FxService extends Service implements Callback {
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
-		if (mCamera == null) {
+		if (mCamera == null&&holder==null) {
 			try {
 				mCamera = Camera.open();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		mFloatLayout.findViewById(R.id.lay).setVisibility(View.INVISIBLE);
 		MyLog.D("Fxservice surfaceCreated");
 	}
 
@@ -208,7 +209,6 @@ public class FxService extends Service implements Callback {
 	}
 
 	public void startPreview() {
-		
 		surfaceCreated(null);
 		surfaceChanged(mSurfaceHolder, 0, 0, 0);
 	}
@@ -218,9 +218,10 @@ public class FxService extends Service implements Callback {
 	 */
 	public void startRecord() {
 		startPreview();
-		
+		if(mCamera == null)
+			return;
 		mediarecorder = new MediaRecorder();// 创建mediarecorder对象
-		// mCamera = getCameraInstance();
+
 		// 解锁camera
 		mCamera.unlock();
 		mediarecorder.setCamera(mCamera);
@@ -230,10 +231,9 @@ public class FxService extends Service implements Callback {
 		mediarecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
 		// 设置录制文件质量，格式，分辨率之类，这个全部包括了
-		mediarecorder.setProfile(CamcorderProfile
-				.get(CamcorderProfile.QUALITY_LOW));
-
+		mediarecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_LOW));
 		mediarecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
+		
 		// 设置视频文件输出的路径
 		mRecordPath = getVideoPath();
 		mediarecorder.setOutputFile(mRecordPath);
@@ -270,6 +270,7 @@ public class FxService extends Service implements Callback {
 			mediarecorder = null;
 			surfaceDestroyed(mSurfaceHolder);
 			startService(new Intent(getBaseContext(), DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_START));
+			mSurfaceView.setVisibility(View.INVISIBLE);
 		}
 	}
 	

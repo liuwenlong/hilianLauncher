@@ -286,7 +286,7 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 		ArrayList<String> okList = new ArrayList<String>(){{add("是");add("对");add("是的");}};
 		VoiceYesNoBean volice = VoiceYesNoBean.getFromJson(QuickShPref.getInstance().getString(VoiceYesNoBean.TAG));
 		if(volice!=null && volice.yes!=null && volice.yes.size()>0){
-			okList = volice.yes;
+			okList.addAll(volice.yes);
 		}
 		return checkStringList(list,okList);
 	}
@@ -294,7 +294,7 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 		ArrayList<String> noList = new ArrayList<String>(){{add("不是");add("不对");add("否");}};
 		VoiceYesNoBean volice = VoiceYesNoBean.getFromJson(QuickShPref.getInstance().getString(VoiceYesNoBean.TAG));
 		if(volice!=null && volice.no!=null && volice.no.size()>0){
-			noList = volice.no;
+			noList.addAll(volice.no);
 		}
 		return checkStringList(list,noList);
 	}

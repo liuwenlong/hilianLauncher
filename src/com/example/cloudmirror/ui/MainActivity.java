@@ -54,6 +54,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -76,6 +77,12 @@ import android.widget.Toast;
 
 
 public class MainActivity extends BaseActivity implements Callback {
+	public static String KEY_ACTION = "android.intent.action.CUSTOM_KEY_EVENT";
+	public static String GPS_KEY_FLAG = "GPS_KEY"; 
+	public static String DVR_KEY_FLAG = "DVR_KEY"; 
+	public static String NOR_KEY_FLAG = "NORMAL_KEY"; 
+	public static String SIL_KEY_FLAG = "SILENT_KEY"; 
+	
 	public final static int LOCK_OUT_TIME = 1*60*1000;//5*1000;
 	private ViewPager mViewPager;
 	private FlipperIndicatorDotView mIndicatorrView ;
@@ -89,15 +96,15 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main);
 		EventBus.getDefault().register(this);
-		//printApp();
+		printApp();
 		startService(new Intent(mContext, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_NONE));
-		startService(new Intent(mContext, FxService.class));
+		//startService(new Intent(mContext, FxService.class));
 	}
 	@Override
 	protected void initData(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		//startToCarRecord(RECORD_ACTION, RECORD_MODE_BACK);
-		
+		registerReceiver(KeyRcv, new IntentFilter(KEY_ACTION));
 	}
 	@Override
 	protected void initViews() {
@@ -205,7 +212,8 @@ public class MainActivity extends BaseActivity implements Callback {
 				break;
 			case R.id.home_call:
 				showTipView();
-				sendBroadcast(new Intent(FxService.ACTION_START_RECORD));
+				//sendBroadcast(new Intent("android.intent.action.concox.carrecorder.quit"));
+				//sendBroadcast(new Intent(FxService.ACTION_START_RECORD));
 				break;
 			case R.id.violation_tip_img:
 				dismissTipView();
@@ -227,7 +235,7 @@ public class MainActivity extends BaseActivity implements Callback {
 				break;
 			case R.id.home_icon_music_btn:
 				if(!startActivity("com.kugou.android", "com.kugou.android.app.splash.SplashActivity", null))
-					startActivity("com.sds.android.ttpod", "com.sds.android.ttpod.EntryActivity", "音乐");
+					startActivity("com.sds.ttpod.hd", "com.sds.ttpod.hd.app.EntryActivity", "音乐");
 				break;
 			case R.id.home_icon_navi_btn:
 				startActivity("com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
@@ -485,6 +493,7 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		EventBus.getDefault().unregister(this);
+		unregisterReceiver(KeyRcv);
 	}
 
 	@Override
@@ -597,4 +606,31 @@ public class MainActivity extends BaseActivity implements Callback {
         	updateLockTime();
         }
     };
+	BroadcastReceiver KeyRcv = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent){
+            // TODO Auto-generated method stub  
+        	String key = intent.getStringExtra("key_flag");
+        	MyLog.D("key_flag="+key);
+        	if(GPS_KEY_FLAG.equals(key)){
+        		startActivity("com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
+        	}else if(DVR_KEY_FLAG.equals(key)){
+        		startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+        	}else if(NOR_KEY_FLAG.equals(key)){
+        		showVoice(R.drawable.voice_open);
+        	}else if(SIL_KEY_FLAG.equals(key)){
+        		showVoice(R.drawable.voice_close);
+        	}
+        }
+    };  
+    
+    private void showVoice(int resid){
+    	Toast mToast = new Toast(this);
+    	ImageView view = new ImageView(this);
+    	view.setImageResource(resid);
+    	mToast.setView(view);
+    	mToast.setDuration(Toast.LENGTH_SHORT);
+    	mToast.setGravity(Gravity.CENTER, 0,0);
+    	mToast.show();
+    }
 }

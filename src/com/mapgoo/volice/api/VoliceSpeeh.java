@@ -95,6 +95,7 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
         DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_GENDER);
         DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_CATEGORY);
         DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_LANGUAGE);
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEED, "6");
         speechSynthesizer.initEngine();
         mActivity. setVolumeControlStream(AudioManager.STREAM_MUSIC);  	
     }

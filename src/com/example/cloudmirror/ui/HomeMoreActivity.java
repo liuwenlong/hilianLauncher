@@ -109,10 +109,10 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutFM = new ShortcutItem(R.drawable.home_more_fm,R.string.home_more_fm){
 		@Override
 		protected void doAction() {
-			//startActivity("com.mediatek.FMRadio", "com.mediatek.FMRadio.FMRadioActivity",  getString(R.string.home_more_fm));
+			startActivity("com.mediatek.FMRadio", "com.mediatek.FMRadio.FMRadioActivity",  getString(R.string.home_more_fm));
 			//startActivity("InternetRadio.all", "InternetRadio.all.Welcome",  getString(R.string.home_more_fm));
 			//startActivity("com.ximalaya.ting.android", "com.ximalaya.ting.android.activity.login.WelcomeActivity",  getString(R.string.home_more_fm));
-			startActivity("com.itings.myradio", "com.itings.myradio.kaolafm.home.FlashActivity",  getString(R.string.home_more_fm));//name=com.itings.myradio.kaolafm.home.FlashActivity,pack=com.itings.myradio
+			//startActivity("com.itings.myradio", "com.itings.myradio.kaolafm.home.FlashActivity",  getString(R.string.home_more_fm));//name=com.itings.myradio.kaolafm.home.FlashActivity,pack=com.itings.myradio
 		}
 	};
 	ShortcutItem  shortcutJY = new ShortcutItem(R.drawable.home_more_jiayou,R.string.home_more_jiayou){

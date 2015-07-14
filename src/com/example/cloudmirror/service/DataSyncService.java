@@ -82,9 +82,10 @@ public class DataSyncService extends Service implements DataUploaderListener {
 	public static final String ACTION_PC = "com.concox.BLUETOOTH_PC";
 	public static final String ACTION_MX = "com.concox.BLUETOOTH_MX";
 	public static final String ACTION_PA1 = "com.concox.BLUETOOTH_PA1";
+	public final static String ACTION_VOICE_START = "action.voice.start";
 	
 	public static final String MSG_PHOTO_DONE_ACTION = "android.intent.action.concox.carrecorder.photo.done";
-	
+	public static boolean NOT_NEED_CODE_IN = false;
 	private static String TAG = "DataSyncService";
 	private GetLoaction mGetLoaction = new GetLoaction();
 	NetWork mNetWork = new NetWork();
@@ -154,13 +155,14 @@ public class DataSyncService extends Service implements DataUploaderListener {
 
 				if (ACTION_PC.equals(action)) {
 					new Handler().postDelayed(new Runnable() {
-
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
 							CheckContact();
 						}
 					}, 5000);
+				}else if(ACTION_VOICE_START.equals(action)){
+					startActivity(new Intent(DataSyncService.this, VoliceRecActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra("startfromvoice", true));
 				}
 			}
 		}
@@ -175,9 +177,7 @@ public class DataSyncService extends Service implements DataUploaderListener {
 				// TODO Auto-generated method stub
 				super.run();
 				Cursor phone = getContentResolver()
-						.query(Uri
-								.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"),
-								null, null, null, null);
+						.query(Uri.parse("content://com.concox.bluetooth.contentprovider.TelContentProvider/person"),null, null, null, null);
 				if (ContactDBPref.getInstance().isCursorSame(phone)) {
 					MyLog.D("电话号码有多个一样，不更新");
 				} else {
@@ -335,6 +335,8 @@ public class DataSyncService extends Service implements DataUploaderListener {
 		filter.addAction(ACTION_PC);
 		filter.addAction(ACTION_MX);
 		filter.addAction(ACTION_PA1);
+		filter.addAction(ACTION_VOICE_START);
+		
 		registerReceiver(mMyReceiver, filter);
 		
 		registerReceiver(mReceiver, new IntentFilter(MSG_PHOTO_DONE_ACTION));
@@ -363,7 +365,7 @@ public class DataSyncService extends Service implements DataUploaderListener {
 	public IBinder onBind(Intent intent) {
 		return mBinder;
 	}
-
+	public final static String ACTION_VOICE_COMMD = "action.voice.command";
 	public final static String COMMAND = "command";
 	public final static int COMMAND_NONE = 0;
 	public final static int COMMAND_START = 1;
@@ -525,6 +527,9 @@ public class DataSyncService extends Service implements DataUploaderListener {
 	private boolean isRecognition = false;
 
 	private void stopVoiceRecord() {
+		if(NOT_NEED_CODE_IN){
+			sendBroadcast(new Intent(ACTION_VOICE_COMMD).putExtra(COMMAND, COMMAND_STOP));
+		}
 		isRecognition = false;
 		if (mASREngine != null) {
 			mASREngine.stopVoiceRecognition();
@@ -535,6 +540,10 @@ public class DataSyncService extends Service implements DataUploaderListener {
 	}
 
 	private void startVoiceRecord() {
+		if(NOT_NEED_CODE_IN){
+			sendBroadcast(new Intent(ACTION_VOICE_COMMD).putExtra(COMMAND, COMMAND_START));
+			return;
+		}
 		if(mAm.isMusicActive()){
 			MyLog.D("有音乐在播放,30秒后重试");
 			startVoidDelay();
@@ -628,6 +637,7 @@ public class DataSyncService extends Service implements DataUploaderListener {
 
 	private void updateRecognitionResult(Object result) {
 		String voiceRlt = null;
+		
 		if (result != null && result instanceof List) {
 			List results = (List) result;
 			if (results.size() > 0) {

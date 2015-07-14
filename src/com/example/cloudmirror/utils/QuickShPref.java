@@ -9,7 +9,7 @@ public class QuickShPref {
 	public final static String LAT = "lat";
 	public final static String LON = "lon";
 	public final static String VOICE = "voice";
-	
+	public final static String HAS_ENTER = "hasenter";	
 	public final static String UPLOAD_CONTACTS = "UPLOAD_CONTACTS";
 	
 	private static QuickShPref mInstace;
