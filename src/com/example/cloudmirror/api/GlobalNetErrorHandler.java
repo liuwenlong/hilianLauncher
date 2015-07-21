@@ -28,6 +28,7 @@ import com.android.volley.VolleyError;
 import com.mapgoo.eagle.R;
 import com.example.cloudmirror.bean.User;
 import com.example.cloudmirror.ui.widget.MyToast;
+import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.StringUtils;
 
 
@@ -96,15 +97,15 @@ public class GlobalNetErrorHandler implements ErrorListener {
 		public static void handleError(VolleyError error, Context context, User curUser) {
 			if (mProgressDialog != null)
 				mProgressDialog.dismiss();
-
+			MyLog.D("VolleyError:"+error.toString());
 			String errorMsg = getMessage(error, context, curUser);
 
 			if (!StringUtils.isEmpty(errorMsg)){
 				if(mContext!=null)
 					MyToast.getInstance(mContext).toastMsg(errorMsg);
-			}else if(mGlobalNetErrorCallback != null)
-				mGlobalNetErrorCallback.OnNetErrorCallback(error);
-				
+			}
+			if(mGlobalNetErrorCallback!=null)
+				mGlobalNetErrorCallback.OnNetErrorCallback(error);		
 		}
 
 		/**

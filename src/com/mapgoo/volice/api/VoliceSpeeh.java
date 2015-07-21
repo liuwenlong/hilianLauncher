@@ -82,6 +82,7 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
                 SpeechSynthesizer.newInstance(SpeechSynthesizer.SYNTHESIZER_AUTO, mActivity,"holder", this);
         // 请替换为开放平台上申请的apikey和secretkey
         speechSynthesizer.setApiKey(Constants.API_KEY,Constants.SECRET_KEY);
+        speechSynthesizer.setAppId(Constants.API_ID);
         // 设置授权文件路径
         speechSynthesizer.setParam(SpeechSynthesizer.PARAM_TTS_LICENCE_FILE, LICENCE_FILE_NAME);
         // TTS所需的资源文件，可以放在任意可读目录，可以任意改名

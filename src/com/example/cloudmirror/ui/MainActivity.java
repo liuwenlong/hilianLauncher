@@ -26,6 +26,7 @@ import com.example.cloudmirror.ui.widget.AsyncImageView;
 import com.example.cloudmirror.ui.widget.FlipperIndicatorDotView;
 import com.example.cloudmirror.ui.widget.RoundedRectangleBitmapDisplayer;
 import com.example.cloudmirror.ui.widget.SimpleDialogBuilder;
+import com.example.cloudmirror.utils.ImageUtils;
 import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
 import com.example.cloudmirror.utils.StringUtils;
@@ -47,6 +48,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.net.Uri;
@@ -96,15 +98,18 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main);
 		EventBus.getDefault().register(this);
-		printApp();
+		
+		//printApp();
+		
 		startService(new Intent(mContext, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_NONE));
-		//startService(new Intent(mContext, FxService.class));
+		startService(new Intent(mContext, FxService.class));
 	}
 	@Override
 	protected void initData(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		//startToCarRecord(RECORD_ACTION, RECORD_MODE_BACK);
 		registerReceiver(KeyRcv, new IntentFilter(KEY_ACTION));
+		//uploadImage();
 	}
 	@Override
 	protected void initViews() {
@@ -213,7 +218,8 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.home_call:
 				showTipView();
 				//sendBroadcast(new Intent("android.intent.action.concox.carrecorder.quit"));
-				//sendBroadcast(new Intent(FxService.ACTION_START_RECORD));
+				//sendBroadcast(new Intent(FxService.ACTION_START_TAKE_PIC));
+				//uploadImage();
 				break;
 			case R.id.violation_tip_img:
 				dismissTipView();
@@ -223,22 +229,21 @@ public class MainActivity extends BaseActivity implements Callback {
 				break;
 			case R.id.home_icon_carrecord_btn:	
 			case R.id.surface_camera_btn:
-				startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+				startToCarRecord(this,RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
 				//startToCarRecord(PHOTO_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
 				break;
 			case R.id.home_icon_blue_btn:
-				startActivity("com.concox.bluetooth","com.concox.bluetooth.MainActivity",null); 
+				startActivity(this,"com.concox.bluetooth","com.concox.bluetooth.MainActivity",null); 
 				//startToCarRecord(RECORD_ACTION, RECORD_MODE_HIDE);
 				break;
 			case R.id.home_icon_wifi_btn:
-				startActivity("com.android.settings","com.android.settings.Settings$TetherSettingsActivity",null); 
+				startActivity(this,"com.android.settings","com.android.settings.Settings$TetherSettingsActivity",null); 
 				break;
 			case R.id.home_icon_music_btn:
-				if(!startActivity("com.kugou.android", "com.kugou.android.app.splash.SplashActivity", null))
-					startActivity("com.sds.ttpod.hd", "com.sds.ttpod.hd.app.EntryActivity", "音乐");
+				startActivity(this,"com.sds.ttpod.hd", "com.sds.ttpod.hd.app.EntryActivity", "音乐");
 				break;
 			case R.id.home_icon_navi_btn:
-				startActivity("com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
+				startActivity(this,"com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
 				break;
 			case R.id.function_item_1:
 			case R.id.function_item_2:
@@ -394,8 +399,7 @@ public class MainActivity extends BaseActivity implements Callback {
 	public static final String CARBACK_ACTION = "carback_action";//倒车后视
 	public static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
 	public static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
-	public void startToCarRecord(String action, int mode) {
-    	surfaceDestroyed(null);
+	public static void startToCarRecord(Context context,String action, int mode) {
 		final Intent mIntent = new Intent(Intent.ACTION_MAIN); 
 		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
 		mIntent.setComponent(compName); 
@@ -405,9 +409,9 @@ public class MainActivity extends BaseActivity implements Callback {
 		mBundle.putInt(RECORD_MODE, mode);
 		mIntent.putExtras(mBundle);
 		try{
-			startActivity(mIntent); 
+			context.startActivity(mIntent); 
 		}catch(Exception e){
-			mToast.toastMsg("没有安装该应用");
+			//mToast.toastMsg("没有安装该应用");
 		}
     }
     private void printApp(){
@@ -421,15 +425,16 @@ public class MainActivity extends BaseActivity implements Callback {
         	MyLog.D("name="+name+",pack="+pack+",label="+label);
         }
     }
-	private boolean startActivity(String pkg,String cls,String name){
+	public static boolean startActivity(Context context,String pkg,String cls,String name){
 		try{
 			Intent intent = new Intent().setClassName(pkg, cls);
-			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+			intent.addCategory(Intent.CATEGORY_LAUNCHER);
+			context.startActivity(intent);
 			return true;
 		}catch(Exception e){
 			if(!StringUtils.isEmpty(name))
-				mToast.toastMsg("没有安装"+name);
+				Toast.makeText(context, name, Toast.LENGTH_SHORT).show();
 			return false;
 		}
 	}
@@ -606,16 +611,16 @@ public class MainActivity extends BaseActivity implements Callback {
         	updateLockTime();
         }
     };
-	BroadcastReceiver KeyRcv = new BroadcastReceiver() {
+	BroadcastReceiver KeyRcv = new BroadcastReceiver(){
         @Override
         public void onReceive(Context context, Intent intent){
             // TODO Auto-generated method stub  
         	String key = intent.getStringExtra("key_flag");
         	MyLog.D("key_flag="+key);
         	if(GPS_KEY_FLAG.equals(key)){
-        		startActivity("com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
+        		startActivity(mContext,"com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
         	}else if(DVR_KEY_FLAG.equals(key)){
-        		startToCarRecord(RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
+        		startToCarRecord(mContext,RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
         	}else if(NOR_KEY_FLAG.equals(key)){
         		showVoice(R.drawable.voice_open);
         	}else if(SIL_KEY_FLAG.equals(key)){
@@ -625,12 +630,33 @@ public class MainActivity extends BaseActivity implements Callback {
     };  
     
     private void showVoice(int resid){
-    	Toast mToast = new Toast(this);
+    	final Toast mToast = new Toast(this);
     	ImageView view = new ImageView(this);
     	view.setImageResource(resid);
     	mToast.setView(view);
     	mToast.setDuration(Toast.LENGTH_SHORT);
     	mToast.setGravity(Gravity.CENTER, 0,0);
     	mToast.show();
+    	
+    	mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				mToast.cancel();
+			}
+		}, 800);
     }
+	public void uploadImage(){
+		MyLog.D("uploadImage start");
+		String base64 = ImageUtils.file2Base64(this,"/sdcard/2015_07_16_18_17_59.jpg");
+		MyLog.D("uploadImage gener base64");
+		ApiClient.postImage(base64, null, new Listener<JSONObject>() {
+
+			@Override
+			public void onResponse(JSONObject response) {
+				// TODO Auto-generated method stub
+				MyLog.D("onResponse:"+response.toString());
+			}
+		}, GlobalNetErrorHandler.getInstance(this, null, null));
+	}
 }

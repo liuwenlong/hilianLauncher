@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.baidu.android.domain.DomainMap.MapObject;
+import com.example.cloudmirror.ui.MainActivity;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 
 public class DomainApp extends Domain{
@@ -99,13 +100,8 @@ public class DomainApp extends Domain{
 	private void startActivity(Context context,ResolveInfo info){
         String pkg = info.activityInfo.packageName;
         String cls = info.activityInfo.name;
-         
-        ComponentName componet = new ComponentName(pkg, cls);
-         
-        Intent i = new Intent();
-        i.setComponent(componet);
-        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(i);		
+        
+        MainActivity.startActivity(context, pkg, cls, null);
 	}
 	
 	private void deleteApp(Context context,ResolveInfo info){

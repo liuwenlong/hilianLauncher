@@ -109,7 +109,6 @@ public class DataSyncService extends Service implements DataUploaderListener {
 		startUpdateThread();
 		startVoiceRecord();
 		EventBus.getDefault().register(this);
-		
 	}
 
 	Thread mContactUpdateThread;

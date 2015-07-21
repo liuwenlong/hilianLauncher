@@ -285,4 +285,24 @@ public class ApiClient {
 		 _GET_WITH_LISTENERS(URLs.CAR_HOME, null, reqParams, reqStartListener, responseListener, errorListener);
 		 return null;
 	}
+	public static void postImage(String content,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
+		Map<String, Object> reqBodyParams = new HashMap<String, Object>();	
+		reqBodyParams.put("uid",(int)7623);
+		reqBodyParams.put("image", content);
+		//reqBodyParams.put("filename", "mypic.jpg");
+		//	reqBodyParams.put("extend", "s");
+
+		_POST_WITH_LISTENERS(URLs.IMG_UPLOAD, null, null, reqBodyParams, reqStartListener, responseListener, errorListener);
+	}
+	public static void postVideo(String content,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
+		Map<String, Object> reqBodyParams = new HashMap<String, Object>();	
+		reqBodyParams.put("uid",(int)7623);
+		reqBodyParams.put("video", content);
+		//reqBodyParams.put("video", "sss");
+		reqBodyParams.put("filename", "");
+		reqBodyParams.put("format", "3gp");
+		//	reqBodyParams.put("extend", "s");
+
+		_POST_WITH_LISTENERS(URLs.VIDEO_UPLOAD, null, null, reqBodyParams, reqStartListener, responseListener, errorListener);
+	}
 }

@@ -14,14 +14,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        
-         <!-- begin: baidu speech sdk-->
-        <meta-data android:name="com.baidu.speech.APP_ID" android:value="6167696"/>
-        <meta-data android:name="com.baidu.speech.API_KEY" android:value="A5ouCyvHzsq9Xzi3zk7Rcjkx"/>
-        <meta-data android:name="com.baidu.speech.SECRET_KEY" android:value="8Msr74THd0eC8PkwOCz5r0eEvA5984NT"/>
-        
-      
-        
+
         <activity
             android:name="com.example.cloudmirror.ui.MainActivity"
             android:label="@string/app_name" >
@@ -44,7 +37,7 @@
           
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="tkuGdIes3IWCRZGLMsVr9hnb" />
+            android:value="0Qx2rwkylhcRjH0gxVQUuiaZ" />
         <meta-data
             android:name="UMENG_APPKEY"
             android:value="558bc57767e58e4643002b85" >

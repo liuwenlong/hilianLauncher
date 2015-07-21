@@ -25,9 +25,9 @@ public class MyToast {
 
 	private MyToast(Context context) {
 		mToast = new Toast(context);
-		mLayoutInflater = ((Activity) context).getLayoutInflater();
-
-		toastView = mLayoutInflater.inflate(R.layout.toast_text_widget, null);
+		//mLayoutInflater = ((Activity) context).getLayoutInflater();
+								
+		toastView = View.inflate(context, R.layout.toast_text_widget, null);
 		mToastTextView = (TextView) toastView.findViewById(R.id.toasttext);
 
 		mToast.setView(toastView);

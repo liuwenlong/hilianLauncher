@@ -1,7 +1,9 @@
 package com.example.cloudmirror.widget;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
@@ -116,16 +118,18 @@ public class NetWork {
 			mSocket = new Socket(Server_ip, Server_port);
 			mSocket.setKeepAlive(true);
 			mSocket.setTcpNoDelay(true);
-			mSocket.setSoTimeout(5000);// 设置超时时间(毫秒)
+			//mSocket.setSoTimeout(5000);// 设置超时时间(毫秒)
 
 			mSocketReader = mSocket.getInputStream();
 			mSocketWriter = mSocket.getOutputStream();	
 			MyLog.D("socket连接成功");
 		} catch (Exception e) {
+			e.printStackTrace();
 			MyLog.D("创建Socket连接失败");
 			closeNet();
 		}
 	}
+
 	
 	public boolean isNetWorkConnect(){
 		if(mSocketWriter == null){

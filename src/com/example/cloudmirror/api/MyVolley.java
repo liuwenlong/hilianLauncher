@@ -94,7 +94,7 @@ public class MyVolley {
 	public static <T> void addToRequestQueue(Request<T> req) {
 		// set the default tag if tag is empty
 		req.setTag(VolleyTAG);
-
+		req.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS*10, 0, 1f)); 
 		getRequestQueue().add(req);
 	}
 

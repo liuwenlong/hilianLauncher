@@ -63,14 +63,14 @@ public class HomeMoreActivity extends BaseActivity {
 			item.setVisibility(View.INVISIBLE);
 		}
 		int i=0;
-		shortcutGP.setResShortcutId(resShortcutId[i]);i++;
+//		shortcutGP.setResShortcutId(resShortcutId[i]);i++;
 		shortcutFM.setResShortcutId(resShortcutId[i]);i++;
 		shortcutJY.setResShortcutId(resShortcutId[i]);i++;
 		shortcutZS.setResShortcutId(resShortcutId[i]);i++;
 		shortcutLL.setResShortcutId(resShortcutId[i]);i++;
 		shortcutST.setResShortcutId(resShortcutId[i]);i++;
-		shortcutAB.setResShortcutId(resShortcutId[i]);i++;
-		shortcutBACK.setResShortcutId(resShortcutId[8]);
+//		shortcutAB.setResShortcutId(resShortcutId[i]);i++;
+		shortcutBACK.setResShortcutId(resShortcutId[i]);
 	}
 	public abstract class ShortcutItem{
 		int resShortcutIcon;
@@ -81,7 +81,6 @@ public class HomeMoreActivity extends BaseActivity {
 		ShortcutItem(int icon,int name){
 			resShortcutIcon = icon;
 			resShortcutName = name;
-			
 		}
 		Handler mShortcutHandler = new Handler();
 		public void setResShortcutId(int resShortcutId){
@@ -109,8 +108,8 @@ public class HomeMoreActivity extends BaseActivity {
 	ShortcutItem  shortcutFM = new ShortcutItem(R.drawable.home_more_fm,R.string.home_more_fm){
 		@Override
 		protected void doAction() {
-			startActivity("com.mediatek.FMRadio", "com.mediatek.FMRadio.FMRadioActivity",  getString(R.string.home_more_fm));
-			//startActivity("InternetRadio.all", "InternetRadio.all.Welcome",  getString(R.string.home_more_fm));
+			//startActivity("com.mediatek.FMRadio", "com.mediatek.FMRadio.FMRadioActivity",  getString(R.string.home_more_fm));
+			startActivity("com.rdafm.fmtx", "com.rdafm.fmtx.MainActivity",  getString(R.string.home_more_fm));
 			//startActivity("com.ximalaya.ting.android", "com.ximalaya.ting.android.activity.login.WelcomeActivity",  getString(R.string.home_more_fm));
 			//startActivity("com.itings.myradio", "com.itings.myradio.kaolafm.home.FlashActivity",  getString(R.string.home_more_fm));//name=com.itings.myradio.kaolafm.home.FlashActivity,pack=com.itings.myradio
 		}
@@ -155,11 +154,6 @@ public class HomeMoreActivity extends BaseActivity {
 		}
 	};
 	private void startActivity(String pkg,String cls,String name){
-		try{
-			Intent inten = new Intent().setClassName(pkg, cls);
-			startActivity(inten);
-		}catch(Exception e){
-			mToast.toastMsg("没有安装"+name);
-		}
+		MainActivity.startActivity(this, pkg, cls, name);
 	}
 }
