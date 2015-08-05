@@ -193,5 +193,6 @@
      <color name="main_dialog_tip_text_color">#ff000000</color><!-- 大于30， 蓝色 -->
      
      <color name="home_text_color">#ffcccccc</color><!-- 大于30， 蓝色 -->
-     <color name="home_background_color">#ff2c3849</color><!-- 大于30， 蓝色 -->
+     <color name="home_background_color">#ff20272d</color><!-- 大于30， 蓝色 -->
+     <color name="home_item_bgd_color">#ff20272d</color><!-- 大于30， 蓝色 -->
 </resources>

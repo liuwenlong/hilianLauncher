@@ -1,6 +1,6 @@
 package com.example.cloudmirror.ui.widget;
 
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 import com.example.cloudmirror.utils.StringUtils;
 
 import android.content.Context;

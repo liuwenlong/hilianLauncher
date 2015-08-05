@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 import com.example.cloudmirror.ui.BaseActivity;
 
 /**

@@ -17,6 +17,7 @@ import com.example.cloudmirror.utils.QuickShPref;
 import com.example.cloudmirror.utils.StringUtils;
 import com.mapgoo.volice.api.VoliceSpeeh;
 import com.mapgoo.volice.api.VoliceSpeeh.OnSpeechChangeListener;
+import com.mapgoo.volice.ui.NaviAdrSelectActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,6 +89,10 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
     }
     public void addAnswer(String answer,Runnable r){
     	addAnswer(answer, r, false);
+    }
+    
+    public void setSelectMode(){
+    	mLastType = 3;
     }
     
     public void  anasyJSON(JSONObject data,boolean visiable){
@@ -165,6 +170,25 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 //				         intent.putExtra("xml", item.toString());
 //				         mContext.startActivity(intent);
 			    	}else{
+			    		
+			    		if(mLastType == 3){
+			    			String ret;
+		    				for(int i=0;i<array.length();i++){
+		    					JSONObject info = array.getJSONObject(i);
+		    					String domain = info.getString("domain");
+		    					if(DomainInstruction.NAME.equalsIgnoreCase(domain)){
+		    						DomainInstruction map = JSON.parseObject(info.toString(), DomainInstruction.class);
+		    						ret = map.doAction(mActivity);
+		    						if(ret != null){
+		    							mLastType = 0;
+		    							return;
+		    						}
+		    					}
+		    				}
+		    				addAnswer("没有听清，请说第几个", reTryRunnable);
+		    				return;
+			    		}
+			    		
 			    		String domain = item.getString("domain");
 			    		Log.d("TAG", "enter domain="+domain);
 			    		
@@ -240,10 +264,15 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 	@Override
 	public void OnSpeechChange(SpeechSynthesizer sp, int what,Object arg) {
 		// TODO Auto-generated method stub
+		MyLog.D("播报完成");
 		switch (what) {
 		case 1:
+			
 			if(mLastAnasyItem != null && mLastAnasyItem.mDoRun != null){
+				MyLog.D("播报完成 post runnable");
 				new Handler().post(mLastAnasyItem.mDoRun);
+			}else{
+				MyLog.D("播报完成 没有mDoRun");
 			}
 			if(mLastAnasyItem.needFinsh){
 				finishActivity();
@@ -265,9 +294,10 @@ public abstract class ResultAnasy implements OnSpeechChangeListener {
 	Runnable searchGasStation = new Runnable() {
 		@Override
 		public void run() {
-			Intent intent = new Intent();
-			intent.setClass(mActivity, GasStationActivity.class);
-			mActivity.startActivity(intent);
+//			Intent intent = new Intent();
+//			intent.setClass(mActivity, GasStationActivity.class);
+//			mActivity.startActivity(intent);
+			mActivity.startActivity(new Intent(mActivity, NaviAdrSelectActivity.class).putExtra("keywords","加油站"));
 			mActivity.finish();
 		}
 	};

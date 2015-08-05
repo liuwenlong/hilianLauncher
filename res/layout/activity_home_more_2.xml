@@ -1,0 +1,126 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/home_background_color"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_bottom_margin"
+        android:paddingLeft="@dimen/activity_left_margin"
+        android:paddingRight="@dimen/activity_right_margin"
+        android:paddingTop="@dimen/activity_top_margin"
+        tools:context="com.example.cloudmirror.ui.MainActivity" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            android:orientation="horizontal" >
+
+            <include
+                android:id="@+id/function_item_1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                layout="@layout/mg_mian_item"
+                android:paddingLeft="@dimen/home_item_left_pad" />
+
+            <include
+                android:id="@+id/function_item_2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                layout="@layout/mg_mian_item"
+                android:paddingLeft="@dimen/home_item_left_pad" />
+
+            <include
+                android:id="@+id/function_item_3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                layout="@layout/mg_mian_item" />
+
+            <include
+                android:id="@+id/function_item_4"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                layout="@layout/mg_mian_item" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:baselineAligned="false"
+            android:layout_weight="1" >
+
+            <include
+                android:id="@+id/function_item_5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                layout="@layout/mg_mian_item"
+                android:paddingLeft="@dimen/home_item_left_pad" />
+
+            <include
+                android:id="@+id/function_item_6"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                layout="@layout/mg_mian_item"
+                android:paddingLeft="@dimen/home_item_left_pad" />
+
+            <include
+                android:id="@+id/function_item_7"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                layout="@layout/mg_mian_item" />
+
+            <include
+                android:id="@+id/function_item_8"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                layout="@layout/mg_mian_item" />            
+        </LinearLayout>
+
+       </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lock_screen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FF000000"
+            android:orientation="vertical"
+            android:padding="40dp"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/lock_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:gravity="left|top"
+                android:text="19:56"
+                android:textColor="@color/text_color_white"
+                android:textSize="61sp" />
+
+            <TextView
+                android:id="@+id/lock_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:background="@color/transparent"
+                android:gravity="left|top"
+                android:paddingLeft="8dp"
+                android:text="7月8号 星期一"
+                android:textColor="@color/text_color_white"
+                android:textSize="21sp" />
+        </LinearLayout>
+
+</FrameLayout>

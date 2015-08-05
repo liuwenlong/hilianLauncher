@@ -1,6 +1,7 @@
 package com.example.cloudmirror.widget;
 
 import com.example.cloudmirror.utils.MyLog;
+import com.example.cloudmirror.utils.QuickShPref;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -17,7 +18,9 @@ import android.hardware.SensorManager;
  */
 public class ShakeListener implements SensorEventListener {
 	// 速度的阈值，当摇晃速度达到这值后产生作用
-	private static final int SPEED_SHRESHOLD = 500;
+	private static final int SPEED_SHRESHOLD_LV_1 = 1200;
+	private static final int SPEED_SHRESHOLD_LV_2 = 1500;
+	private static final int SPEED_SHRESHOLD_LV_3 = 1800;
 	// 两次检测的时间间隔
 	private static final int UPTATE_INTERVAL_TIME = 70;
 	// 传感器管理器
@@ -35,6 +38,8 @@ public class ShakeListener implements SensorEventListener {
 	// 上次检测时间
 	private long lastUpdateTime;
 
+	int mVibrateLevel;
+	
 	// 构造器
 	public ShakeListener(Context c) {
 		// 获得监听对象
@@ -99,12 +104,34 @@ public class ShakeListener implements SensorEventListener {
 		lastZ = z;
 
 		double speed = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ* deltaZ)/ timeInterval * 10000;
+
+		//MyLog.D("onSensorChanged speed="+speed);
 		
-		MyLog.D("onSensorChanged speed="+speed);
+		int speed_shreshold;
+		
+		switch (mVibrateLevel) {
+			case 1:
+				speed_shreshold = SPEED_SHRESHOLD_LV_1;
+				break;
+			case 2:
+				speed_shreshold = SPEED_SHRESHOLD_LV_2;
+				break;
+			case 3:
+				speed_shreshold = SPEED_SHRESHOLD_LV_3;
+				break;
+			default:
+				speed_shreshold = SPEED_SHRESHOLD_LV_2;
+				break;
+		}
+		
 		// 达到速度阀值，发出提示
-		if (speed >= SPEED_SHRESHOLD) {
+		if (speed >= speed_shreshold) {
 			onShakeListener.onShake();
 		}
+	}
+	
+	public void refreshVibrateLevel(){
+		mVibrateLevel = QuickShPref.getInstance().getInt(QuickShPref.VIBRATE_LV);
 	}
 	//当传感器精度改变时回调该方法
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {

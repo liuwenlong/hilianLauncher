@@ -46,7 +46,9 @@ import com.example.cloudmirror.application.MGApp;
 import com.example.cloudmirror.ui.BaseActivity;
 import com.example.cloudmirror.ui.widget.FlipperIndicatorDotView;
 import com.example.cloudmirror.utils.StringUtils;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
+
+import de.greenrobot.event.EventBus;
 
 
 import java.math.BigDecimal;
@@ -221,39 +223,40 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
     }
 
     public static void startNavi(final Context context,LatLng pt1,LatLng pt2) {
-
+    		
         // 构建 导航参数
         NaviParaOption para = new NaviParaOption();
         para = para.startPoint(pt1);
         para =  para.startName("从这里开始");
         para = para.endPoint(pt2);
         para = para.endName("到这里结束");
-
-        try {
-            BaiduMapNavigation.openBaiduMapNavi(para, context);
-        } catch (BaiduMapAppNotSupportNaviException e) {
-            e.printStackTrace();
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage("您尚未安装百度地图app或app版本过低，访问网页版导航？");
-            builder.setTitle("提示");
-            final NaviParaOption finalPara = para;
-            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                    BaiduMapNavigation.openWebBaiduMapNavi(finalPara,context);
-                }
-            });
-
-            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-
-            builder.create().show();
-        }
+        EventBus.getDefault().post(para);
+        
+//        try {
+//            BaiduMapNavigation.openBaiduMapNavi(para, context);
+//        } catch (BaiduMapAppNotSupportNaviException e) {
+//            e.printStackTrace();
+//            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//            builder.setMessage("您尚未安装百度地图app或app版本过低，访问网页版导航？");
+//            builder.setTitle("提示");
+//            final NaviParaOption finalPara = para;
+//            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    dialog.dismiss();
+//                    BaiduMapNavigation.openWebBaiduMapNavi(finalPara,context);
+//                }
+//            });
+//
+//            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    dialog.dismiss();
+//                }
+//            });
+//
+//            builder.create().show();
+//        }
     }
 
     public static double roundResult(Double v, int scale) {

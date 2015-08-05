@@ -2,7 +2,7 @@ package com.mapgoo.volice.ui;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;

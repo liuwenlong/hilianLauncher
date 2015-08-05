@@ -9,7 +9,8 @@ import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
 import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.baidu.mapapi.utils.route.RouteParaOption.EBusStrategyType;
 import com.example.cloudmirror.utils.MyLog;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
+import com.mapgoo.volice.ui.NaviAdrSelectActivity;
 import com.mapgoo.volice.ui.VoliceRecActivity;
 
 import de.greenrobot.event.EventBus;
@@ -59,12 +60,13 @@ public class DomainNavIns extends Domain{
 			public void run() {
 				// TODO Auto-generated method stub
 				try {
-					RouteParaOption para = new RouteParaOption()
-					.startName(start)
-					.startPoint(VoliceRecActivity.getLocLatLng())
-					.endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
-					
-					EventBus.getDefault().post(para);
+//					RouteParaOption para = new RouteParaOption()
+//					.startName(start)
+//					.startPoint(VoliceRecActivity.getLocLatLng())
+//					.endName(Object.arrival);
+//					
+//					EventBus.getDefault().post(para);
+					context.startActivity(new Intent(context, NaviAdrSelectActivity.class).putExtra("keywords", Object.arrival));
 				} catch (Exception e) {
 			        e.printStackTrace();
 			    }

@@ -96,6 +96,9 @@ public class URLs implements Serializable {
 	public final static String VOICE_YES_NO = URL_OPENAPI_HTTP_HOST + "voice";
 	public final static String CAR_HOME = URL_API_HTTP_HOST + "car_homeinfo/homeinfo";
 	
-	public final static String IMG_UPLOAD = "http://open.u12580.com/api/v1/image";
-	public final static String VIDEO_UPLOAD = "http://open.u12580.com/api/v1/video";
+	public final static String IMG_UPLOAD = "http://wechat.u12580.com/test/api/MediaUpload";
+	public final static String VIDEO_UPLOAD = IMG_UPLOAD;
+	public final static String OPEN_WEATHER = "http://open.u12580.com/api/v1/weather";
+	public final static String OPEN_WEIXIN = "http://open.u12580.com/api/v1/qrcode";
+	
 }

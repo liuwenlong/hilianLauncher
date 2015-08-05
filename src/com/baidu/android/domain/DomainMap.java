@@ -7,7 +7,8 @@ import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.baidu.mapapi.utils.route.RouteParaOption.EBusStrategyType;
 import com.example.cloudmirror.ui.activity.GasStationActivity;
 import com.example.cloudmirror.utils.MyLog;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
+import com.mapgoo.volice.ui.NaviAdrSelectActivity;
 import com.mapgoo.volice.ui.VoliceRecActivity;
 
 import de.greenrobot.event.EventBus;
@@ -59,16 +60,17 @@ public class DomainMap extends Domain{
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
-			    RouteParaOption para = new RouteParaOption()
-			    	.startName(start)
-			    	.startPoint(VoliceRecActivity.getLocLatLng())
-			        .endName(VoliceRecActivity.mBDLocation.getCity()+Object.arrival);
-			    EventBus.getDefault().post(para);
-			    try {
-			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
-				} catch (Exception e) {
-			        e.printStackTrace();
-			    }
+//			    RouteParaOption para = new RouteParaOption()
+//			    	.startName(start)
+//			    	.startPoint(VoliceRecActivity.getLocLatLng())
+//			        .endName(Object.arrival);
+//			    EventBus.getDefault().post(para);
+//			    try {
+//			       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, context);
+//				} catch (Exception e) {
+//			        e.printStackTrace();
+//			    }
+			    context.startActivity(new Intent(context, NaviAdrSelectActivity.class).putExtra("keywords", Object.arrival));
 			}
 		};
 		return "您是否要导航到"+Object.arrival+context.getString(R.string.do_ask);
@@ -83,7 +85,7 @@ public class DomainMap extends Domain{
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					context.startActivity(new Intent(context, GasStationActivity.class).putExtra("keywords", Object.keywords));
+					context.startActivity(new Intent(context, NaviAdrSelectActivity.class).putExtra("keywords", Object.keywords));
 				}
 			};
 			return "您是否要搜索附近的"+Object.keywords+context.getString(R.string.do_ask);

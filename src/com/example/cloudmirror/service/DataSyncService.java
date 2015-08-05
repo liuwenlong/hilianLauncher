@@ -56,6 +56,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
@@ -85,9 +86,35 @@ public class DataSyncService extends Service implements DataUploaderListener {
 	public final static String ACTION_VOICE_START = "action.voice.start";
 	
 	public static final String MSG_PHOTO_DONE_ACTION = "android.intent.action.concox.carrecorder.photo.done";
-	public static boolean NOT_NEED_CODE_IN = false;
+	public static boolean NOT_NEED_CODE_IN = true;
 	private static String TAG = "DataSyncService";
 	private GetLoaction mGetLoaction = new GetLoaction();
+    Handler mHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			
+			String str = msg.obj!=null?msg.obj.toString():"";
+			if(str.contains("BAC")){
+				int size = 0;
+				if(str.contains("BAC1")){
+					size = 1;
+				}else if(str.contains("BAC2")){
+					size = 2;
+				}else if(str.contains("BAC3")){
+					size = 3;
+				}else if(str.contains("BAC4")){
+					size = 4;
+				}
+				sendBroadcast(new Intent("action.start.take.pic").putExtra("size", size));
+			}else if(str.contains("BAD")){
+				sendBroadcast(new Intent("action.start.record"));
+			}else if(str.contains("BAE")){
+				sendBroadcast(new Intent("action.start.audio.recorder"));
+			}
+		}
+    };
 	NetWork mNetWork = new NetWork();
 
 	public class LocalBinder extends Binder {
@@ -127,7 +154,7 @@ public class DataSyncService extends Service implements DataUploaderListener {
 						MyLog.D("电话号码更新,网络无连接，30秒后重试");
 					}
 					DBmanager.getInase().insert("nothing");
-					mNetWork.sleep(NetWork.ReConnectTime);
+					mNetWork.msleep(NetWork.ReConnectTime*10);
 				}
 			}
 		};
@@ -392,7 +419,6 @@ public class DataSyncService extends Service implements DataUploaderListener {
 
 	LocationClient mLocClient;
 	MyLocationListenner myListener = new MyLocationListenner();
-	Handler mHandler = new Handler();
 
 	// 定位初始化
 	private void locationInit() {
@@ -679,7 +705,7 @@ public class DataSyncService extends Service implements DataUploaderListener {
 	public static boolean checkStringList(String start,ArrayList<String> array){
 		if(!StringUtils.isEmpty(start)){
 			for(String item:array){
-				MyLog.D(item);
+				//MyLog.D(item);
 				if(start.contains(item))
 					return true;
 			}

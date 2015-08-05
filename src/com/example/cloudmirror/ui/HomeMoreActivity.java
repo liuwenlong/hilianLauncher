@@ -1,8 +1,8 @@
 package com.example.cloudmirror.ui;
 
+import com.example.cloudmirror.ui.MainActivity.ShortcutItem;
 import com.example.cloudmirror.ui.activity.GasStationActivity;
-import com.mapgoo.eagle.R;
-
+import com.mapgoo.carlife.main.R;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,7 +18,7 @@ public class HomeMoreActivity extends BaseActivity {
 	@Override
 	protected void setContentView() {
 		// TODO Auto-generated method stub
-		setContentView(R.layout.activity_home_more);
+		setContentView(R.layout.activity_home_more_2);
 	}
 
 	@Override
@@ -55,22 +55,22 @@ public class HomeMoreActivity extends BaseActivity {
 	private int resShortcutId[]={
 			R.id.function_item_1,R.id.function_item_2,R.id.function_item_3 ,
 			R.id.function_item_4,R.id.function_item_5,R.id.function_item_6
-			,R.id.function_item_7,R.id.function_item_8,R.id.function_item_9
-			};
+			,R.id.function_item_7,R.id.function_item_8
+	};
 	private void initShortcutMenu(){
 		for(int i=0;i<resShortcutId.length;i++){
 			View item = findViewById(resShortcutId[i]);
 			item.setVisibility(View.INVISIBLE);
 		}
 		int i=0;
-//		shortcutGP.setResShortcutId(resShortcutId[i]);i++;
-		shortcutFM.setResShortcutId(resShortcutId[i]);i++;
-		shortcutJY.setResShortcutId(resShortcutId[i]);i++;
-		shortcutZS.setResShortcutId(resShortcutId[i]);i++;
-		shortcutLL.setResShortcutId(resShortcutId[i]);i++;
-		shortcutST.setResShortcutId(resShortcutId[i]);i++;
-//		shortcutAB.setResShortcutId(resShortcutId[i]);i++;
-		shortcutBACK.setResShortcutId(resShortcutId[i]);
+		shortcutXCZS.setResShortcutId(resShortcutId[i]);i++;
+		shortcutWZCX.setResShortcutId(resShortcutId[i]);i++;
+		shortcutJYZ.setResShortcutId(resShortcutId[i]);i++;
+		shortcutSP.setResShortcutId(resShortcutId[i]);i++;
+		shortcutDT.setResShortcutId(resShortcutId[i]);i++;
+		shortcutSZ.setResShortcutId(resShortcutId[i]);i++;
+		shortcutGY.setResShortcutId(resShortcutId[i]);i++;
+		shortcutFH.setResShortcutId(resShortcutId[i]);i++;
 	}
 	public abstract class ShortcutItem{
 		int resShortcutIcon;
@@ -92,64 +92,65 @@ public class HomeMoreActivity extends BaseActivity {
 				@Override
 				public void onClick(View v) {
 						doAction();
-						finish();
+						//finish();
 				}
 			});
 		}
 		protected abstract void doAction();
 	}
-	
-	ShortcutItem  shortcutGP = new ShortcutItem(R.drawable.home_more_gupiao,R.string.home_more_gupiao){
+	ShortcutItem  shortcutXCZS = new ShortcutItem(R.drawable.home_item_xczs,R.string.home_more_xczs){
 		@Override
-		protected void doAction() {
-			startActivity("com.hexin.plat.android","com.hexin.plat.android.AndroidLogoActivity",null); 
+		protected void doAction(){
+			startActivity("com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity", null);
 		}
 	};
-	ShortcutItem  shortcutFM = new ShortcutItem(R.drawable.home_more_fm,R.string.home_more_fm){
+	ShortcutItem  shortcutWZCX = new ShortcutItem(R.drawable.home_item_wzcx,R.string.home_more_wzcx){
 		@Override
-		protected void doAction() {
-			//startActivity("com.mediatek.FMRadio", "com.mediatek.FMRadio.FMRadioActivity",  getString(R.string.home_more_fm));
-			startActivity("com.rdafm.fmtx", "com.rdafm.fmtx.MainActivity",  getString(R.string.home_more_fm));
-			//startActivity("com.ximalaya.ting.android", "com.ximalaya.ting.android.activity.login.WelcomeActivity",  getString(R.string.home_more_fm));
-			//startActivity("com.itings.myradio", "com.itings.myradio.kaolafm.home.FlashActivity",  getString(R.string.home_more_fm));//name=com.itings.myradio.kaolafm.home.FlashActivity,pack=com.itings.myradio
+		protected void doAction(){
+			Intent intent = new Intent().setClassName("com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+			intent.addCategory(Intent.CATEGORY_LAUNCHER);
+			intent.putExtra("starttag", "weizhang");
+			try {
+				mContext.startActivity(intent);
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 	};
-	ShortcutItem  shortcutJY = new ShortcutItem(R.drawable.home_more_jiayou,R.string.home_more_jiayou){
+	ShortcutItem  shortcutJYZ = new ShortcutItem(R.drawable.home_item_jyz,R.string.home_more_jyz){
 		@Override
-		protected void doAction() {
-			Intent intent = new Intent();
-			intent.setClass(mContext, GasStationActivity.class);
-			startActivity(intent);
+		protected void doAction(){
+			startActivity(new Intent(mContext, GasStationActivity.class));
 		}
 	};
-	ShortcutItem  shortcutZS = new ShortcutItem(R.drawable.home_more_zhushou,R.string.home_more_zhushou){
+	ShortcutItem  shortcutSZ = new ShortcutItem(R.drawable.home_item_sz,R.string.home_more_sz){
 		@Override
-		protected void doAction() {
-			startActivity("com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity", getString(R.string.home_more_zhushou));
+		protected void doAction(){
+			startActivity("com.android.settings","com.android.settings.Settings",null);
 		}
 	};
-	ShortcutItem  shortcutLL = new ShortcutItem(R.drawable.home_more_liuliang,R.string.home_more_liuliang){
+	ShortcutItem  shortcutGY = new ShortcutItem(R.drawable.home_item_gy,R.string.home_more_gy){
 		@Override
-		protected void doAction() {
-			
-			startActivity("com.android.settings","com.android.settings.Settings$DataUsageSummaryActivity",null); 
+		protected void doAction(){
+			startActivity(new Intent(mContext, AboutActivity.class));
 		}
 	};
-	ShortcutItem  shortcutST = new ShortcutItem(R.drawable.home_more_settings,R.string.home_more_settings){
+	ShortcutItem  shortcutSP = new ShortcutItem(R.drawable.home_item_sp,R.string.home_more_sp){
 		@Override
-		protected void doAction() {
-			startActivity(new Intent( android.provider.Settings.ACTION_SETTINGS)); 	
+		protected void doAction(){
+			startActivity("com.mediatek.videoplayer","com.mediatek.videoplayer.MovieListActivity",null);
 		}
 	};
-	ShortcutItem  shortcutAB = new ShortcutItem(R.drawable.home_more_about,R.string.home_more_about){
+	ShortcutItem  shortcutDT = new ShortcutItem(R.drawable.home_item_dt,R.string.home_more_dt){
 		@Override
-		protected void doAction() {
-			startActivity("com.android.settings","com.android.settings.Settings$DeviceInfoSettingsActivity",null); 
+		protected void doAction(){
+			startActivity("com.hilan.fm","com.hilan.fm.activity.MainActivity",null);
 		}
 	};
-	ShortcutItem  shortcutBACK = new ShortcutItem(R.drawable.home_more_back,R.string.home_more_back){
+	ShortcutItem  shortcutFH = new ShortcutItem(R.drawable.home_item_fh,R.string.home_more_fh){
 		@Override
-		protected void doAction() {
+		protected void doAction(){
 			finish();
 		}
 	};

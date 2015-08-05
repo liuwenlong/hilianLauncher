@@ -65,9 +65,6 @@ public class GetLoaction {
 			f = 0x0F; // 基站 15
 		}
 
-
-
-
 		int lonDu = (int) lon;
 		float lonFen = (float) (lon - lonDu) * 60;
 		int lonFenInt = (int) lonFen;
@@ -114,12 +111,8 @@ public class GetLoaction {
 
 		GetLoactionHead = buffer.toString();
 
-
-
 				buffer.append("&O"+SatelliteNumber);
 				buffer.append("&N"+mGSMsingle);				
-
-		
 
 		//buffer.append("&S2,20150318111758,11356.1966E,2233.1303N,13300,6100,5,6,7,1200,900,5");
 		buffer.append('#');
@@ -155,7 +148,7 @@ public class GetLoaction {
 			String ret = null;
 			int y,m,d,h,min,s;
 			
-			if(matcher.find()){ 
+			if(matcher.find()){
 				try {
 					y =  Integer.parseInt(matcher.group(1));
 					m =  Integer.parseInt(matcher.group(2));

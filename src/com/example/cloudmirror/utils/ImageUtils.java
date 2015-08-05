@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 
 import android.app.Activity;
 import android.content.Context;

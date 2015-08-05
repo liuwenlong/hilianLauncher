@@ -3,7 +3,7 @@ package com.example.cloudmirror.ui;
 import java.io.IOException;
 
 import com.example.cloudmirror.utils.MyLog;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 
 import android.hardware.Camera;
 import android.os.Bundle;

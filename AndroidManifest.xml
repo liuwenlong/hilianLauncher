@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mapgoo.eagle"
+    package="com.mapgoo.carlife.main"
     android:versionCode="1"
     android:versionName="1.0.0" >
 
@@ -17,6 +17,8 @@
 
         <activity
             android:name="com.example.cloudmirror.ui.MainActivity"
+            
+             android:screenOrientation="landscape"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,10 +39,10 @@
           
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="0Qx2rwkylhcRjH0gxVQUuiaZ" />
+            android:value="9eoFvMm9fn6mXcOYm7UyGUex" />
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="558bc57767e58e4643002b85" >
+            android:value="55b5e3c6e0f55a4d0b000976" >
         </meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
@@ -89,6 +91,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name="com.example.cloudmirror.ui.HomeMoreActivity"
+            android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation" />
         <activity
             android:name="com.mapgoo.volice.ui.VoliceRecActivity"
@@ -101,7 +104,17 @@
             android:configChanges="keyboardHidden|orientation" />
           <activity
             android:name="com.example.cloudmirror.ui.activity.GasStationActivity"
+            android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation" />
+            <activity
+            android:name="com.example.cloudmirror.ui.AboutActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation" />
+              <activity
+            android:name="com.mapgoo.volice.ui.NaviAdrSelectActivity"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboardHidden|orientation" />          
+                
           
         <!-- ContentProvider 用来给第三方APP访问蓝牙联系人 -->
         <provider android:name="com.concox.bluetooth.contentprovider.TelContentProvider"  

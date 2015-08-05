@@ -21,7 +21,7 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 import com.example.cloudmirror.utils.StringUtils;
 
 /**

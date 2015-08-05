@@ -1,0 +1,70 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    android:orientation="vertical"
+    tools:context="com.example.cloudmirror.ui.MainActivity" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp">
+
+            <ListView
+                android:id="@+id/msglist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+            </ListView>
+
+            <TextView
+                android:id="@+id/empty_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:onClick="onClick"
+                android:text="没有记录"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="6"
+                android:orientation="horizontal">
+        <Button 
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"            
+                android:layout_weight="1"
+                android:background="@drawable/navi_select_button_bg"
+                android:onClick="prevPageClick"
+                android:text="上一页"
+            />
+         <Button 
+             android:id="@+id/page_num"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"            
+                android:layout_weight="1"
+                android:background="@drawable/navi_select_button_bg"
+                android:text="1/2"
+            />
+                 <Button 
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"            
+                android:layout_weight="1"
+                android:background="@drawable/navi_select_button_bg"
+                android:onClick="nextPageClick"
+                android:text="下一页"
+            />
+    </LinearLayout>
+    
+</LinearLayout>

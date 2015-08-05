@@ -31,6 +31,8 @@ public class CustomDomain extends Domain{
 		add(new Custom("退出语音",1));
 		add(new Custom("关闭语音",1));
 		add(new Custom("退出",1));
+		add(new Custom("返回",1));
+		add(new Custom("返回主界面",1));
 		add(new Custom("导航",2));
 		add(new Custom("加油站",3));
 	}};

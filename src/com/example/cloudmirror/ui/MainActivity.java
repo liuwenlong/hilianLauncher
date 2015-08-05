@@ -1,43 +1,65 @@
 package com.example.cloudmirror.ui;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
+import com.mapgoo.volice.ui.NaviAdrSelectActivity;
 import com.mapgoo.volice.ui.VoliceRecActivity;
+import com.mapgoo.volice.ui.VoliceRecActivity.MyLocationListenner;
+import com.alibaba.fastjson.JSON;
 import com.android.volley.Response.Listener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.location.LocationClientOption.LocationMode;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.navi.BaiduMapNavigation;
+import com.baidu.mapapi.navi.NaviParaOption;
 import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
 import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.example.cloudmirror.api.ApiClient;
 import com.example.cloudmirror.api.GlobalNetErrorHandler;
 import com.example.cloudmirror.api.ApiClient.onReqStartListener;
+import com.example.cloudmirror.api.LatlngFactory;
 import com.example.cloudmirror.bean.CarHomeBean;
 import com.example.cloudmirror.bean.VoiceYesNoBean;
 import com.example.cloudmirror.bean.CarHomeBean.AdvBean;
+import com.example.cloudmirror.bean.Weather;
 import com.example.cloudmirror.service.DataSyncService;
 import com.example.cloudmirror.service.FxService;
+import com.example.cloudmirror.ui.HomeMoreActivity.ShortcutItem;
 import com.example.cloudmirror.ui.activity.CarBrandUpdateActivity;
+import com.example.cloudmirror.ui.activity.GasStationActivity;
 import com.example.cloudmirror.ui.activity.GetInvadationCodeActivity;
 import com.example.cloudmirror.ui.widget.AsyncImageView;
 import com.example.cloudmirror.ui.widget.FlipperIndicatorDotView;
 import com.example.cloudmirror.ui.widget.RoundedRectangleBitmapDisplayer;
 import com.example.cloudmirror.ui.widget.SimpleDialogBuilder;
+import com.example.cloudmirror.utils.Base64Util;
 import com.example.cloudmirror.utils.ImageUtils;
 import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
 import com.example.cloudmirror.utils.StringUtils;
+import com.google.gson.JsonArray;
 
 import de.greenrobot.event.EventBus;
 
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.TelephonyManager;
+import android.util.Base64;
 import android.util.Log;
+import android.util.Xml.Encoding;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -50,6 +72,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
@@ -78,64 +101,110 @@ import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 
 
-public class MainActivity extends BaseActivity implements Callback {
+public class MainActivity extends BaseActivity{
 	public static String KEY_ACTION = "android.intent.action.CUSTOM_KEY_EVENT";
 	public static String GPS_KEY_FLAG = "GPS_KEY"; 
 	public static String DVR_KEY_FLAG = "DVR_KEY"; 
 	public static String NOR_KEY_FLAG = "NORMAL_KEY"; 
 	public static String SIL_KEY_FLAG = "SILENT_KEY"; 
 	
-	public final static int LOCK_OUT_TIME = 1*60*1000;//5*1000;
+	public static String ACTION_HOEM_VISIABLE_CHANGE = "action.home.visiable.change";
+	
+	
+	public final static int LOCK_OUT_TIME = -1;//1*60*1000;
 	private ViewPager mViewPager;
+	private int mSelectPage;
+	private int mPageScrollStateChanged;
+	private int mPageScrollOffsetX;
 	private FlipperIndicatorDotView mIndicatorrView ;
 	private Camera mCamera;  
     private boolean mPreviewRunning = false; 
     private LinearLayout home_adv_view;
     private final static boolean  IS_CAMREA_OPEN = false; 
     Handler mHandler = new Handler();
+    
+    int[] pageIndex = new int[]{R.drawable.home_page_index_icon_1,R.drawable.home_page_index_icon_2};
 	@Override
 	protected void setContentView() {
 		// TODO Auto-generated method stub
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_main_3);
 		EventBus.getDefault().register(this);
 		
-		//printApp();
+		printApp();
 		
 		startService(new Intent(mContext, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_NONE));
 		startService(new Intent(mContext, FxService.class));
+
 	}
+	
 	@Override
 	protected void initData(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
-		//startToCarRecord(RECORD_ACTION, RECORD_MODE_BACK);
-		registerReceiver(KeyRcv, new IntentFilter(KEY_ACTION));
-		//uploadImage();
 	}
+	
 	@Override
 	protected void initViews() {
 		// TODO Auto-generated method stub
-		mViewPager = (ViewPager)findViewById(R.id.vPager);
-		mIndicatorrView = (FlipperIndicatorDotView)findViewById(R.id.vPager_Indicator);
-		home_adv_view = (LinearLayout)findViewById(R.id.home_adv_view);
-		if(IS_CAMREA_OPEN){
-			findViewById(R.id.surface_camera_btn).setVisibility(View.VISIBLE);
-			findViewById(R.id.home_icon_carrecord_btn).setVisibility(View.GONE);			
-			iniCamera();	
-		}
+		//initShortcutMenu();
+		initPageView();
 	}
+	
+	private void initPageView(){
+		mViewPager = (ViewPager)findViewById(R.id.vPager);
+		ArrayList<View> pageViews = new ArrayList<View>();
+		pageViews.add(View.inflate(this, R.layout.new_home_page_1, null));
+		pageViews.add(View.inflate(this, R.layout.new_home_page_2, null));
+		initShortcutMenuPage1(pageViews.get(0));
+		initShortcutMenuPage2(pageViews.get(1));
+		MyViewPagerAdapter adapter = new MyViewPagerAdapter(pageViews);
+		mViewPager.setAdapter(adapter);
+		mViewPager.setOnPageChangeListener(new OnPageChangeListener(){
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+				//MyLog.D("----->onPageScrollStateChanged:arg0="+arg0);
+				mPageScrollStateChanged = arg0;
+				if(arg0 == 1){
+					mHandler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							if(mPageScrollStateChanged == 1){
+								if(mPageScrollOffsetX > 0){
+									sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
+								}else{
+									mHandler.postDelayed(this, 20);
+								}
+							}
+						}
+					}, 1);
+				}else if(arg0 == 0){
+					if(mSelectPage == 0)
+						sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
+				}
+			}
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				//MyLog.D("----->onPageScrolled:arg0="+arg0+",arg1="+arg1+",arg2="+arg2);
+				mPageScrollOffsetX = arg2;
+			}
+			@Override
+			public void onPageSelected(int arg0) {
+				//MyLog.D("----->onPageSelected:arg0="+arg0);
+				mSelectPage = arg0;
+				((ImageView)findViewById(R.id.home_page_index)).setImageResource(pageIndex[arg0]);
+			}
+		});
+	}
+	
+	
 	@Override
 	protected void handleData() {
 		// TODO Auto-generated method stub
 		 refreshHome();
 		 VoliceRecActivity.getVoiceYseNo(this);
+		 updateLockTime();
+		 //locationInit();
 	}
-	SurfaceView mSurfaceView;
-	private void iniCamera(){
-		mSurfaceView = (SurfaceView) findViewById(R.id.surface_camera); 
-		SurfaceHolder mSurfaceHolder = mSurfaceView.getHolder(); 
-		mSurfaceHolder.addCallback(this); 
-		//mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-	}
+
 	CarHomeBean mCarHomeBean;
 	private void refreshHome(){
 		CarHomeBean home = getCarHomeBean();
@@ -152,18 +221,7 @@ public class MainActivity extends BaseActivity implements Callback {
 	}
 	
 	private void loadImages(ArrayList<AdvBean> advlist){
-		
-		ArrayList<View> pageViews = new ArrayList<View>();
-		for (int i = 0; i < advlist.size(); i++) {
-			View adView = mInflater.inflate(R.layout.home_ad_info, (ViewGroup)null); 
-			AsyncImageView adImgView = (AsyncImageView) adView.findViewById(R.id.ad_img);
-			adImgView.setImage(advlist.get(i).imgurl, R.drawable.home_adv_def, new RoundedRectangleBitmapDisplayer(0));
-			adImgView.setScaleType(ScaleType.FIT_XY);
-			pageViews.add(adView);
-		}
-		MyViewPagerAdapter adapter = new MyViewPagerAdapter(pageViews);
-		mViewPager.setAdapter(adapter);
-		mIndicatorrView.setCount(pageViews.size());
+
 	}
 	
 	public class MyViewPagerAdapter extends PagerAdapter{
@@ -198,10 +256,6 @@ public class MainActivity extends BaseActivity implements Callback {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
-		if(keyCode == KeyEvent.KEYCODE_BACK && mTipViewIsShow){
-			dismissTipView();
-			return true;
-		}
 		if(keyCode == KeyEvent.KEYCODE_BACK){
 			return true;
 		}
@@ -215,22 +269,8 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.home_more:
 				startActivity(new Intent(mContext, HomeMoreActivity.class));
 				break;
-			case R.id.home_call:
-				showTipView();
-				//sendBroadcast(new Intent("android.intent.action.concox.carrecorder.quit"));
-				//sendBroadcast(new Intent(FxService.ACTION_START_TAKE_PIC));
-				//uploadImage();
-				break;
-			case R.id.violation_tip_img:
-				dismissTipView();
-				break;
 			case R.id.home_click_volice:
 				startActivity(new Intent(mContext, VoliceRecActivity.class));
-				break;
-			case R.id.home_icon_carrecord_btn:	
-			case R.id.surface_camera_btn:
-				startToCarRecord(this,RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
-				//startToCarRecord(PHOTO_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
 				break;
 			case R.id.home_icon_blue_btn:
 				startActivity(this,"com.concox.bluetooth","com.concox.bluetooth.MainActivity",null); 
@@ -245,175 +285,11 @@ public class MainActivity extends BaseActivity implements Callback {
 			case R.id.home_icon_navi_btn:
 				startActivity(this,"com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
 				break;
-			case R.id.function_item_1:
-			case R.id.function_item_2:
-			case R.id.function_item_3:
-			case R.id.function_item_4:
-			case R.id.function_item_5:
-				callPhone(v.getId());
-				break;
 			default:
 				break;
 		}
 	}
 
-	private void callPhone(int id){
-		CarHomeBean home = getCarHomeBean();
-		String num = null;
-		if(home != null){
-			switch (id) {
-			case R.id.function_item_1:
-				num = home.getTelNum(CarHomeBean.TELTYPE_ZL);
-				break;
-			case R.id.function_item_2:
-				num = home.getTelNum(CarHomeBean.TELTYPE_DJ);
-				break;
-			case R.id.function_item_3:
-				num = home.getTelNum(CarHomeBean.TELTYPE_BX);
-				break;
-			case R.id.function_item_4:
-				num = home.getTelNum(CarHomeBean.TELTYPE_4S);
-				break;
-			case R.id.function_item_5:
-				num = home.getTelNum(CarHomeBean.TELTYPE_SOS);
-				break;
-			default:
-				break;
-			}
-		}
-		if(StringUtils.isEmpty(num)){
-			Toast.makeText(mContext, "号码为空", Toast.LENGTH_SHORT).show();
-		}else{
-			callPhoneNum(mContext, num);
-		}
-	}
-	
-	private View mCallView;
-	private int resShortcutId[]={R.id.function_item_1,R.id.function_item_2,R.id.function_item_3 ,R.id.function_item_4,R.id.function_item_5};
-	private int resShortcutIcon[]={R.drawable.icon_call_zl,R.drawable.icon_call_dj,R.drawable.icon_call_fw ,R.drawable.icon_call_4s,R.drawable.icon_call_sos};
-	private int resShortcutName[]={R.string.name_call_zl,R.string.name_call_dj,R.string.name_call_fw ,R.string.name_call_4s,R.string.name_call_sos};
-	private void setResShortcutId(int resShortcutId,int resShortcutIcon,int resShortcutName){
-		View item = mCallView.findViewById(resShortcutId);
-		((ImageView)item.findViewById(R.id.home_more_item_icon)).setImageResource(resShortcutIcon);
-		((TextView)item.findViewById(R.id.home_more_item_name)).setText(resShortcutName);
-		item.setOnClickListener(this);
-	}
-	private void initCallView(){
-		mCallView = View.inflate(mContext, R.layout.activity_home_call, null);
-		for(int i=0;i<resShortcutId.length;i++){
-			setResShortcutId(resShortcutId[i],resShortcutIcon[i],resShortcutName[i]);
-		}
-	}
-	
-	private boolean mTipViewIsShow = false;
-	private void showTipView(){
-		if(mCallView == null){
-			initCallView();
-		    WindowManager.LayoutParams params = new WindowManager.LayoutParams(  
-		                WindowManager.LayoutParams.MATCH_PARENT,   
-		                WindowManager.LayoutParams.MATCH_PARENT,   
-		                WindowManager.LayoutParams.TYPE_APPLICATION ,   
-		                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,   
-		                PixelFormat.TRANSLUCENT); 
-
-			getWindowManager().addView(mCallView, params);
-		}else{
-			mCallView.setVisibility(View.VISIBLE);
-		}
-		
-		Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.zoom_enter);
-		mCallView.findViewById(R.id.violation_tip_img).startAnimation(animation);
-		mTipViewIsShow = true;
-	}
-	
-	private void dismissTipView(){
-		
-		Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.zoom_exit);
-		animation.setAnimationListener( new AnimationListener(){
-			@Override
-			public void onAnimationEnd(Animation animation) {
-				// TODO Auto-generated method stub
-				mCallView.setVisibility(View.GONE);
-			}
-			@Override
-			public void onAnimationRepeat(Animation animation) {}
-
-			@Override
-			public void onAnimationStart(Animation animation) {}	
-		});
-		mCallView.findViewById(R.id.violation_tip_img).startAnimation(animation);
-		mTipViewIsShow = false;
-	}
-
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,int height) {
-		// TODO Auto-generated method stub
-		MyLog.D("surfaceChanged");
-		if(mCamera!=null && mPreviewRunning==false){
-	        //Camera.Parameters p = mCamera.getParameters();
-	        //p.setPreviewSize(width, height);  
-	        //p.set("rotation", 90);  
-	       //mCamera.setParameters(p);  
-	        try{
-	            mCamera.setPreviewDisplay(holder);
-	        } catch (IOException e){
-	            e.printStackTrace();  
-	        }
-	        mCamera.startPreview();
-	        mPreviewRunning = true;  		
-		}
-	}
-
-	@Override
-	public void surfaceCreated(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
-		MyLog.D("surfaceCreated");
-		try{
-			if(mCamera == null)
-				mCamera = Camera.open(); 
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		
-	}
-
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		// TODO Auto-generated method stub
-		MyLog.D("surfaceDestroyed");
-		if(mCamera == null)
-			return;
-		mCamera.stopPreview();  
-        mPreviewRunning = false;  
-       mCamera.release();
-       mCamera = null;
-	}
-	
-	public static final String RECORD_MODE = "record_mode";
-	public static final String PHOTO_MODE = "photo_mode";
-	public static final int RECORD_MODE_NORMAL = 1;//全屏窗口模式
-	public static final int RECORD_MODE_BACK = 2;//小窗口模式
-	public static final int RECORD_MODE_HIDE = 3;//后台隐藏窗口模式
-	public static final String RECORD_ACTION = "record_action";//行车记录
-	public static final String PHOTO_ACTION = "photo_action";//拍照
-	public static final String CARBACK_ACTION = "carback_action";//倒车后视
-	public static final String DVR_PKG = "com.android.concox.carrecorder";//行车记录仪包名
-	public static final String DVR_CLS = "com.android.concox.view.MainActivity";//行车记录仪类名
-	public static void startToCarRecord(Context context,String action, int mode) {
-		final Intent mIntent = new Intent(Intent.ACTION_MAIN); 
-		ComponentName compName = new ComponentName(DVR_PKG, DVR_CLS);
-		mIntent.setComponent(compName); 
-		mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		mIntent.setAction(action);
-		Bundle mBundle = new Bundle();
-		mBundle.putInt(RECORD_MODE, mode);
-		mIntent.putExtras(mBundle);
-		try{
-			context.startActivity(mIntent); 
-		}catch(Exception e){
-			//mToast.toastMsg("没有安装该应用");
-		}
-    }
     private void printApp(){
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);	
@@ -422,9 +298,10 @@ public class MainActivity extends BaseActivity implements Callback {
         	String name = app.activityInfo.name;
         	String pack = app.activityInfo.packageName;
         	String label = app.loadLabel(getPackageManager()).toString();
-        	MyLog.D("name="+name+",pack="+pack+",label="+label);
+        	MyLog.D("pack="+pack+"  ,name="+name+"  ,label="+label);
         }
     }
+    
 	public static boolean startActivity(Context context,String pkg,String cls,String name){
 		try{
 			Intent intent = new Intent().setClassName(pkg, cls);
@@ -438,6 +315,10 @@ public class MainActivity extends BaseActivity implements Callback {
 			return false;
 		}
 	}
+	private void startActivity(String pkg,String cls,String name){
+		MainActivity.startActivity(this, pkg, cls, name);
+	}
+	
 	public CarHomeBean getCarHomeBean(){
 		if(mCarHomeBean == null){
 			mCarHomeBean = CarHomeBean.getFromJson(QuickShPref.getInstance().getString(CarHomeBean.TAG));
@@ -491,6 +372,7 @@ public class MainActivity extends BaseActivity implements Callback {
 	
 	public void onEventMainThread(String result) {
 		getCarHome();
+		getWeather(mBDLocation);
 	}
 	
 	@Override
@@ -498,43 +380,41 @@ public class MainActivity extends BaseActivity implements Callback {
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		EventBus.getDefault().unregister(this);
-		unregisterReceiver(KeyRcv);
 	}
 
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		// TODO Auto-generated method stub
-		super.onWindowFocusChanged(hasFocus);
-		MyLog.D("onWindowFocusChanged:"+hasFocus);
-		if(IS_CAMREA_OPEN){
-			if(hasFocus){
-				new Handler().postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						// TODO Auto-generated method stub
-						surfaceCreated(null);
-						surfaceChanged(mSurfaceView.getHolder(), 0, 0, 0);
-					}
-				}, 500);
-			}else{
-				surfaceDestroyed(null);
-			}
-		}
-	}
+
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
 		onUsrActivity();
 		registerReceiver(TimeTickRcv, new IntentFilter(Intent.ACTION_TIME_TICK));
+		QuickShPref.getInstance().putValueObject(QuickShPref.ISRUNNING, (int)1);
+		
+		if(mSelectPage == 0)
+			mHandler.postDelayed(mShowRecoderRectRun, 800);
+		
+		mHandler.postDelayed(mGetRecoderRectRun, 2000);
+		MyLog.D("主界面onResume");
 	}
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
+		mHandler.removeCallbacks(mShowRecoderRectRun);
 		unregisterReceiver(TimeTickRcv);
+		QuickShPref.getInstance().putValueObject(QuickShPref.ISRUNNING, (int)0);
+		sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
+		MyLog.D("主界面onPause");
 	}
 
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		// TODO Auto-generated method stub
+		super.onWindowFocusChanged(hasFocus);
+		MyLog.D("onWindowFocusChanged hasFocus="+hasFocus);
+	}
+	
     private void getCarHome(){
     	String imei = QuickShPref.getInstance().getString(QuickShPref.IEMI);
     	//imei = "862609000000773";
@@ -555,7 +435,30 @@ public class MainActivity extends BaseActivity implements Callback {
     
 	public void onEventMainThread(RouteParaOption para) {
 	    try {
+	    	if(para.getStartPoint() == null){
+	    		if(mLocLatLng!=null){
+	    			para.startPoint(mLocLatLng);
+	    		}else{
+	    			mToast.toastMsg("定位失败,无法启动导航");
+	    			return;
+	    		}
+	    	}
 		       BaiduMapRoutePlan.openBaiduMapDrivingRoute(para, this);
+		} catch (Exception e) {
+		        e.printStackTrace();
+		}
+	}
+	public void onEventMainThread(NaviParaOption para) {
+	    try {
+	    	if(para.getStartPoint() == null){
+	    		if(mLocLatLng!=null){
+	    			para.startPoint(mLocLatLng);
+	    		}else{
+	    			mToast.toastMsg("定位失败,无法启动导航");
+	    			return;
+	    		}
+	    	}
+		    BaiduMapNavigation.openBaiduMapNavi(para, this);
 		} catch (Exception e) {
 		        e.printStackTrace();
 		}
@@ -580,8 +483,10 @@ public class MainActivity extends BaseActivity implements Callback {
 		}
 	};
 	private boolean onUsrActivity(){
-		mHandler.removeCallbacks(showLockRun);
-		mHandler.postDelayed(showLockRun, LOCK_OUT_TIME);
+		if(LOCK_OUT_TIME>0){
+			mHandler.removeCallbacks(showLockRun);
+			mHandler.postDelayed(showLockRun, LOCK_OUT_TIME);
+		}
 		return dismissLockScreen();
 	}
 	@Override
@@ -602,7 +507,16 @@ public class MainActivity extends BaseActivity implements Callback {
         SimpleDateFormat locktime = new SimpleDateFormat("HH:mm");
         SimpleDateFormat lockdate = new SimpleDateFormat("MM月dd日");
        ((TextView)findViewById(R.id.lock_time)).setText(locktime.format(date));
-       ((TextView)findViewById(R.id.lock_date)).setText(lockdate.format(date));
+       ((TextView)findViewById(R.id.lock_date)).setText(lockdate.format(date)+"  "+getWeek());   
+//       ((TextView)findViewById(R.id.home_time_txt)).setText(locktime.format(date));
+//       ((TextView)findViewById(R.id.home_date_txt)).setText(lockdate.format(date)+"  "+getWeek());   
+	}
+	private String getWeek(){
+		Calendar calendar = Calendar.getInstance();  
+	    calendar.setTime(new Date()); 
+	    int dayIndex = calendar.get(Calendar.DAY_OF_WEEK);
+		String str[] = getResources().getStringArray(R.array.week_string);
+		return str[dayIndex];
 	}
 	BroadcastReceiver TimeTickRcv = new BroadcastReceiver() {
         @Override
@@ -611,52 +525,268 @@ public class MainActivity extends BaseActivity implements Callback {
         	updateLockTime();
         }
     };
-	BroadcastReceiver KeyRcv = new BroadcastReceiver(){
-        @Override
-        public void onReceive(Context context, Intent intent){
-            // TODO Auto-generated method stub  
-        	String key = intent.getStringExtra("key_flag");
-        	MyLog.D("key_flag="+key);
-        	if(GPS_KEY_FLAG.equals(key)){
-        		startActivity(mContext,"com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
-        	}else if(DVR_KEY_FLAG.equals(key)){
-        		startToCarRecord(mContext,RECORD_ACTION, RECORD_MODE_NORMAL);//打开行车记录仪
-        	}else if(NOR_KEY_FLAG.equals(key)){
-        		showVoice(R.drawable.voice_open);
-        	}else if(SIL_KEY_FLAG.equals(key)){
-        		showVoice(R.drawable.voice_close);
-        	}
-        }
-    };  
-    
-    private void showVoice(int resid){
-    	final Toast mToast = new Toast(this);
-    	ImageView view = new ImageView(this);
-    	view.setImageResource(resid);
-    	mToast.setView(view);
-    	mToast.setDuration(Toast.LENGTH_SHORT);
-    	mToast.setGravity(Gravity.CENTER, 0,0);
-    	mToast.show();
-    	
-    	mHandler.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				mToast.cancel();
-			}
-		}, 800);
-    }
-	public void uploadImage(){
-		MyLog.D("uploadImage start");
-		String base64 = ImageUtils.file2Base64(this,"/sdcard/2015_07_16_18_17_59.jpg");
-		MyLog.D("uploadImage gener base64");
-		ApiClient.postImage(base64, null, new Listener<JSONObject>() {
 
-			@Override
-			public void onResponse(JSONObject response) {
-				// TODO Auto-generated method stub
-				MyLog.D("onResponse:"+response.toString());
+	private int resShortcutId[]={
+			R.id.function_item_1,R.id.function_item_2,R.id.function_item_3 ,
+			R.id.function_item_4,R.id.function_item_5,R.id.function_item_6
+			,R.id.function_item_7,R.id.function_item_8
+	};
+	
+	private void initShortcutMenuPage1(View v){
+		for(int i=0;i<resShortcutId.length;i++){
+			View item = v.findViewById(resShortcutId[i]);
+			item.setVisibility(View.INVISIBLE);
+		}
+		int i=0;
+		shortcutDHUA.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutDHANG.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutYYUE.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutXCJLY.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutDT.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutDZG.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutJYZ.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutFM.setResShortcutId(v,resShortcutId[i]);i++;
+	}
+	
+	private void initShortcutMenuPage2(View v){
+		for(int i=0;i<resShortcutId.length;i++){
+			View item = v.findViewById(resShortcutId[i]);
+			item.setVisibility(View.INVISIBLE);
+		}
+		int i=0;
+		
+		shortcutXCZS.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutWZCX.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutSP.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutSZ.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutGY.setResShortcutId(v,resShortcutId[i]);i++;
+//		shortcutGP.setResShortcutId(v,resShortcutId[i]);i++;
+//		shortcutYYZS.setResShortcutId(v,resShortcutId[i]);i++;
+//		shortcutGD.setResShortcutId(v,resShortcutId[i]);i++;
+	}
+	public abstract class ShortcutItem{
+		int resShortcutIcon;
+		int resShortcutName;
+		int resShortcutId;
+		View parentView;
+		
+		ShortcutItem(int icon,int name){
+			resShortcutIcon = icon;
+			resShortcutName = name;
+		}
+		Handler mShortcutHandler = new Handler();
+		public void setResShortcutId(View v,int resShortcutId){
+			View item = v.findViewById(resShortcutId);
+			((ImageView)item.findViewById(R.id.home_more_item_icon)).setImageResource(resShortcutIcon);
+			((TextView)item.findViewById(R.id.home_more_item_name)).setText(resShortcutName);
+			item.setVisibility(View.VISIBLE);
+			item.setOnClickListener(new OnClickListener(){
+				@Override
+				public void onClick(View v) {
+						doAction();
+				}
+			});
+		}
+		protected abstract void doAction();
+	}
+	ShortcutItem  shortcutXCJLY = new ShortcutItem(R.drawable.new_home_icon_jly,R.string.home_item_xcjly){
+		@Override
+		protected void doAction() {
+			startActivity(mContext, "com.hilan.carrecorder", "com.hilan.carrecorder.activity.MainActivity", null);
+		}
+	};
+	ShortcutItem  shortcutGP = new ShortcutItem(R.drawable.home_more_gupiao,R.string.home_more_gupiao){
+		@Override
+		protected void doAction() {
+			//sendBroadcast(new Intent("action.start.recorder"));
+			sendBroadcast(new Intent("com.hilan.car.exit"));
+		}
+	};
+	ShortcutItem  shortcutDHANG = new ShortcutItem(R.drawable.new_home_icon_dhang,R.string.home_item_dhang){
+		@Override
+		protected void doAction() {
+			startActivity(mContext, "com.baidu.navi.hd", "com.baidu.navi.NaviActivity", null);
+		}
+	};
+	ShortcutItem  shortcutYYUE = new ShortcutItem(R.drawable.new_home_icon_yy,R.string.home_item_yy){
+		@Override
+		protected void doAction() {
+			startActivity(mContext, "com.android.music", "com.android.music.MusicBrowserActivity", null);
+		}
+	};
+	ShortcutItem  shortcutYYZS = new ShortcutItem(R.drawable.home_item_yyzs,R.string.home_item_yyzs){
+		@Override
+		protected void doAction() {
+			startActivity(new Intent(mContext, VoliceRecActivity.class));
+			//startActivity(new Intent(mContext, NaviAdrSelectActivity.class));
+		}
+	};
+	ShortcutItem  shortcutDZG = new ShortcutItem(R.drawable.new_home_icon_dzg,R.string.home_item_dzg){
+		@Override
+		protected void doAction() {
+			//startActivity(mContext, "com.edog", "com.edog.activity.SplashActivity", null);
+			startActivity(mContext, "com.mapgoo.dzgmg", "com.mapgoo.dzgmg.MainActivity", null);
+		}
+	};
+	ShortcutItem  shortcutDHUA = new ShortcutItem(R.drawable.new_home_icon_dhua,R.string.home_item_dhua){
+		@Override
+		protected void doAction() {
+			startActivity(mContext, "com.android.dialer", "com.android.dialer.DialtactsActivity", null);
+		}
+	};
+	ShortcutItem  shortcutGD = new ShortcutItem(R.drawable.home_item_gd,R.string.home_item_gd){
+		@Override
+		protected void doAction() {
+			startActivity(new Intent(mContext,HomeMoreActivity.class));
+			//sendBroadcast(new Intent("action.start.recorder"));
+		}
+	};
+	ShortcutItem  shortcutXCZS = new ShortcutItem(R.drawable.new_home_icon_xczs,R.string.home_more_xczs){
+		@Override
+		protected void doAction(){
+			startActivity("com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity", null);
+		}
+	};
+	ShortcutItem  shortcutWZCX = new ShortcutItem(R.drawable.new_home_icon_wzcx,R.string.home_more_wzcx){
+		@Override
+		protected void doAction(){
+			Intent intent = new Intent().setClassName("com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity");
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+			intent.addCategory(Intent.CATEGORY_LAUNCHER);
+			intent.putExtra("starttag", "weizhang");
+			try {
+				mContext.startActivity(intent);
+			} catch (Exception e) {
+				// TODO: handle exception
 			}
-		}, GlobalNetErrorHandler.getInstance(this, null, null));
+		}
+	};
+	ShortcutItem  shortcutJYZ = new ShortcutItem(R.drawable.new_home_icon_jyz,R.string.home_more_jyz){
+		@Override
+		protected void doAction(){
+			startActivity(new Intent(mContext, GasStationActivity.class));
+		}
+	};
+	ShortcutItem  shortcutSZ = new ShortcutItem(R.drawable.new_home_icon_sz,R.string.home_more_sz){
+		@Override
+		protected void doAction(){
+			startActivity("com.android.settings","com.android.settings.Settings",null);
+		}
+	};
+	ShortcutItem  shortcutGY = new ShortcutItem(R.drawable.new_home_icon_gy,R.string.home_more_gy){
+		@Override
+		protected void doAction(){
+			startActivity(new Intent(mContext, AboutActivity.class));
+		}
+	};
+	ShortcutItem  shortcutSP = new ShortcutItem(R.drawable.new_home_icon_sp,R.string.home_more_sp){
+		@Override
+		protected void doAction(){
+			startActivity("com.mediatek.videoplayer","com.mediatek.videoplayer.MovieListActivity",null);
+		}
+	};
+	ShortcutItem  shortcutDT = new ShortcutItem(R.drawable.new_home_icon_dt,R.string.home_more_dt){
+		@Override
+		protected void doAction(){
+			startActivity("com.itings.myradio","com.itings.myradio.kaolafm.home.FlashActivity",null);
+		}
+	};
+	ShortcutItem  shortcutFM = new ShortcutItem(R.drawable.new_home_icon_fm,R.string.home_more_fm){
+		@Override
+		protected void doAction(){
+			startActivity("com.hilan.fm","com.hilan.fm.activity.MainActivity",null);
+		}
+	};
+	private void getRectForRecorder(){
+		if(QuickShPref.getInstance().getInt(QuickShPref.WIDTH)<=0){
+			View p = findViewById(R.id.function_item_4);
+			View r = p.findViewById(R.id.home_more_item_icon);
+			Rect rect = new Rect();
+			
+			r.getGlobalVisibleRect(rect);		
+			MyLog.D("top="+rect.top +",left="+rect.left+",width="+rect.width()+",height="+rect.height());
+			
+			int t = rect.top;
+			int l = rect.left;
+			int w = rect.width();
+			int h = rect.height();
+			
+			QuickShPref.getInstance().putValueObject(QuickShPref.TOP, t);
+			QuickShPref.getInstance().putValueObject(QuickShPref.LEFT, l);
+			QuickShPref.getInstance().putValueObject(QuickShPref.WIDTH, w);
+			QuickShPref.getInstance().putValueObject(QuickShPref.HEIGHT, h);
+		}
+	}
+	
+	Runnable mGetRecoderRectRun = new Runnable(){
+		@Override
+		public void run() {
+			getRectForRecorder();
+		}
+	};
+	Runnable mShowRecoderRectRun = new Runnable(){
+		@Override
+		public void run() {
+			sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
+		}
+	};
+	
+    LocationClient mLocClient;
+    BDLocation mBDLocation;
+    LatLng mLocLatLng;
+    MyLocationListenner myListener= new MyLocationListenner();
+    private void locationInit(){
+		mLocClient = new LocationClient(this);
+		mLocClient.registerLocationListener(myListener);
+		LocationClientOption option = new LocationClientOption();
+		//option.setOpenGps(true);// 打开gps
+		option.setLocationMode(LocationMode.Hight_Accuracy);
+		option.setCoorType("bd09ll"); // 设置坐标类型
+		option.setScanSpan(30000);
+		option.setIsNeedAddress(true);
+		mLocClient.setLocOption(option);
+		mLocClient.start(); 
+    }
+    
+	public class MyLocationListenner implements BDLocationListener {
+		@Override
+		public void onReceiveLocation(BDLocation location) {
+			if (location == null)	{ return;}
+			if(location.getLatitude() != Double.MIN_VALUE){
+				//mLocClient.stop();
+				mBDLocation = location;
+				mLocLatLng = LatlngFactory.CreatefromDouble(location.getLatitude(), location.getLongitude());
+				if(!mGetWeatherSuccess){
+					getWeather(location);
+					mGetWeatherSuccess = true;
+				}
+				MyLog.D("主界面定位 lat="+location.getLatitude()+",lon="+location.getLongitude());
+			}
+		}
+		public void onReceivePoi(BDLocation poiLocation) {}
+	}
+	
+	private boolean mGetWeatherSuccess;
+	public void getWeather(BDLocation location){
+		if(location!=null)
+			ApiClient.getWeather(String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude()), null, new Listener<JSONObject>() {
+	
+				@Override
+				public void onResponse(JSONObject response) {
+					// TODO Auto-generated method stub
+					MyLog.D(""+response.toString());
+					try {
+						Weather weather = JSON.parseObject(response.getString("result"), Weather.class);
+						((TextView)findViewById(R.id.home_weather_loaction)).setText(weather.getCity());
+						((TextView)findViewById(R.id.home_weather_temple)).setText(weather.getTemperature());
+						((TextView)findViewById(R.id.home_weather_txt)).setText(weather.getWeather());
+						((AsyncImageView)findViewById(R.id.iv_weather_icon)).setImage(weather.getWeather_icon_url(), R.drawable.weather_default, new RoundedRectangleBitmapDisplayer(0));
+						
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}, GlobalNetErrorHandler.getInstance(mContext, null, null));
 	}
 }

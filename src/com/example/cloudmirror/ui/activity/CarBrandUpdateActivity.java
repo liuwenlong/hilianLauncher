@@ -3,7 +3,7 @@ package com.example.cloudmirror.ui.activity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 import com.example.cloudmirror.ui.BaseActivity;
 
 

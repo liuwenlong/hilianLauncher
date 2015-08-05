@@ -7,28 +7,32 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONObject;
-
 import com.android.volley.VolleyError;
 import com.android.volley.Response.Listener;
 import com.example.cloudmirror.api.ApiClient;
 import com.example.cloudmirror.api.GlobalNetErrorHandler;
 import com.example.cloudmirror.api.GlobalNetErrorHandler.GlobalNetErrorCallback;
 import com.example.cloudmirror.application.MGApp;
+import com.example.cloudmirror.bean.TakePerson;
 import com.example.cloudmirror.ui.MainActivity;
 import com.example.cloudmirror.utils.CamParaUtil;
 import com.example.cloudmirror.utils.ImageUtils;
 import com.example.cloudmirror.utils.MyLog;
+import com.example.cloudmirror.utils.QuickShPref;
 import com.example.cloudmirror.widget.ShakeListener;
 import com.example.cloudmirror.widget.ShakeListener.OnShakeListener;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
@@ -62,9 +66,13 @@ public class FxService extends Service implements Callback {
 	public static final String ACTION_START_RECORD = "action.start.record";
 	public static final String ACTION_START_TAKE_PIC = "action.start.take.pic";
 	public static final String ACTION_START_AUDIO = "action.start.audio.recorder";
+	public static final String ACTION_SETTING_VIBRATE = "action.setting.vibrate.level";
 	public static final String ACTION_RECORD_COMPLETE = "action.record.complete";
 	public static final String ACTION_TAKEPIC_COMPLETE = "action.takepic.complete";
-	public static final int ACTION_RECORD_DUR = 6 * 1000;
+	public static final String ACTION_START_SETTINGS = "action.open.recoder.settings";
+	public static final String ACTION_START_TAKE_PERSON = "action.start.take.person";
+	public static final String ACTION_START_SPEAKER_MSG = "action.start.speaker.msg";
+	public static final int ACTION_RECORD_DUR = 6;
 	private Context mContext;
 	private Camera mCamera;
 	private String mRecordPath = null;
@@ -85,7 +93,9 @@ public class FxService extends Service implements Callback {
 	public void onCreate() {
 		// TODO Auto-generated method stub
 		super.onCreate();
+		
 		mContext = this;
+		
 		MyLog.D("FxService oncreat");
 
 		createFloatView();
@@ -98,18 +108,18 @@ public class FxService extends Service implements Callback {
 	private void regestShake(){
 		mShakeListener = new ShakeListener(this);  
         
-        mShakeListener.setOnShakeListener(new OnShakeListener() {  
-              
-            public void onShake() {
+        mShakeListener.setOnShakeListener(new OnShakeListener(){
+            public void onShake(){
             	mShakeListener.stop();
-            	 Toast.makeText(mContext, "呵呵，成功了！。\n再试一次吧！", Toast.LENGTH_SHORT).show();  
-                new Handler().postDelayed(new Runnable() {
-                    @Override  
-                    public void run() {
+            	MyLog.D("触发震动拍照");
+            	mContext.sendBroadcast(new Intent(ACTION_START_TAKE_PIC));
+                new Handler().postDelayed(new Runnable(){
+                    @Override
+                    public void run(){
                     	mShakeListener.start();
                     }
                 }, 3000);  
-            }  
+            }
         });  
 	}
 	
@@ -118,6 +128,11 @@ public class FxService extends Service implements Callback {
 		filter.addAction(ACTION_START_RECORD);
 		filter.addAction(ACTION_START_TAKE_PIC);
 		filter.addAction(ACTION_START_AUDIO);
+		filter.addAction(ACTION_START_SETTINGS);
+		filter.addAction(ACTION_START_TAKE_PERSON);
+		filter.addAction(ACTION_START_SPEAKER_MSG);
+		filter.addAction(ACTION_SETTING_VIBRATE);
+		
 		registerReceiver(mReceiver, filter);
 	}
 
@@ -326,7 +341,7 @@ public class FxService extends Service implements Callback {
 			// 开始录制
 			mediarecorder.start();
 			// 10秒后停止录制
-			mHandler.postDelayed(mStopRecordRun, ACTION_RECORD_DUR);
+			mHandler.postDelayed(mStopRecordRun, VideoDur*1000);
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -342,7 +357,7 @@ public class FxService extends Service implements Callback {
 	private String getVideoPath() {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 		String t = format.format(new Date());
-		return Environment.getExternalStorageDirectory().getPath() + "/" + t + ".3gp";
+		return Environment.getExternalStorageDirectory().getPath() + "/" + t + ".mp4";
 	}
 	private String getAudioPath() {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
@@ -485,7 +500,7 @@ public class FxService extends Service implements Callback {
             recorder.prepare();// 准备录制  
             recorder.start();// 开始录制  
             MyLog.D("--------->开始录制音频 mRecordPath="+mRecordPath);
-            mHandler.postDelayed(mStopAudio, 10*1000);
+            mHandler.postDelayed(mStopAudio, AudioDur*1000);
         } catch (IllegalStateException e) {
             e.printStackTrace();  
         } catch (IOException e) {  
@@ -515,10 +530,12 @@ public class FxService extends Service implements Callback {
 	
 	private void stopCarRecoder() {
 		sendBroadcast(new Intent("android.intent.action.concox.carrecorder.quit"));
+		sendBroadcast(new Intent("com.hilan.car.exit"));
 	}
 
 	private void startCarRecoder() {
-		MainActivity.startToCarRecord(this, MainActivity.RECORD_ACTION,MainActivity.RECORD_MODE_HIDE);// 打开行车记录仪
+		//MainActivity.startToCarRecord(this, MainActivity.RECORD_ACTION,MainActivity.RECORD_MODE_HIDE);// 打开行车记录仪
+		sendBroadcast(new Intent("action.start.recorder"));
 	}
 
 	boolean isBusy = false;
@@ -528,25 +545,42 @@ public class FxService extends Service implements Callback {
 			// TODO Auto-generated method stub
 			String action = intent.getAction();
 			MyLog.D("onReceive action="+action);
+			if(ACTION_START_SETTINGS.equalsIgnoreCase(action)){
+				MyLog.D("startActivity com.hilan.carrecorder");
+				MainActivity.startActivity(mContext, "com.hilan.carrecorder", "com.hilan.carrecorder.activity.MainActivity", null);
+				return;
+			}else if(ACTION_START_TAKE_PERSON.equalsIgnoreCase(action)){
+				getTakePerson(intent.getStringExtra("extra"));
+				return;
+			}else if(ACTION_START_SPEAKER_MSG.equalsIgnoreCase(action)){
+				speakerMsg(intent.getStringExtra("extra"));
+				return;
+			}
 			if(isBusy)
 				return;
 			isBusy = true;
+			
 			mHandler.removeCallbacks(resetBusy);
 			mHandler.postDelayed(resetBusy, 25*1000);
+			
+			updateWindows();
+			
 			if (ACTION_START_TAKE_PIC.equals(action)) {
 				stopCarRecoder();
-				int size = intent.getIntExtra("size", 0);
-				setPicSize(size);
 				mHandler.postDelayed(mTakePicRun, 3 * 1000);
+				getImageCode(intent.getStringExtra("extra"));
 			} else if (ACTION_START_RECORD.equals(action)) {
-				setPicSize(1);
 				startService(new Intent(getBaseContext(), DataSyncService.class).putExtra(DataSyncService.COMMAND,DataSyncService.COMMAND_STOP));
 				stopCarRecoder();
 				mHandler.postDelayed(mSartRecordRun, 3 * 1000);
+				getVideoCode(intent.getStringExtra("extra"));
 			} else if(ACTION_START_AUDIO.equals(action)){
 				startService(new Intent(getBaseContext(), DataSyncService.class).putExtra(DataSyncService.COMMAND,DataSyncService.COMMAND_STOP));
 				MyLog.D("FxService unknow action:" + action);
 				mHandler.postDelayed(mSartAudioRun, 1 * 1000);
+				getAudioCode(intent.getStringExtra("extra"));
+			}else if(ACTION_SETTING_VIBRATE.equals(action)){
+				getVibrateLevel(intent.getStringExtra("extra"));
 			}
 			
 		}
@@ -574,13 +608,10 @@ public class FxService extends Service implements Callback {
 				// TODO Auto-generated method stub
 				super.run();
 				
-//				Bitmap debp = Bitmap.createScaledBitmap(bm, width, height, false);
-//				MyLog.D("uploadImage start");
-				
 				String base64 = ImageUtils.img2Base64(MGApp.pThis, bm);
 				MyLog.D("uploadImage gener base64");
 				
-				ApiClient.postImage(base64, null, new Listener<JSONObject>() {
+				ApiClient.postImage(base64, getUploadName(),null, new Listener<JSONObject>() {
 					@Override
 					public void onResponse(JSONObject response) {
 						// TODO Auto-generated method stub
@@ -609,7 +640,7 @@ public class FxService extends Service implements Callback {
 				String base64 = ImageUtils.file2Base64(MGApp.pThis, path);
 				MyLog.D("upload video gener base64");
 				
-				ApiClient.postVideo(base64, null, new Listener<JSONObject>() {
+				ApiClient.postVideo(base64, getUploadName(),null, new Listener<JSONObject>() {
 					@Override
 					public void onResponse(JSONObject response) {
 						// TODO Auto-generated method stub
@@ -623,11 +654,18 @@ public class FxService extends Service implements Callback {
 						// TODO Auto-generated method stub
 						sendCameraEorror("网络错误");
 					}
-				}));		
+				}));
 			}
 		}.start();	
 	}
-	
+	private String getUploadName(){
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+		String date = format.format(new Date());
+		String imei = QuickShPref.getInstance().getString(QuickShPref.IEMI);
+		String codetype = "1001";
+		String order = OrderCode;
+		return String.format("%s_%s_%s_%s", imei,date,codetype,order);
+	}
 	private void sendUpLoadComplete(String resp){
 		sendBroadcast(new Intent("action.upload.complete").putExtra("response", resp));
 	}
@@ -635,4 +673,141 @@ public class FxService extends Service implements Callback {
 		isBusy = false;
 		sendBroadcast(new Intent("action.upload.complete").putExtra("response", "url:"+error));
 	}
+	private void setLittleWindow(){
+		int t = QuickShPref.getInstance().getInt(QuickShPref.TOP);
+		int l = QuickShPref.getInstance().getInt(QuickShPref.LEFT);
+		int w = QuickShPref.getInstance().getInt(QuickShPref.WIDTH);
+		int h = QuickShPref.getInstance().getInt(QuickShPref.HEIGHT);
+		wmParams.x = l;
+		wmParams.y = t;
+		wmParams.width = w;
+		wmParams.height = h;
+		wmParams.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_USER;
+		mWindowManager.updateViewLayout(mFloatLayout, wmParams);
+	}
+	
+	private void setHideWindow(){
+		wmParams.x = 0;
+		wmParams.y = 0;
+		wmParams.width = 1;
+		wmParams.height = 1;
+		wmParams.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_USER;
+		mWindowManager.updateViewLayout(mFloatLayout, wmParams);
+	}
+	
+	private void updateWindows(){
+		int b =  QuickShPref.getInstance().getInt(QuickShPref.ISRUNNING);
+		if(b>0){
+			setLittleWindow();
+		}else{
+			setHideWindow();
+		}
+	}
+	TakePerson mTakePerson;
+	private void getTakePerson(String content){
+		if(mTakePerson == null){
+			mTakePerson = new TakePerson(this);
+		}
+		Pattern pattern = Pattern.compile("\\*MG2000CH(.+),(.+),(.+)#");// *MG2000CH(.),23.124,nskdh#
+		Matcher matcher = pattern.matcher(content);
+		if(matcher.find()){
+			mTakePerson.mLng = matcher.group(1);
+			mTakePerson.mLat = matcher.group(2);
+			mTakePerson.setMsg(matcher.group(3));
+			MyLog.D("mTakePerson:"+mTakePerson.toString());
+		}else{
+			MyLog.D("not match:"+content);
+		}
+		mTakePerson.startSpeakAndNavi();
+	}
+	private void speakerMsg(String content){
+		if(mTakePerson == null){
+			mTakePerson = new TakePerson(this);
+		}
+		Pattern pattern = Pattern.compile("\\*MG2000CA(.+)#");// *MG2000CH(.),23.124,nskdh#
+		Matcher matcher = pattern.matcher(content);
+		if(matcher.find()){
+			mTakePerson.mLat = null;
+			mTakePerson.mLng = null;
+			mTakePerson.setMsg(matcher.group(1));
+			MyLog.D("mTakePerson:"+mTakePerson.toString());
+		}else{
+			MyLog.D("not match:"+content);
+		}
+		mTakePerson.startSpeakAndNavi();
+	}
+	
+	String OrderCode = "1";
+	int VideoDur = ACTION_RECORD_DUR;
+    private void getVideoCode(String str){
+    	//Pattern pattern = Pattern.compile("\\*MG2000CA(.+)#");// *MG2000CH(.),23.124,nskdh#
+    	Pattern pattern = Pattern.compile("\\*MG2011BAD,(\\d+),(\\d+)#");
+		Matcher matcher = pattern.matcher(str);
+		if(matcher.find()){
+			OrderCode = matcher.group(1);
+			try{
+				VideoDur = Integer.parseInt(matcher.group(2));
+			}catch(NumberFormatException e){
+				VideoDur = 10;
+			}
+			MyLog.D("mTakePerson:group(1)="+matcher.group(1)+",group(2)="+matcher.group(2));
+		}else{
+			MyLog.D("not match:"+str);
+		}
+    }
+    private void getImageCode(String str){
+    	if(str == null){
+    		OrderCode = "0";
+    		setPicSize(0);
+    		return;
+    	}
+    	Pattern pattern = Pattern.compile("\\*MG2011BAC,(\\d+),(\\d+),(\\d+),(\\d+)#");
+		Matcher matcher = pattern.matcher(str);
+		int size = 0;
+		if(matcher.find()){
+			OrderCode = matcher.group(1);
+			try{
+				size = Integer.parseInt(matcher.group(2));
+			}catch(NumberFormatException e){}
+			setPicSize(size);
+			MyLog.D("mTakePerson:group(1)="+matcher.group(1)+",group(2)="+matcher.group(2)+",group(3)="+matcher.group(3)+",group(4)="+matcher.group(4));
+		}else{
+			MyLog.D("not match:"+str);
+		}
+    }
+    int AudioDur = ACTION_RECORD_DUR;
+    private void getAudioCode(String str){
+    	//Pattern pattern = Pattern.compile("\\*MG2000CA(.+)#");// *MG2000CH(.),23.124,nskdh#
+    	Pattern pattern = Pattern.compile("\\*MG2011BAE,(\\d+),(\\d+)#");
+		Matcher matcher = pattern.matcher(str);
+		if(matcher.find()){
+			OrderCode = matcher.group(1);
+			try{
+				AudioDur = Integer.parseInt(matcher.group(2));
+			}catch(NumberFormatException e){
+				AudioDur = 10;
+			}
+			MyLog.D("mTakePerson:group(1)="+matcher.group(1)+",group(2)="+matcher.group(2));
+		}else{
+			MyLog.D("not match:"+str);
+		}
+    }
+
+    private void getVibrateLevel(String str){
+    	Pattern pattern = Pattern.compile("*MG2011AH\\(T(\\d)\\)#");
+		Matcher matcher = pattern.matcher(str);
+		int level = 0;
+		if(matcher.find()){
+			try{
+				level = Integer.parseInt(matcher.group(2));
+			}catch(NumberFormatException e){
+				level = 2;
+			}
+			QuickShPref.getInstance().putValueObject(QuickShPref.VIBRATE_LV, level);
+			mShakeListener.refreshVibrateLevel();
+			MyLog.D("mTakePerson"+ str +":group(1)="+matcher.group(1));
+		}else{
+			MyLog.D("not match:"+str);
+		}
+    }
 }

@@ -39,7 +39,7 @@ import com.example.cloudmirror.service.DataSyncService;
 import com.example.cloudmirror.ui.widget.VoliceInView;
 import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 import com.mapgoo.volice.api.Config;
 import com.mapgoo.volice.api.Constants;
 import com.mapgoo.volice.api.VoliceSpeeh;
@@ -117,7 +117,7 @@ public class VoliceRecActivity extends ActionBarActivity {
 	    	   boolean startFromVoice = getIntent().getBooleanExtra("startfromvoice", false);
 	    	   int startRes = R.string.volice_start;
 	    	   if(startFromVoice){
-	    		   startRes = R.string.volice_start_short;
+	    		   //startRes = R.string.volice_start_short;
 	    	   }
 			  mResultAnasy.addAnswer(getString(startRes)+(hasEnter?"":"您可以说：导航到天安门"), new Runnable() {
 							@Override
@@ -281,14 +281,15 @@ public class VoliceRecActivity extends ActionBarActivity {
         }
         mAm.abandonAudioFocus(mOnAudioFocusChangeListener);
         new Handler().postDelayed(new Runnable() {
-			
 			@Override
 			public void run() {
 				// TODO Auto-generated method stub
 				startService(new Intent(VoliceRecActivity.this, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_START));
 			}
-		}, 1000);
-		
+		}, 500);
+		if(mLocClient!=null){
+			mLocClient.stop();
+		}
     }
     
     public void onClick(View v){
@@ -375,7 +376,7 @@ public class VoliceRecActivity extends ActionBarActivity {
 		//option.setOpenGps(true);// 打开gps
 		option.setLocationMode(LocationMode.Hight_Accuracy);
 		option.setCoorType("bd09ll"); // 设置坐标类型
-		option.setScanSpan(10000);
+		option.setScanSpan(30000);
 		option.setIsNeedAddress(true);
 		mLocClient.setLocOption(option);
 

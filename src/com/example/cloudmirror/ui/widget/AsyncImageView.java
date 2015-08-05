@@ -11,17 +11,17 @@ import android.widget.ImageView;
 public class AsyncImageView extends ImageView {
 	public AsyncImageView(Context paramContext) {
 		super(paramContext);
-		setScaleType(ImageView.ScaleType.CENTER_CROP);
+		//setScaleType(ImageView.ScaleType.CENTER_CROP);
 	}
 
 	public AsyncImageView(Context paramContext, AttributeSet paramAttributeSet) {
 		super(paramContext, paramAttributeSet);
-		setScaleType(ImageView.ScaleType.CENTER_CROP);
+		//setScaleType(ImageView.ScaleType.CENTER_CROP);
 	}
 
 	public AsyncImageView(Context paramContext, AttributeSet paramAttributeSet, int paramInt) {
 		super(paramContext, paramAttributeSet, paramInt);
-		setScaleType(ImageView.ScaleType.CENTER_CROP);
+		//setScaleType(ImageView.ScaleType.CENTER_CROP);
 	}
 
 	public final void setImage(String url, int imgResId, BitmapDisplayer bitmapDisplayer) {

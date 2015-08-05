@@ -7,6 +7,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import android.os.Handler;
+import android.os.Message;
+
 import com.example.cloudmirror.utils.DBmanager;
 import com.example.cloudmirror.utils.DBmanager.DbItem;
 import com.example.cloudmirror.utils.MyLog;
@@ -20,7 +23,8 @@ public class NetWork {
 	private InputStream mSocketReader;
 	private OutputStream mSocketWriter;
 	private DBmanager mDBmanager;
-	
+	private Handler mHandler;
+	private Thread mMainThread;
 	public final  static int ReConnectTime = 30*1000;
 	
 	private boolean NetWorkConnect = false;
@@ -28,9 +32,12 @@ public class NetWork {
 	public NetWork(){
 		mDBmanager = DBmanager.getInase();
 	}
-	
+	public NetWork(Handler h){
+		mHandler = h;
+		mDBmanager = DBmanager.getInase();
+	}
 	public void start(){
-		new Thread(){
+		mMainThread =new Thread(){
 
 			@Override
 			public void run() {
@@ -39,7 +46,8 @@ public class NetWork {
 				mainRun();
 			}
 			
-		}.start();
+		};
+		mMainThread.start();
 	}
 	
 	public void mainRun(){
@@ -51,15 +59,15 @@ public class NetWork {
 				
 				if(sendMsg(item.content)){
 					mDBmanager.deleteItem(item.id);
-					sleep(200);
+					msleep(200);
 				}else{
-					sleep(ReConnectTime);
+					msleep(ReConnectTime);
 					reStartSocket();
 				}
 				
 			}else{
 				MyLog.D("没有数据,等待30秒");
-				sleep(ReConnectTime);
+				msleep(ReConnectTime*10);
 			}
 		
 		}
@@ -119,7 +127,7 @@ public class NetWork {
 			mSocket.setKeepAlive(true);
 			mSocket.setTcpNoDelay(true);
 			//mSocket.setSoTimeout(5000);// 设置超时时间(毫秒)
-
+			//startRead();
 			mSocketReader = mSocket.getInputStream();
 			mSocketWriter = mSocket.getOutputStream();	
 			MyLog.D("socket连接成功");
@@ -129,8 +137,38 @@ public class NetWork {
 			closeNet();
 		}
 	}
-
-	
+	private void startRead(){
+		new Thread(){
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				super.run();
+				while(mSocket!=null&&mSocket.isConnected()){
+					try {
+						InputStream in = mSocket.getInputStream();
+						byte[] buffer = new byte[30];
+						in.read(buffer);	
+						
+						if(buffer[0]!=0){
+							sendMessage(new String(buffer));
+						}else{
+							msleep(10*1000);
+						}
+					}catch(IOException e){
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
+	}
+	private void sendMessage(String msg){
+		Message message = new Message();
+		message.what = 1;
+		message.obj = msg;
+		mHandler.sendMessage(message);
+		MyLog.D("sendMessage msg="+msg);
+	}
 	public boolean isNetWorkConnect(){
 		if(mSocketWriter == null){
 			if(NetWorkConnect)
@@ -144,7 +182,7 @@ public class NetWork {
 			return true;
 		}
 	}
-	public void sleep(int dur){
+	public void msleep(int dur){
 		
 		try {
 			Thread.sleep(dur);

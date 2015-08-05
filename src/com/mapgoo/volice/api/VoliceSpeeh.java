@@ -16,10 +16,10 @@ import com.baidu.speechsynthesizer.SpeechSynthesizerListener;
 import com.baidu.speechsynthesizer.publicutility.DataInfoUtils;
 import com.baidu.speechsynthesizer.publicutility.SpeechError;
 import com.baidu.speechsynthesizer.publicutility.SpeechLogger;
-import com.mapgoo.eagle.R;
+import com.mapgoo.carlife.main.R;
 
 public class VoliceSpeeh implements SpeechSynthesizerListener {
-	private Activity mActivity;
+	private Context mActivity;
 	private SpeechSynthesizer speechSynthesizer;
 	private OnSpeechChangeListener mOnSpeechChangeListener;
 	public static interface OnSpeechChangeListener{
@@ -30,6 +30,11 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
     private static final String LICENCE_FILE_NAME = Environment.getExternalStorageDirectory()
             + "/tts/baidu_tts_licence.dat";
     public VoliceSpeeh(Activity a,OnSpeechChangeListener l){
+    	mActivity = a;
+    	mOnSpeechChangeListener = l;
+    	init();
+    }
+    public VoliceSpeeh(Context a,OnSpeechChangeListener l){
     	mActivity = a;
     	mOnSpeechChangeListener = l;
     	init();
@@ -98,7 +103,9 @@ public class VoliceSpeeh implements SpeechSynthesizerListener {
         DataInfoUtils.getDataFileParam(ttsTextModelFilePath, DataInfoUtils.TTS_DATA_PARAM_LANGUAGE);
         speechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEED, "6");
         speechSynthesizer.initEngine();
-        mActivity. setVolumeControlStream(AudioManager.STREAM_MUSIC);  	
+        if(mActivity instanceof Activity){
+        	((Activity)mActivity). setVolumeControlStream(AudioManager.STREAM_MUSIC); 
+        }
     }
 	@Override
 	public void onBufferProgressChanged(SpeechSynthesizer arg0, int arg1) {

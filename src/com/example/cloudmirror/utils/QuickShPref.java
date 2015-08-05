@@ -11,6 +11,13 @@ public class QuickShPref {
 	public final static String VOICE = "voice";
 	public final static String HAS_ENTER = "hasenter";	
 	public final static String UPLOAD_CONTACTS = "UPLOAD_CONTACTS";
+	public final static String ISRUNNING = "isrunning";
+	public final static String LEFT = "left";
+	public final static String TOP = "top";
+	public final static String WIDTH = "width";
+	public final static String HEIGHT = "height";
+	public final static String WEINXIN = "wein_url";
+	public final static String VIBRATE_LV = "vibrate_level";
 	
 	private static QuickShPref mInstace;
 	
@@ -18,7 +25,7 @@ public class QuickShPref {
 	private Editor sEditor;
 
 	private QuickShPref(Context c){
-		sSharedPreferences = c.getSharedPreferences(c.getPackageName(),Context.MODE_PRIVATE);
+		sSharedPreferences = c.getSharedPreferences(c.getPackageName(),Context.MODE_MULTI_PROCESS|Context.MODE_WORLD_READABLE);
 		sEditor = sSharedPreferences.edit();	
 	}
 	public static void  init(Context c){

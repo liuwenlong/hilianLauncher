@@ -21,6 +21,7 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.example.cloudmirror.application.MGApp;
 import com.example.cloudmirror.utils.DBmanager;
+import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
 
 /**
@@ -285,24 +286,41 @@ public class ApiClient {
 		 _GET_WITH_LISTENERS(URLs.CAR_HOME, null, reqParams, reqStartListener, responseListener, errorListener);
 		 return null;
 	}
-	public static void postImage(String content,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
+	public static void postImage(String content,String filename,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
 		Map<String, Object> reqBodyParams = new HashMap<String, Object>();	
 		reqBodyParams.put("uid",(int)7623);
-		reqBodyParams.put("image", content);
-		//reqBodyParams.put("filename", "mypic.jpg");
-		//	reqBodyParams.put("extend", "s");
-
+		reqBodyParams.put("mediaVal", content);
+		reqBodyParams.put("filename",filename);
+		reqBodyParams.put("mediaType", "image");
+		reqBodyParams.put("format", "jpg");
 		_POST_WITH_LISTENERS(URLs.IMG_UPLOAD, null, null, reqBodyParams, reqStartListener, responseListener, errorListener);
 	}
-	public static void postVideo(String content,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
+	public static void postVideo(String content,String filename,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
 		Map<String, Object> reqBodyParams = new HashMap<String, Object>();	
 		reqBodyParams.put("uid",(int)7623);
-		reqBodyParams.put("video", content);
-		//reqBodyParams.put("video", "sss");
-		reqBodyParams.put("filename", "");
-		reqBodyParams.put("format", "3gp");
-		//	reqBodyParams.put("extend", "s");
-
+		reqBodyParams.put("mediaVal", content);
+		reqBodyParams.put("filename", filename);
+		reqBodyParams.put("mediaType", "video");
+		reqBodyParams.put("format", "mp4");
+		
 		_POST_WITH_LISTENERS(URLs.VIDEO_UPLOAD, null, null, reqBodyParams, reqStartListener, responseListener, errorListener);
+	}
+
+	public static Request<JSONObject> getWeather(String lon, String lat, onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
+		Map<String, String> reqParams = new HashMap<String, String>();
+		reqParams.put("lon", lon);
+		reqParams.put("lat", lat);
+		reqParams.put("future", "1");
+		reqParams.put("ak", getToken());
+		
+		 _GET_WITH_LISTENERS(URLs.OPEN_WEATHER, null, reqParams, reqStartListener, responseListener, errorListener);
+		 return null;
+	}
+	public static Request<JSONObject> getWeixinCode(onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
+		Map<String, String> reqParams = new HashMap<String, String>();
+		reqParams.put("imei", QuickShPref.getInstance().getString(QuickShPref.IEMI));
+		reqParams.put("appkey", getAppKey());
+		 _GET_WITH_LISTENERS(URLs.OPEN_WEIXIN, null, reqParams, reqStartListener, responseListener, errorListener);
+		 return null;
 	}
 }
