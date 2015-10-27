@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -45,8 +46,10 @@ public class DataSyncService extends Service {
 		Log.i(TAG, "Received start id " + startId + ": " + intent);
 		if (intent != null && intent.getExtras() != null) {
 		}
-    	startService(new Intent("intent.action.mapgoo.volice.call"));
-    	startService(new Intent("intent.action.mapgoo.data.sync"));
+		if(Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT){
+	    	startService(new Intent("intent.action.mapgoo.volice.call"));
+	    	startService(new Intent("intent.action.mapgoo.data.sync"));
+		}
 		return START_STICKY;
 	}
 
