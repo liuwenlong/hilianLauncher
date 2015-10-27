@@ -17,7 +17,6 @@
 
         <activity
             android:name="com.example.cloudmirror.ui.MainActivity"
-            
              android:screenOrientation="landscape"
             android:label="@string/app_name" >
             <intent-filter>
@@ -59,9 +58,7 @@
         <service
             android:name="com.example.cloudmirror.service.DataSyncService"
             android:enabled="true" />
-          <service
-            android:name="com.example.cloudmirror.service.FxService"
-            android:enabled="true" />      
+  
         <!-- 车牌品牌的选择 -->
         <activity
             android:name="com.example.cloudmirror.ui.activity.CarBrandUpdateActivity"
@@ -114,14 +111,7 @@
             android:name="com.mapgoo.volice.ui.NaviAdrSelectActivity"
             android:screenOrientation="landscape"
             android:configChanges="keyboardHidden|orientation" />          
-                
-          
-        <!-- ContentProvider 用来给第三方APP访问蓝牙联系人 -->
-        <provider android:name="com.concox.bluetooth.contentprovider.TelContentProvider"  
-            android:authorities="com.mapgoo.eagle.contentprovider.TelContentProvider"
-            android:exported="true"
-            android:multiprocess="true"
-            />
+
     </application>
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

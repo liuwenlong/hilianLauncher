@@ -1,18 +1,15 @@
 package com.example.cloudmirror.ui;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.mapgoo.carlife.main.R;
-import com.mapgoo.volice.ui.NaviAdrSelectActivity;
-import com.mapgoo.volice.ui.VoliceRecActivity;
-import com.mapgoo.volice.ui.VoliceRecActivity.MyLocationListenner;
 import com.alibaba.fastjson.JSON;
 import com.android.volley.Response.Listener;
 import com.baidu.location.BDLocation;
@@ -27,77 +24,40 @@ import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
 import com.baidu.mapapi.utils.route.RouteParaOption;
 import com.example.cloudmirror.api.ApiClient;
 import com.example.cloudmirror.api.GlobalNetErrorHandler;
-import com.example.cloudmirror.api.ApiClient.onReqStartListener;
 import com.example.cloudmirror.api.LatlngFactory;
 import com.example.cloudmirror.bean.CarHomeBean;
-import com.example.cloudmirror.bean.VoiceYesNoBean;
 import com.example.cloudmirror.bean.CarHomeBean.AdvBean;
 import com.example.cloudmirror.bean.Weather;
 import com.example.cloudmirror.service.DataSyncService;
-import com.example.cloudmirror.service.FxService;
-import com.example.cloudmirror.ui.HomeMoreActivity.ShortcutItem;
-import com.example.cloudmirror.ui.activity.CarBrandUpdateActivity;
 import com.example.cloudmirror.ui.activity.GasStationActivity;
-import com.example.cloudmirror.ui.activity.GetInvadationCodeActivity;
 import com.example.cloudmirror.ui.widget.AsyncImageView;
 import com.example.cloudmirror.ui.widget.FlipperIndicatorDotView;
 import com.example.cloudmirror.ui.widget.RoundedRectangleBitmapDisplayer;
-import com.example.cloudmirror.ui.widget.SimpleDialogBuilder;
-import com.example.cloudmirror.utils.Base64Util;
-import com.example.cloudmirror.utils.ImageUtils;
 import com.example.cloudmirror.utils.MyLog;
 import com.example.cloudmirror.utils.QuickShPref;
 import com.example.cloudmirror.utils.StringUtils;
-import com.google.gson.JsonArray;
-
 import de.greenrobot.event.EventBus;
-
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.ActionBarActivity;
-import android.telephony.TelephonyManager;
-import android.util.Base64;
-import android.util.Log;
-import android.util.Xml.Encoding;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceHolder.Callback;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ImageView.ScaleType;
 import android.widget.Toast;
 
 
@@ -129,12 +89,6 @@ public class MainActivity extends BaseActivity{
 		// TODO Auto-generated method stub
 		setContentView(R.layout.activity_main_3);
 		EventBus.getDefault().register(this);
-		
-		printApp();
-		
-		startService(new Intent(mContext, DataSyncService.class).putExtra(DataSyncService.COMMAND, DataSyncService.COMMAND_NONE));
-		startService(new Intent(mContext, FxService.class));
-
 	}
 	
 	@Override
@@ -191,6 +145,11 @@ public class MainActivity extends BaseActivity{
 				//MyLog.D("----->onPageSelected:arg0="+arg0);
 				mSelectPage = arg0;
 				((ImageView)findViewById(R.id.home_page_index)).setImageResource(pageIndex[arg0]);
+				if(arg0 == 0){
+					sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
+				}else{
+					sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
+				}
 			}
 		});
 	}
@@ -200,9 +159,9 @@ public class MainActivity extends BaseActivity{
 	protected void handleData() {
 		// TODO Auto-generated method stub
 		 refreshHome();
-		 VoliceRecActivity.getVoiceYseNo(this);
 		 updateLockTime();
 		 //locationInit();
+		 startService(new Intent(this,DataSyncService.class));
 	}
 
 	CarHomeBean mCarHomeBean;
@@ -269,9 +228,7 @@ public class MainActivity extends BaseActivity{
 			case R.id.home_more:
 				startActivity(new Intent(mContext, HomeMoreActivity.class));
 				break;
-			case R.id.home_click_volice:
-				startActivity(new Intent(mContext, VoliceRecActivity.class));
-				break;
+
 			case R.id.home_icon_blue_btn:
 				startActivity(this,"com.concox.bluetooth","com.concox.bluetooth.MainActivity",null); 
 				//startToCarRecord(RECORD_ACTION, RECORD_MODE_HIDE);
@@ -303,17 +260,20 @@ public class MainActivity extends BaseActivity{
     }
     
 	public static boolean startActivity(Context context,String pkg,String cls,String name){
+		boolean ret;
 		try{
 			Intent intent = new Intent().setClassName(pkg, cls);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 			intent.addCategory(Intent.CATEGORY_LAUNCHER);
 			context.startActivity(intent);
-			return true;
+			ret =  true;
 		}catch(Exception e){
 			if(!StringUtils.isEmpty(name))
 				Toast.makeText(context, name, Toast.LENGTH_SHORT).show();
-			return false;
+			ret =  false;
 		}
+		MyLog.D("startActivity "+pkg+","+ret);
+		return ret;
 	}
 	private void startActivity(String pkg,String cls,String name){
 		MainActivity.startActivity(this, pkg, cls, name);
@@ -336,16 +296,7 @@ public class MainActivity extends BaseActivity{
 					intent.putExtra("PhoneNum", Num);
 					context.startActivity(intent);
 				}else{
-					Intent intentp = new Intent().setClassName("com.concox.bluetooth","com.concox.bluetooth.MainActivity");
-					intentp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					intentp.putExtra("PhoneNum", Num);
-					context.startActivity(intentp);		
-					
-					Intent intent = new Intent(DataSyncService.ACTION_CW);
-					Bundle bundle = new Bundle();
-					bundle.putString("Number", Num);
-					intent.putExtras(bundle);
-					context.sendBroadcast(intent);
+
 				}
 			}catch(Exception e){
 				e.printStackTrace();
@@ -371,8 +322,10 @@ public class MainActivity extends BaseActivity{
 	}
 	
 	public void onEventMainThread(String result) {
-		getCarHome();
-		getWeather(mBDLocation);
+		if(result.equalsIgnoreCase("NetWorkConnect")){
+			getCarHome();
+			//getWeather(mBDLocation);
+		}
 	}
 	
 	@Override
@@ -598,26 +551,28 @@ public class MainActivity extends BaseActivity{
 	ShortcutItem  shortcutGP = new ShortcutItem(R.drawable.home_more_gupiao,R.string.home_more_gupiao){
 		@Override
 		protected void doAction() {
-			//sendBroadcast(new Intent("action.start.recorder"));
-			sendBroadcast(new Intent("com.hilan.car.exit"));
+			sendBroadcast(new Intent("action.start.recorder"));
+			//sendBroadcast(new Intent("com.hilan.car.exit"));
 		}
 	};
 	ShortcutItem  shortcutDHANG = new ShortcutItem(R.drawable.new_home_icon_dhang,R.string.home_item_dhang){
 		@Override
 		protected void doAction() {
-			startActivity(mContext, "com.baidu.navi.hd", "com.baidu.navi.NaviActivity", null);
+			//startActivity(mContext, "com.baidu.navi.hd", "com.baidu.navi.NaviActivity", null);
+			startActivity(mContext,"com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
 		}
 	};
 	ShortcutItem  shortcutYYUE = new ShortcutItem(R.drawable.new_home_icon_yy,R.string.home_item_yy){
 		@Override
 		protected void doAction() {
-			startActivity(mContext, "com.android.music", "com.android.music.MusicBrowserActivity", null);
+			//startActivity(mContext, "com.android.music", "com.android.music.MusicBrowserActivity", null);
+			startActivity(mContext, "com.mapgoo.music", "com.mapgoo.music.MusicActivity", null);
 		}
 	};
 	ShortcutItem  shortcutYYZS = new ShortcutItem(R.drawable.home_item_yyzs,R.string.home_item_yyzs){
 		@Override
 		protected void doAction() {
-			startActivity(new Intent(mContext, VoliceRecActivity.class));
+			//startActivity(new Intent(mContext, VoliceRecActivity.class));
 			//startActivity(new Intent(mContext, NaviAdrSelectActivity.class));
 		}
 	};
@@ -631,7 +586,7 @@ public class MainActivity extends BaseActivity{
 	ShortcutItem  shortcutDHUA = new ShortcutItem(R.drawable.new_home_icon_dhua,R.string.home_item_dhua){
 		@Override
 		protected void doAction() {
-			startActivity(mContext, "com.android.dialer", "com.android.dialer.DialtactsActivity", null);
+			startActivity(mContext, "com.concox.bluetooth", "com.concox.bluetooth.MainActivity", null);
 		}
 	};
 	ShortcutItem  shortcutGD = new ShortcutItem(R.drawable.home_item_gd,R.string.home_item_gd){
@@ -644,7 +599,8 @@ public class MainActivity extends BaseActivity{
 	ShortcutItem  shortcutXCZS = new ShortcutItem(R.drawable.new_home_icon_xczs,R.string.home_more_xczs){
 		@Override
 		protected void doAction(){
-			startActivity("com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity", null);
+			if(startActivity(mContext,"com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity", null) == false)
+			 startActivity(mContext,"com.mapgoo.rcx.core", "com.example.cloudmirror.ui.RcxCoreActivity", getString(R.string.home_more_zhushou));
 		}
 	};
 	ShortcutItem  shortcutWZCX = new ShortcutItem(R.drawable.new_home_icon_wzcx,R.string.home_more_wzcx){
@@ -694,22 +650,26 @@ public class MainActivity extends BaseActivity{
 	ShortcutItem  shortcutFM = new ShortcutItem(R.drawable.new_home_icon_fm,R.string.home_more_fm){
 		@Override
 		protected void doAction(){
-			startActivity("com.hilan.fm","com.hilan.fm.activity.MainActivity",null);
+			startActivity("com.hilan.fm82","com.hilan.fm.activity.MainActivity",null);
 		}
 	};
 	private void getRectForRecorder(){
 		if(QuickShPref.getInstance().getInt(QuickShPref.WIDTH)<=0){
 			View p = findViewById(R.id.function_item_4);
-			View r = p.findViewById(R.id.home_more_item_icon);
+			ImageView r = (ImageView)p.findViewById(R.id.home_more_item_icon);
 			Rect rect = new Rect();
 			
-			r.getGlobalVisibleRect(rect);		
+			r.getGlobalVisibleRect(rect);	
+
 			MyLog.D("top="+rect.top +",left="+rect.left+",width="+rect.width()+",height="+rect.height());
 			
 			int t = rect.top;
 			int l = rect.left;
 			int w = rect.width();
 			int h = rect.height();
+			int d = w - h;
+			w = h;
+			l = l + d/2;
 			
 			QuickShPref.getInstance().putValueObject(QuickShPref.TOP, t);
 			QuickShPref.getInstance().putValueObject(QuickShPref.LEFT, l);
@@ -757,7 +717,7 @@ public class MainActivity extends BaseActivity{
 				mBDLocation = location;
 				mLocLatLng = LatlngFactory.CreatefromDouble(location.getLatitude(), location.getLongitude());
 				if(!mGetWeatherSuccess){
-					getWeather(location);
+					//getWeather(location);
 					mGetWeatherSuccess = true;
 				}
 				MyLog.D("主界面定位 lat="+location.getLatitude()+",lon="+location.getLongitude());
@@ -770,7 +730,6 @@ public class MainActivity extends BaseActivity{
 	public void getWeather(BDLocation location){
 		if(location!=null)
 			ApiClient.getWeather(String.valueOf(location.getLongitude()), String.valueOf(location.getLatitude()), null, new Listener<JSONObject>() {
-	
 				@Override
 				public void onResponse(JSONObject response) {
 					// TODO Auto-generated method stub
@@ -781,12 +740,39 @@ public class MainActivity extends BaseActivity{
 						((TextView)findViewById(R.id.home_weather_temple)).setText(weather.getTemperature());
 						((TextView)findViewById(R.id.home_weather_txt)).setText(weather.getWeather());
 						((AsyncImageView)findViewById(R.id.iv_weather_icon)).setImage(weather.getWeather_icon_url(), R.drawable.weather_default, new RoundedRectangleBitmapDisplayer(0));
-						
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
 			}, GlobalNetErrorHandler.getInstance(mContext, null, null));
+	}
+	
+	public void getMusic(String str){
+		ApiClient.getMusic(str,null,new Listener<String>() {
+			@Override
+			public void onResponse(String response) {
+				// TODO Auto-generated method stub
+				MyLog.D(""+response.toString());
+				getMusicAdr(response);
+			}
+		}, GlobalNetErrorHandler.getInstance(mContext, null, null));
+	}
+	private void getMusicAdr(String response){
+		Pattern pattern = Pattern
+				.compile(".+<url><encode><.\\[CDATA\\[(.*)\\]\\]></encode><decode><.\\[CDATA\\[(.*mid.*)\\]\\]></decode><type>.</type><lrcid>.</lrcid><flag>.</flag></url>.+");// *MG2000CH(.),23.124,nskdh#
+		Matcher matcher = pattern.matcher(response);
+		if(matcher.find()){
+			startBrowser(matcher.group(1)+matcher.group(2));
+			MyLog.D("mTakePerson:"+matcher.group(1)+matcher.group(2));
+		}else{
+			MyLog.D("not match:"+response);
+		}
+	}
+	private void startBrowser(String url) {
+			Intent it = new Intent(Intent.ACTION_VIEW);
+			Uri uri = Uri.parse(url);
+			it.setDataAndType(uri, "audio/*");
+			startActivity(it);
 	}
 }

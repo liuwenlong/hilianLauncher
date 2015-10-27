@@ -293,6 +293,7 @@ public class ApiClient {
 		reqBodyParams.put("filename",filename);
 		reqBodyParams.put("mediaType", "image");
 		reqBodyParams.put("format", "jpg");
+		MyLog.D("postImage:"+reqBodyParams.toString());
 		_POST_WITH_LISTENERS(URLs.IMG_UPLOAD, null, null, reqBodyParams, reqStartListener, responseListener, errorListener);
 	}
 	public static void postVideo(String content,String filename,onReqStartListener reqStartListener,Listener<JSONObject> responseListener,ErrorListener errorListener) {
@@ -302,7 +303,7 @@ public class ApiClient {
 		reqBodyParams.put("filename", filename);
 		reqBodyParams.put("mediaType", "video");
 		reqBodyParams.put("format", "mp4");
-		
+		MyLog.D("postVideo:"+reqBodyParams.toString());
 		_POST_WITH_LISTENERS(URLs.VIDEO_UPLOAD, null, null, reqBodyParams, reqStartListener, responseListener, errorListener);
 	}
 
@@ -321,6 +322,15 @@ public class ApiClient {
 		reqParams.put("imei", QuickShPref.getInstance().getString(QuickShPref.IEMI));
 		reqParams.put("appkey", getAppKey());
 		 _GET_WITH_LISTENERS(URLs.OPEN_WEIXIN, null, reqParams, reqStartListener, responseListener, errorListener);
+		 return null;
+	}
+	public static Request<JSONObject> getMusic(String keywords,onReqStartListener reqStartListener,Listener<String> responseListener,ErrorListener errorListener) {
+		Map<String, String> reqParams = new HashMap<String, String>();
+		reqParams.put("op", "12");
+		reqParams.put("count", "1");
+		reqParams.put("title", keywords);
+		
+		_GET_WITH_LISTENERS_REQ_STRING(URLs.BAIDU_OPEN_MUSIC, null, reqParams, reqStartListener, responseListener, errorListener);
 		 return null;
 	}
 }

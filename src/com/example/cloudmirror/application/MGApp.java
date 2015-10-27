@@ -1,6 +1,5 @@
 package com.example.cloudmirror.application;
 
-import com.baidu.android.domain.ResultAnasy;
 import com.baidu.mapapi.SDKInitializer;
 import com.car.brand.db.AppInitUtils;
 import com.example.cloudmirror.api.ApiClient;
@@ -9,12 +8,10 @@ import com.example.cloudmirror.utils.DBmanager;
 import com.example.cloudmirror.utils.DatabaseHelper;
 import com.example.cloudmirror.utils.QuickShPref;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.mapgoo.volice.api.VoliceSpeeh;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-
 import android.app.Application;
 import android.app.Notification;
 import android.content.Context;

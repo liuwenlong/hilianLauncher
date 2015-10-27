@@ -100,5 +100,5 @@ public class URLs implements Serializable {
 	public final static String VIDEO_UPLOAD = IMG_UPLOAD;
 	public final static String OPEN_WEATHER = "http://open.u12580.com/api/v1/weather";
 	public final static String OPEN_WEIXIN = "http://open.u12580.com/api/v1/qrcode";
-	
+	public final static String BAIDU_OPEN_MUSIC = "http://box.zhangmen.baidu.com/x";
 }

@@ -8,6 +8,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.widget.Toast;
 
 /**
  * 一个检测手机摇晃的监听器
@@ -132,6 +133,7 @@ public class ShakeListener implements SensorEventListener {
 	
 	public void refreshVibrateLevel(){
 		mVibrateLevel = QuickShPref.getInstance().getInt(QuickShPref.VIBRATE_LV);
+		Toast.makeText(mContext, "震动等级设置成功", Toast.LENGTH_SHORT).show();
 	}
 	//当传感器精度改变时回调该方法
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
