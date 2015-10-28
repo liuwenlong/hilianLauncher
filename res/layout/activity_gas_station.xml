@@ -1,67 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#2c3849">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#2c3849"
+    android:orientation="vertical" >
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:orientation="horizontal">
- <LinearLayout
-        android:layout_width="100dp"
-        android:layout_height="60dp" 
-        android:onClick="onClick"
-         android:id="@+id/gas_stition_left_memu_l"
-         android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/gas_stition_left_memu"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/iv_arrow_back"
-            android:paddingLeft="10dp"
-            android:clickable="true"
-            android:onClick="onClick"/>
-</LinearLayout>
-        
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:id="@+id/gas_stition_left_memu_l"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            android:onClick="onClick"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:id="@+id/gas_stition_left_memu"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:onClick="onClick"
+                android:paddingLeft="10dp"
+                android:src="@drawable/iv_arrow_back" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/gas_stition_right_menu"
             android:layout_width="100dp"
             android:layout_height="match_parent"
-            android:textColor="#ffffff"
-            android:textSize="22sp"
-            android:paddingRight="20dp"
-            android:gravity="right|center_vertical"
-            android:text="地图"
-            android:clickable="true"
-            android:onClick="onClick"
-            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
-        
+            android:layout_alignParentTop="true"
+            android:clickable="true"
+            android:gravity="right|center_vertical"
+            android:onClick="onClick"
+            android:paddingRight="20dp"
+            android:text="地图"
+            android:textColor="#ffffff"
+            android:textSize="22sp" />
     </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/vPager_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="9">
+            android:layout_weight="9" >
+
             <android.support.v4.view.ViewPager
                 android:id="@+id/vPager"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content" >
             </android.support.v4.view.ViewPager>
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1" >
+
             <com.example.cloudmirror.ui.widget.FlipperIndicatorDotView
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/vPager_Indicator"
@@ -74,21 +80,37 @@
                 app:point_size="10dp"
                 app:space="10dp" />
         </LinearLayout>
-
     </LinearLayout>
-    <com.baidu.mapapi.map.MapView
-        android:id="@+id/mMapView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:visibility="gone" />
 
-    <TextView
-        android:id="@+id/errorTv"
+    <LinearLayout
+        android:id="@+id/map_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="抱歉，没有搜索到您要的结果！"
-        android:gravity="center"
-        android:textColor="#ffffff"
-        android:visibility="gone"  />
+        android:orientation="vertical" 
+        android:visibility="gone" >
+
+        <com.baidu.mapapi.map.MapView
+            android:id="@+id/mMapView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="7"
+            android:clickable="true" />
+
+        <TextView
+            android:id="@+id/errorTv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="抱歉，没有搜索到您要的结果！"
+            android:textColor="#ffffff"
+            android:visibility="gone" />
+
+        <android.support.v4.view.ViewPager
+                android:id="@+id/map_view_vPager"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" >
+            </android.support.v4.view.ViewPager>
+    </LinearLayout>
+
 </LinearLayout>

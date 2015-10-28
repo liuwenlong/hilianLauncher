@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="#2c3849"
-    android:orientation="vertical">
-
+    android:orientation="vertical" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="40dp"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -15,82 +16,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#1a212c"
             android:layout_marginLeft="10dp"
-            android:layout_marginBottom="40dp"
             android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2.5"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/gas_stition_station1_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1.加油站"
-                    android:layout_margin="10dp"
-                    android:textSize="20sp"
-                    android:textColor="#ffffff"/>
-
-                <TextView
-                    android:id="@+id/gas_stition_station1_road"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="（沙探路店）"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="18sp"
-                    android:textColor="#ffffff"/>
-                <TextView
-                    android:id="@+id/gas_stition_station1_address"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="沙探路127号"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginTop="10dp"
-                    android:textSize="16sp"
-                    android:textColor="#ababab"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#000000"/>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                    <TextView
-                        android:id="@+id/gas_stition_station1_distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="585.5米"
-                        android:textSize="22sp"
-                        android:textColor="#00a9fa"
-                        android:layout_alignParentLeft="false"
-                        android:layout_alignParentStart="false"
-                        android:layout_centerInParent="true" />
-                    <TextView
-                        android:id="@+id/gas_stition_station1_daohang"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="导航"
-                        android:textSize="18sp"
-                        android:textColor="#00a9fa"
-                        android:layout_marginRight="10dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_alignBottom="@+id/gas_stition_station1_distance"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentEnd="true"
-                        android:visibility="gone" />
-
-                </RelativeLayout>
-            </LinearLayout>
+            
         </LinearLayout>
 
 
@@ -100,81 +28,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#1a212c"
             android:layout_marginLeft="10dp"
-            android:layout_marginBottom="40dp"
             android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2.5"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/gas_stition_station2_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1.加油站"
-                    android:layout_margin="10dp"
-                    android:textSize="20sp"
-                    android:textColor="#ffffff"/>
-
-                <TextView
-                    android:id="@+id/gas_stition_station2_road"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="（沙探路店）"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="18sp"
-                    android:textColor="#ffffff"/>
-                <TextView
-                    android:id="@+id/gas_stition_station2_address"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="沙探路127号"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginTop="10dp"
-                    android:textSize="16sp"
-                    android:textColor="#ababab"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#000000"/>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                    <TextView
-                        android:id="@+id/gas_stition_station2_distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="585.5米"
-                        android:textSize="22sp"
-                        android:textColor="#00a9fa"
-                        android:layout_alignParentLeft="false"
-                        android:layout_alignParentStart="false"
-                        android:layout_centerInParent="true" />
-                    <TextView
-                        android:id="@+id/gas_stition_station2_daohang"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="导航"
-                        android:textSize="18sp"
-                        android:textColor="#00a9fa"
-                        android:layout_marginRight="10dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_alignBottom="@+id/gas_stition_station2_distance"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentEnd="true"
-                        android:visibility="gone" />
-
-                </RelativeLayout>
-            </LinearLayout>
-
+           
 
         </LinearLayout>
 
@@ -184,83 +40,10 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#1a212c"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="40dp"
             android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2.5"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/gas_stition_station3_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1.加油站"
-                    android:layout_margin="10dp"
-                    android:textSize="20sp"
-                    android:textColor="#ffffff"/>
-
-                <TextView
-                    android:id="@+id/gas_stition_station3_road"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="（沙探路店）"
-                    android:layout_marginLeft="10dp"
-                    android:textSize="18sp"
-                    android:textColor="#ffffff"/>
-                <TextView
-                    android:id="@+id/gas_stition_station3_address"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="沙探路127号"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginTop="10dp"
-                    android:textSize="16sp"
-                    android:textColor="#ababab"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#000000"/>
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                    <TextView
-                        android:id="@+id/gas_stition_station3_distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="585.5米"
-                        android:textSize="22sp"
-                        android:textColor="#00a9fa"
-                        android:layout_marginLeft="10dp"
-                        android:layout_alignParentLeft="false"
-                        android:layout_alignParentStart="false"
-                        android:layout_centerInParent="true" />
-                    <TextView
-                        android:id="@+id/gas_stition_station3_daohang"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="导航"
-                        android:textSize="18sp"
-                        android:textColor="#00a9fa"
-                        android:layout_marginRight="10dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_alignBottom="@+id/gas_stition_station3_distance"
-                        android:layout_alignParentRight="true"
-                        android:layout_alignParentEnd="true"
-                        android:visibility="gone" />
-
-                </RelativeLayout>
-            </LinearLayout>
+           
 
         </LinearLayout>
 
