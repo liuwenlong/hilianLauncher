@@ -115,41 +115,40 @@ public class MainActivity extends BaseActivity{
 		mViewPager.setOnPageChangeListener(new OnPageChangeListener(){
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-				//MyLog.D("----->onPageScrollStateChanged:arg0="+arg0);
-				mPageScrollStateChanged = arg0;
-				if(arg0 == 1){
-					mHandler.postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							if(mPageScrollStateChanged == 1){
-								if(mPageScrollOffsetX > 0){
-									sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
-								}else{
-									mHandler.postDelayed(this, 20);
-								}
-							}
-						}
-					}, 1);
-				}else if(arg0 == 0){
-					if(mSelectPage == 0)
-						sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
-				}
+//				mPageScrollStateChanged = arg0;
+//				if(arg0 == 1){
+//					mHandler.postDelayed(new Runnable() {
+//						@Override
+//						public void run() {
+//							if(mPageScrollStateChanged == 1){
+//								if(mPageScrollOffsetX > 0){
+//									sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
+//								}else{
+//									mHandler.postDelayed(this, 20);
+//								}
+//							}
+//						}
+//					}, 1);
+//				}else if(arg0 == 0){
+//					if(mSelectPage == 0)
+//						sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
+//				}
 			}
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
 				//MyLog.D("----->onPageScrolled:arg0="+arg0+",arg1="+arg1+",arg2="+arg2);
-				mPageScrollOffsetX = arg2;
+//				mPageScrollOffsetX = arg2;
 			}
 			@Override
 			public void onPageSelected(int arg0) {
 				//MyLog.D("----->onPageSelected:arg0="+arg0);
-				mSelectPage = arg0;
 				((ImageView)findViewById(R.id.home_page_index)).setImageResource(pageIndex[arg0]);
-				if(arg0 == 0){
-					sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
-				}else{
-					sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
-				}
+//				mSelectPage = arg0;
+//				if(arg0 == 0){
+//					sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
+//				}else{
+//					sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
+//				}
 			}
 		});
 	}
@@ -258,7 +257,22 @@ public class MainActivity extends BaseActivity{
         	MyLog.D("pack="+pack+"  ,name="+name+"  ,label="+label);
         }
     }
-    
+	public static boolean startActivity(Context context,String pkg,String cls,String name,int flag ){
+		boolean ret;
+		try{
+			Intent intent = new Intent().setClassName(pkg, cls);
+			intent.addFlags(flag);
+			intent.addCategory(Intent.CATEGORY_LAUNCHER);
+			context.startActivity(intent);
+			ret =  true;
+		}catch(Exception e){
+			if(!StringUtils.isEmpty(name))
+				Toast.makeText(context, name, Toast.LENGTH_SHORT).show();
+			ret =  false;
+		}
+		MyLog.D("startActivity "+pkg+","+ret);
+		return ret;
+	}
 	public static boolean startActivity(Context context,String pkg,String cls,String name){
 		boolean ret;
 		try{
@@ -495,10 +509,11 @@ public class MainActivity extends BaseActivity{
 		shortcutDHANG.setResShortcutId(v,resShortcutId[i]);i++;
 		shortcutYYUE.setResShortcutId(v,resShortcutId[i]);i++;
 		shortcutXCJLY.setResShortcutId(v,resShortcutId[i]);i++;
-		shortcutDT.setResShortcutId(v,resShortcutId[i]);i++;
-		shortcutDZG.setResShortcutId(v,resShortcutId[i]);i++;
+//		shortcutDT.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutTCC.setResShortcutId(v,resShortcutId[i]);i++;
 		shortcutJYZ.setResShortcutId(v,resShortcutId[i]);i++;
 		shortcutFM.setResShortcutId(v,resShortcutId[i]);i++;
+		shortcutXCZS.setResShortcutId(v,resShortcutId[i]);i++;
 	}
 	
 	private void initShortcutMenuPage2(View v){
@@ -508,8 +523,8 @@ public class MainActivity extends BaseActivity{
 		}
 		int i=0;
 		
-		shortcutXCZS.setResShortcutId(v,resShortcutId[i]);i++;
-		shortcutWZCX.setResShortcutId(v,resShortcutId[i]);i++;
+		
+//		shortcutWZCX.setResShortcutId(v,resShortcutId[i]);i++;
 		shortcutSP.setResShortcutId(v,resShortcutId[i]);i++;
 		shortcutSZ.setResShortcutId(v,resShortcutId[i]);i++;
 		shortcutGY.setResShortcutId(v,resShortcutId[i]);i++;
@@ -545,7 +560,11 @@ public class MainActivity extends BaseActivity{
 	ShortcutItem  shortcutXCJLY = new ShortcutItem(R.drawable.new_home_icon_jly,R.string.home_item_xcjly){
 		@Override
 		protected void doAction() {
-			startActivity(mContext, "com.hilan.carrecorder", "com.hilan.carrecorder.activity.MainActivity", null);
+			//startActivity(mContext, "com.hilan.carrecorder", "com.hilan.carrecorder.activity.SettingsActivity", null);
+			//sendBroadcast(new Intent("action.window.zoomout"));
+			Intent intent = new Intent().setClassName("com.hilan.carrecorder", "com.mapgoo.recorder.service.CameraRecorderService");
+			intent.setAction("action.window.zoomout");
+			startService(intent);
 		}
 	};
 	ShortcutItem  shortcutGP = new ShortcutItem(R.drawable.home_more_gupiao,R.string.home_more_gupiao){
@@ -600,7 +619,8 @@ public class MainActivity extends BaseActivity{
 		@Override
 		protected void doAction(){
 			if(startActivity(mContext,"com.mapgoo.diruite", "com.example.cloudmirror.ui.MainActivity", null) == false)
-			 startActivity(mContext,"com.mapgoo.rcx.core", "com.example.cloudmirror.ui.RcxCoreActivity", getString(R.string.home_more_zhushou));
+			 startActivity(mContext,"com.mapgoo.rcx.core", "com.example.cloudmirror.ui.RcxCoreActivity", getString(R.string.home_more_zhushou),
+					 Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
 		}
 	};
 	ShortcutItem  shortcutWZCX = new ShortcutItem(R.drawable.new_home_icon_wzcx,R.string.home_more_wzcx){
@@ -623,16 +643,23 @@ public class MainActivity extends BaseActivity{
 			startActivity(new Intent(mContext, GasStationActivity.class));
 		}
 	};
+	ShortcutItem  shortcutTCC = new ShortcutItem(R.drawable.new_home_icon_tcc,R.string.home_more_tcc){
+		@Override
+		protected void doAction(){
+			startActivity(new Intent(mContext, GasStationActivity.class).putExtra("keywords", "停车场"));
+		}
+	};
 	ShortcutItem  shortcutSZ = new ShortcutItem(R.drawable.new_home_icon_sz,R.string.home_more_sz){
 		@Override
 		protected void doAction(){
-			startActivity("com.android.settings","com.android.settings.Settings",null);
+			startActivity("com.mapgoo.setting","com.maogoo.simcardsetting.ui.MainActivity",null);
 		}
 	};
 	ShortcutItem  shortcutGY = new ShortcutItem(R.drawable.new_home_icon_gy,R.string.home_more_gy){
 		@Override
 		protected void doAction(){
-			startActivity(new Intent(mContext, AboutActivity.class));
+			//startActivity(new Intent(mContext, AboutActivity.class));
+			startActivity(mContext,"com.mapgoo.rcx.core","com.example.cloudmirror.ui.AboutActivity",null,Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
 		}
 	};
 	ShortcutItem  shortcutSP = new ShortcutItem(R.drawable.new_home_icon_sp,R.string.home_more_sp){

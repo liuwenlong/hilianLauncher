@@ -4,8 +4,11 @@ package com.example.cloudmirror.ui.activity;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +28,7 @@ import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -48,6 +52,7 @@ import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
 import com.baidu.mapapi.utils.DistanceUtil;
+import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
 import com.example.cloudmirror.application.MGApp;
 import com.example.cloudmirror.ui.BaseActivity;
 import com.example.cloudmirror.ui.widget.FlipperIndicatorDotView;
@@ -65,6 +70,7 @@ import java.util.List;
  * Created by arche on 15-6-17.
  */
 public class GasStationActivity extends BaseActivity implements OnGetPoiSearchResultListener {
+	private String ACTION_KEY_HOME = "action.custom.key.home";
 	private static final String TAG = "GasStationActivity";
 	private ViewPager vPager;
 	private MGApp app;
@@ -85,6 +91,8 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
 	@Override
 	protected void setContentView() {
 		setContentView(R.layout.activity_gas_station);
+		//SDKInitializer.initialize(this);
+		//BaiduMapRoutePlan.finish(this);
 	}
 
 	@Override
@@ -104,9 +112,24 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
 		initMapView();
 
 		// startSearchNearby();
-
+		registRecvs();
 	}
-
+	private void registRecvs(){
+		IntentFilter filter = new IntentFilter();
+//		filter.addAction(ACTION_KEY_BACK);
+		filter.addAction(ACTION_KEY_HOME);
+		registerReceiver(KeycodeRecv, filter);
+	}
+	BroadcastReceiver KeycodeRecv = new  BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			// TODO Auto-generated method stub
+			String action = arg1.getAction();
+			if(ACTION_KEY_HOME.equals(action)){
+				finish();
+			}
+		}
+	};
 	LocationClient mLocClient;
 	MyLocationListenner myListener = new MyLocationListenner();
 	ProgressDialog progressDialog;
@@ -121,7 +144,7 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
 		// option.setOpenGps(true);// 打开gps
 		option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
 		option.setCoorType("bd09ll"); // 设置坐标类型
-		option.setScanSpan(10000);
+		option.setScanSpan(1000);
 		option.setIsNeedAddress(true);
 		mLocClient.setLocOption(option);
 
@@ -136,27 +159,37 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
 			}
 			if (location.getLatitude() != Double.MIN_VALUE) {
 				myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
-				startSearchNearby();
+				mLocClient.stop();
+				myHandler.post(mRunStartSearch);
 			}
 		}
 	}
+	
+	Runnable mRunStartSearch = new Runnable() {
+		
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			startSearchNearby();
+		}
+	};
 
 	private void startSearchNearby() {
 		String keywords = getIntent().getStringExtra("keywords");
 		if (StringUtils.isEmpty(keywords)) {
 			keywords = "加油站";
 		}
-		mLocClient.stop();
+		
 		if (myLocation != null) {
 			boolean result = mPoiSearch.searchNearby(
 					new PoiNearbySearchOption().keyword(keywords).location(myLocation).radius(5000).pageCapacity(9));
 			if (result) {
 
 			} else {
-				Toast.makeText(mContext, "无法启动搜索", Toast.LENGTH_SHORT).show();
+				//Toast.makeText(mContext, "无法启动搜索", Toast.LENGTH_SHORT).show();
 				findViewById(R.id.vPager_view).setVisibility(View.GONE);
 				findViewById(R.id.errorTv).setVisibility(View.VISIBLE);
+				myHandler.postDelayed(mRunStartSearch, 1000);
 				return;
 			}
 		} else {
@@ -236,12 +269,20 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
 
 	public static void startNavi(final Context context, LatLng pt1, LatLng pt2) {
 		// 构建 导航参数
-		NaviParaOption para = new NaviParaOption();
-		para = para.startPoint(pt1);
-		para = para.startName("从这里开始");
-		para = para.endPoint(pt2);
-		para = para.endName("到这里结束");
-		BaiduMapNavigation.openBaiduMapNavi(para, context);
+		try {
+			NaviParaOption para = new NaviParaOption();
+			para = para.startPoint(pt1);
+			para = para.startName("从这里开始");
+			para = para.endPoint(pt2);
+			para = para.endName("到这里结束");
+			//BaiduMapNavigation.openBaiduMapNavi(para, context);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	Intent intent = new Intent("com.mapgoo.start.navi");
+        intent.putExtra("lat", pt2.latitude);//参数类型double
+        intent.putExtra("lon", pt2.longitude);//参数类型double
+        context.sendBroadcast(intent);
 //		EventBus.getDefault().post(para);
 	}
 
@@ -562,5 +603,13 @@ public class GasStationActivity extends BaseActivity implements OnGetPoiSearchRe
 	@Override
 	public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
 
+	}
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		unregisterReceiver(KeycodeRecv);
+		myHandler.removeCallbacks(mRunStartSearch);
 	}
 }

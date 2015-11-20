@@ -51,7 +51,6 @@ private ProgressDialog mProgressDialog;
 public VersionUpdate(Context  c){
 	mContext = c;
 	status = 0;
-	
 }
 
 @Override
