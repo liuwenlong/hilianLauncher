@@ -63,6 +63,7 @@
             android:singleLine="true"
             android:text="广东省深圳市宝安区"
             android:textColor="#ffffff"
+            android:maxEms="20"
             android:textSize="15sp" />
     </RelativeLayout>
 

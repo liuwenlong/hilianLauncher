@@ -38,7 +38,9 @@
           
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
-            android:value="9eoFvMm9fn6mXcOYm7UyGUex" />
+            android:value="xVBNqE9RMGgr47GvoW0QKvvk" />
+        <!-- release key  xVBNqE9RMGgr47GvoW0QKvvk -->
+         <!-- debuge key  9eoFvMm9fn6mXcOYm7UyGUex -->
         <meta-data
             android:name="UMENG_APPKEY"
             android:value="55b5e3c6e0f55a4d0b000976" >
