@@ -74,14 +74,7 @@ public class MainActivity extends BaseActivity{
 	public final static int LOCK_OUT_TIME = -1;//1*60*1000;
 	private ViewPager mViewPager;
 	private int mSelectPage;
-	private int mPageScrollStateChanged;
-	private int mPageScrollOffsetX;
-	private FlipperIndicatorDotView mIndicatorrView ;
-	private Camera mCamera;  
-    private boolean mPreviewRunning = false; 
-    private LinearLayout home_adv_view;
-    private final static boolean  IS_CAMREA_OPEN = false; 
-    Handler mHandler = new Handler();
+	Handler mHandler = new Handler();
     
     int[] pageIndex = new int[]{R.drawable.home_page_index_icon_1,R.drawable.home_page_index_icon_2};
 	@Override
@@ -115,40 +108,13 @@ public class MainActivity extends BaseActivity{
 		mViewPager.setOnPageChangeListener(new OnPageChangeListener(){
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-//				mPageScrollStateChanged = arg0;
-//				if(arg0 == 1){
-//					mHandler.postDelayed(new Runnable() {
-//						@Override
-//						public void run() {
-//							if(mPageScrollStateChanged == 1){
-//								if(mPageScrollOffsetX > 0){
-//									sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
-//								}else{
-//									mHandler.postDelayed(this, 20);
-//								}
-//							}
-//						}
-//					}, 1);
-//				}else if(arg0 == 0){
-//					if(mSelectPage == 0)
-//						sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
-//				}
 			}
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				//MyLog.D("----->onPageScrolled:arg0="+arg0+",arg1="+arg1+",arg2="+arg2);
-//				mPageScrollOffsetX = arg2;
 			}
 			@Override
 			public void onPageSelected(int arg0) {
-				//MyLog.D("----->onPageSelected:arg0="+arg0);
 				((ImageView)findViewById(R.id.home_page_index)).setImageResource(pageIndex[arg0]);
-//				mSelectPage = arg0;
-//				if(arg0 == 0){
-//					sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", true));
-//				}else{
-//					sendBroadcast(new Intent(ACTION_HOEM_VISIABLE_CHANGE).putExtra("visiable", false));
-//				}
 			}
 		});
 	}
@@ -161,6 +127,7 @@ public class MainActivity extends BaseActivity{
 		 updateLockTime();
 		 //locationInit();
 		 startService(new Intent(this,DataSyncService.class));
+		 printApp();
 	}
 
 	CarHomeBean mCarHomeBean;
@@ -577,8 +544,14 @@ public class MainActivity extends BaseActivity{
 	ShortcutItem  shortcutDHANG = new ShortcutItem(R.drawable.new_home_icon_dhang,R.string.home_item_dhang){
 		@Override
 		protected void doAction() {
-			//startActivity(mContext, "com.baidu.navi.hd", "com.baidu.navi.NaviActivity", null);
-			startActivity(mContext,"com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null);
+			if(startActivity(mContext, "com.baidu.navi", "com.baidu.navi.NaviActivity", null) == false)
+				if(startActivity(mContext, "com.baidu.navi.hd", "com.baidu.navi.NaviActivity", null) == false)
+					if(startActivity(mContext, "com.autonavi.xmgd.navigator", "com.autonavi.xmgd.navigator.Warn", null)  == false)
+						if(startActivity(mContext, "com.autonavi.minimap", "com.autonavi.map.activity.SplashActivity", null)  == false)
+							if(startActivity(mContext,"com.baidu.BaiduMap", "com.baidu.baidumaps.WelcomeScreen", null)  == false){
+								MyLog.D("没有安装可用的导航软件");
+								Toast.makeText(mContext, "没有安装可用的导航软件", Toast.LENGTH_SHORT).show();
+							}
 		}
 	};
 	ShortcutItem  shortcutYYUE = new ShortcutItem(R.drawable.new_home_icon_yy,R.string.home_item_yy){
